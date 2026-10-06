@@ -494,15 +494,16 @@ Le projet est construit par étapes, chacune vérifiée avant de passer à la su
 - Page d'accueil du SaaS, connexion, inscription, mon compte, page « compte suspendu ».
 - **Landing page professionnelle** : en-tête collant avec menu mobile, titre à mot souligné,
   boutons pilule, hero avec trois écrans de téléphone dessinés en HTML/CSS et cartes flottantes,
-  bandeau de chiffres, grille de fonctionnalités illustrée, section « un QR par table », tarifs avec
-  bascule mensuel/annuel (FCFA), FAQ et pied de page complet. Vrais QR codes générés en SVG et
+  bandeau de chiffres, section « un QR par table », tarifs avec bascule mensuel/annuel (FCFA), FAQ
+  et pied de page complet. Vrais QR codes générés en SVG et
   **décodés en test**.
 - **Section « Votre menu en ligne en 3 étapes »** : créez votre menu → imprimez vos QR codes →
   recevez les commandes. Chaque étape est illustrée par une **mini-maquette d'écran** dessinée en
   HTML/CSS (`components/site/maquettes-etapes.tsx`) : **écran de téléphone** pour l'ajout d'un plat,
   **planche A4** de QR codes, **écran de tablette** pour la commande reçue. Les cadres d'appareil
   réutilisent le composant `Telephone` du héro (`components/site/hero-phones.tsx`). Les deux vignettes de QR de l'étape 2 sont de
-  **vrais codes scannables** (décodés en test vers `/m/maquis-le-baoule/t/4`).
+  **vrais codes scannables**, chacune vers sa table (décodés en test vers `/m/maquis-le-baoule/t/1`
+  et `/t/2`).
 - **Tarifs** : plan Gratuit (0 FCFA, 20 plats, 5 tables) et plan Pro à **4 900 FCFA/mois avec le
   premier mois offert** (annuel : 49 000 FCFA, deux mois offerts), plus une formule
   multi-établissements. Le tarif est repris dans le JSON-LD de la page et dans les paramètres du
@@ -588,7 +589,16 @@ Certaines sections ont été volontairement retirées de la page d'accueil pour 
   back-office et sera présenté à l'étape 5 ;
 - **Section « Tout ce dont votre restaurant a besoin »** (accordéon illustré) — le composant
   `components/site/accordeon-avantages.tsx` est conservé dans le projet : il suffit de réimporter
-  `AccordeonAvantages` dans `app/page.tsx` pour le remettre en place.
+  `AccordeonAvantages` dans `app/page.tsx` pour le remettre en place ;
+- **Section « Des fonctionnalités pensées pour la restauration »** (grille bento de 7 cartes) — son
+  balisage vivait directement dans `app/page.tsx` : il a été retiré avec le lien d'ancre
+  « Fonctionnalités » de l'en-tête et du pied de page (aucune ancre morte ne subsiste). Les
+  vignettes qu'elle utilisait (`VignetteStatuts`, `VignetteStats`, `VignetteNotifications`,
+  `VignetteEquipe`, `VignetteQr`, `MaquettePaiement`) restent dans `components/site/` — pour la
+  rétablir, reprendre le bloc depuis le commit `13363bb` (`git show 13363bb:app/page.tsx`).
+
+La page d'accueil enchaîne donc : héros → chiffres → « Pourquoi choisir AfriMenu » →
+« Un QR code pour chaque table » → « 3 étapes » → tarifs → questions → appel final → pied de page.
 
 ---
 

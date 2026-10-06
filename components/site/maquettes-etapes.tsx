@@ -113,7 +113,12 @@ export function MaquetteCreation() {
 
 /* ========================= Étape 2 — imprimer les QR ======================== */
 
-export function MaquetteQrImprimes({ qrSvg }: { qrSvg: string }) {
+export function MaquetteQrImprimes({
+  qrSvgParTable,
+}: {
+  /** Un vrai QR code par vignette : scanner « Table 1 » ouvre bien la table 1. */
+  qrSvgParTable: Record<string, string>;
+}) {
   return (
     <Cadre>
       <div className="w-60 rounded-xl border border-slate-200 bg-white p-3 shadow-xl">
@@ -136,7 +141,7 @@ export function MaquetteQrImprimes({ qrSvg }: { qrSvg: string }) {
                 role="img"
                 aria-label={`QR code de la ${numero.toLowerCase()} du restaurant de démonstration`}
                 className="mt-1 block size-12 [&>svg]:size-full"
-                dangerouslySetInnerHTML={{ __html: qrSvg }}
+                dangerouslySetInnerHTML={{ __html: qrSvgParTable[numero] ?? "" }}
               />
               <span className="mt-1 text-[7px] font-semibold text-slate-400">Scannez</span>
             </div>

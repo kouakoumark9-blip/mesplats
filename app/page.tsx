@@ -1,15 +1,11 @@
 import {
   BadgeCheck,
   Banknote,
-  BarChart3,
-  Bell,
   Building2,
   Check,
-  ChefHat,
   ClipboardList,
   Clock,
   Globe,
-  HandPlatter,
   MapPin,
   MessageCircle,
   Percent,
@@ -21,7 +17,6 @@ import {
   TrendingUp,
   Truck,
   Utensils,
-  Wallet,
   Wifi,
 } from "lucide-react";
 import type { Metadata } from "next";
@@ -40,18 +35,13 @@ import {
   EcranProfilRestaurant,
   PastilleQr,
 } from "@/components/site/hero-phones";
-import { CarteQrTable, MaquettePaiement } from "@/components/site/maquettes";
+import { CarteQrTable } from "@/components/site/maquettes";
 import { PiedDePage } from "@/components/site/pied-de-page";
 import { Reveler } from "@/components/site/reveler";
 import { TitreSouligne } from "@/components/site/titre-souligne";
 import {
   VignetteCreation,
-  VignetteEquipe,
   VignetteMobile,
-  VignetteNotifications,
-  VignetteQr,
-  VignetteStats,
-  VignetteStatuts,
   VignetteTempsReel,
 } from "@/components/site/vignettes";
 import { Badge } from "@/components/ui/badge";
@@ -154,9 +144,11 @@ export default async function PageAccueil() {
    * Vrais QR codes générés au rendu, en SVG : aucune image externe à
    * télécharger, poids minimal et netteté parfaite à l'impression.
    */
-  const [svgTable, svgEmporter] = await Promise.all([
+  const [svgTable, svgEmporter, svgTable1, svgTable2] = await Promise.all([
     qrSvg(urlMenu({ slug: "maquis-le-baoule" }, "4"), { marge: 2 }),
     qrSvg(urlMenu({ slug: "maquis-le-baoule" }), { marge: 2 }),
+    qrSvg(urlMenu({ slug: "maquis-le-baoule" }, "1"), { marge: 2 }),
+    qrSvg(urlMenu({ slug: "maquis-le-baoule" }, "2"), { marge: 2 }),
   ]);
 
   const donneesStructurees = {
@@ -345,170 +337,6 @@ export default async function PageAccueil() {
         </div>
       </section>
 
-      {/* ======================= FONCTIONNALITÉS (grille bento) ======================= */}
-      <section id="fonctionnalites" className="scroll-mt-24 border-y border-slate-200 bg-slate-50 py-16 lg:py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <Reveler className="mx-auto max-w-3xl text-center">
-            <TitreSouligne avant="Des fonctionnalités pensées" accent="pour la restauration" />
-            <p className="mt-5 text-lg text-slate-600">
-              Statuts de commande, comptes par rôle, paiement mobile money, statistiques : chaque
-              élément a été conçu pour vous faire gagner du temps au coup de feu.
-            </p>
-          </Reveler>
-
-          <div className="mt-12 grid gap-5 lg:grid-cols-3">
-            {/* 1 — Salle & cuisine (2 colonnes) */}
-            <Reveler className="lg:col-span-2">
-              <Carte className="flex h-full flex-col gap-5 p-6 sm:flex-row sm:items-center">
-                <div className="flex-1">
-                  <span className="flex size-10 items-center justify-center rounded-2xl bg-marque-50 text-marque-600">
-                    <ChefHat className="size-5" aria-hidden />
-                  </span>
-                  <h3 className="mt-4 font-titre text-lg font-bold text-slate-900">
-                    La salle et la cuisine, au même rythme
-                  </h3>
-                  <p className="mt-2 leading-relaxed text-slate-600">
-                    Chaque commande avance de statut en un clic : nouvelle, acceptée, en préparation,
-                    prête, servie. Refus ou annulation possible avec motif, conservé dans
-                    l&apos;historique.
-                  </p>
-                </div>
-                <div className="w-full shrink-0 sm:w-64">
-                  <VignetteStatuts />
-                </div>
-              </Carte>
-            </Reveler>
-
-            {/* 2 — Statistiques */}
-            <Reveler delai={80}>
-              <Carte className="flex h-full flex-col gap-4 p-6">
-                <span className="flex size-10 items-center justify-center rounded-2xl bg-marque-50 text-marque-600">
-                  <BarChart3 className="size-5" aria-hidden />
-                </span>
-                <div>
-                  <h3 className="font-titre text-lg font-bold text-slate-900">Statistiques du jour</h3>
-                  <p className="mt-2 text-slate-600">
-                    Chiffre d&apos;affaires, nombre de commandes et plats les plus vendus, sans
-                    tableur.
-                  </p>
-                </div>
-                <div className="mt-auto">
-                  <VignetteStats />
-                </div>
-              </Carte>
-            </Reveler>
-
-            {/* 3 — Paiement mobile money */}
-            <Reveler>
-              <Carte className="flex h-full flex-col gap-4 p-6">
-                <span className="flex size-10 items-center justify-center rounded-2xl bg-marque-50 text-marque-600">
-                  <Wallet className="size-5" aria-hidden />
-                </span>
-                <div>
-                  <h3 className="font-titre text-lg font-bold text-slate-900">Paiement mobile money</h3>
-                  <p className="mt-2 text-slate-600">
-                    Votre numéro s&apos;affiche au client avec le montant exact et un bouton pour
-                    copier ou ouvrir l&apos;application. Vous validez le paiement reçu.
-                  </p>
-                </div>
-                <div className="mt-auto">
-                  <MaquettePaiement className="shadow-sm" />
-                </div>
-              </Carte>
-            </Reveler>
-
-            {/* 4 — Équipe */}
-            <Reveler delai={80}>
-              <Carte className="flex h-full flex-col gap-4 p-6">
-                <span className="flex size-10 items-center justify-center rounded-2xl bg-marque-50 text-marque-600">
-                  <HandPlatter className="size-5" aria-hidden />
-                </span>
-                <div>
-                  <h3 className="font-titre text-lg font-bold text-slate-900">
-                    Comptes serveur et cuisine
-                  </h3>
-                  <p className="mt-2 text-slate-600">
-                    Chacun son accès : le propriétaire gère le menu, le serveur traite les commandes,
-                    la cuisine voit ce qu&apos;elle doit préparer.
-                  </p>
-                </div>
-                <div className="mt-auto">
-                  <VignetteEquipe />
-                </div>
-              </Carte>
-            </Reveler>
-
-            {/* 5 — QR codes */}
-            <Reveler delai={160}>
-              <Carte className="flex h-full flex-col gap-4 p-6">
-                <span className="flex size-10 items-center justify-center rounded-2xl bg-marque-50 text-marque-600">
-                  <QrCode className="size-5" aria-hidden />
-                </span>
-                <div>
-                  <h3 className="font-titre text-lg font-bold text-slate-900">
-                    QR codes prêts à imprimer
-                  </h3>
-                  <p className="mt-2 text-slate-600">
-                    Une carte par table, un QR « À emporter », export PNG et planche PDF A4 pour tout
-                    imprimer d&apos;un coup.
-                  </p>
-                </div>
-                <div className="mt-auto">
-                  <VignetteQr svg={svgEmporter} />
-                </div>
-              </Carte>
-            </Reveler>
-
-            {/* 6 — Suivi client */}
-            <Reveler className="lg:col-span-2">
-              <Carte className="flex h-full flex-col gap-5 p-6 sm:flex-row sm:items-center">
-                <div className="flex-1">
-                  <span className="flex size-10 items-center justify-center rounded-2xl bg-marque-50 text-marque-600">
-                    <Bell className="size-5" aria-hidden />
-                  </span>
-                  <h3 className="mt-4 font-titre text-lg font-bold text-slate-900">
-                    Le client suit sa commande, sans appeler
-                  </h3>
-                  <p className="mt-2 leading-relaxed text-slate-600">
-                    Une page de suivi lui montre l&apos;avancement en direct. Le serveur peut lui
-                    envoyer un message WhatsApp ou SMS pré-rempli, et le client peut appeler le
-                    serveur d&apos;un bouton depuis sa table.
-                  </p>
-                </div>
-                <div className="w-full shrink-0 sm:w-64">
-                  <VignetteNotifications />
-                </div>
-              </Carte>
-            </Reveler>
-
-            {/* 7 — Terrain ouest-africain */}
-            <Reveler delai={80}>
-              <Carte className="flex h-full flex-col p-6">
-                <span className="flex size-10 items-center justify-center rounded-2xl bg-marque-50 text-marque-600">
-                  <Globe className="size-5" aria-hidden />
-                </span>
-                <h3 className="mt-4 font-titre text-lg font-bold text-slate-900">
-                  Pensé pour l&apos;Afrique de l&apos;Ouest
-                </h3>
-                <ul className="mt-4 space-y-3 text-sm text-slate-600">
-                  {[
-                    "Prix affichés en FCFA (XOF), sans centimes",
-                    "Indicatifs +225, +221, +223, +233 et 12 autres pays",
-                    "Interface entièrement en français",
-                    "Léger et rapide même en 3G",
-                  ].map((element) => (
-                    <li key={element} className="flex items-start gap-2.5">
-                      <Check className="mt-0.5 size-4 shrink-0 text-feuille-600" aria-hidden />
-                      {element}
-                    </li>
-                  ))}
-                </ul>
-              </Carte>
-            </Reveler>
-          </div>
-        </div>
-      </section>
-
       {/* ================================= QR CODES ================================= */}
       <section id="qr" className="scroll-mt-24 py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
@@ -602,7 +430,12 @@ export default async function PageAccueil() {
       </section>
 
       {/* ================================== ÉTAPES ================================== */}
-      <Etapes qrSvg={svgTable} />
+      <Etapes
+        qrSvgParTable={{
+          "Table 1": svgTable1,
+          "Table 2": svgTable2,
+        }}
+      />
 
       {/* ================================== TARIFS ================================== */}
       <section

@@ -28,7 +28,7 @@ type Etape = {
   exemple: string;
 };
 
-function construireEtapes(qrSvg: string): Etape[] {
+function construireEtapes(qrSvgParTable: Record<string, string>): Etape[] {
   return [
   {
     numero: "1",
@@ -45,7 +45,7 @@ function construireEtapes(qrSvg: string): Etape[] {
     texte:
       "Chaque table reçoit son propre QR code, plus un QR « À emporter » pour la vitrine ou le comptoir. Exportez-les en PNG, ou en planche PDF A4 prête à photocopier.",
     icone: <QrCode className="size-5" aria-hidden />,
-    maquette: <MaquetteQrImprimes qrSvg={qrSvg} />,
+    maquette: <MaquetteQrImprimes qrSvgParTable={qrSvgParTable} />,
     exemple: "Table 4 · Table 5 · À emporter",
   },
   {
@@ -66,8 +66,8 @@ function construireEtapes(qrSvg: string): Etape[] {
  * `qrSvg` est un véritable QR code (généré côté serveur) : la vignette de
  * l'étape 2 reste scannable, comme les QR codes de la section « QR codes ».
  */
-export function Etapes({ qrSvg }: { qrSvg: string }) {
-  const etapes = construireEtapes(qrSvg);
+export function Etapes({ qrSvgParTable }: { qrSvgParTable: Record<string, string> }) {
+  const etapes = construireEtapes(qrSvgParTable);
 
   return (
     <section id="etapes" className="scroll-mt-24 py-16 lg:py-24">
