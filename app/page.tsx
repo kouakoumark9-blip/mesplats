@@ -544,12 +544,14 @@ export default async function PageAccueil() {
                 </ul>
               </div>
 
-              {/* Écran partiellement coupé, comme sur les sites SaaS */}
-              <div className="relative mx-auto hidden w-full max-w-xs sm:block">
-                <div className="translate-y-10">
-                  <EcranMenu />
-                </div>
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-marque-700/90 to-transparent" />
+              {/*
+                Écran complet, posé dans la carte : le cadre du téléphone doit
+                rester entièrement visible. Décalé vers le bas et recouvert d'un
+                dégradé, il apparaissait coupé par la carte et le voile rendait
+                le bouton « Commander » illisible — la maquette semblait cassée.
+              */}
+              <div className="relative mx-auto hidden w-full max-w-[19rem] sm:block">
+                <EcranMenu />
               </div>
             </div>
           </div>

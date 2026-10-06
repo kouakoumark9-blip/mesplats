@@ -601,6 +601,14 @@ Certaines sections ont été volontairement retirées de la page d'accueil pour 
 La page d'accueil enchaîne donc : héros → chiffres → « Pourquoi choisir AfriMenu » →
 « Un QR code pour chaque table » → « 3 étapes » → tarifs → questions → appel final → pied de page.
 
+**Appel final : la maquette de téléphone est affichée entière.** Elle était auparavant décalée de
+40 px vers le bas et recouverte d'un dégradé de 96 px (`from-marque-700/90`) : le cadre sortait de
+la carte de 48 px et le bouton « Commander » du panier devenait illisible sous le voile. Le cadre
+tient désormais entièrement dans la carte (64 px de marge en haut et en bas en desktop, 48 px sur
+tablette) et la section reste sans débordement à 390 px, 640 px, 768 px, 1024 px, 1180 px et
+1440 px. En dessous de `sm` (640 px), le téléphone reste masqué : la section se limite au texte et
+aux deux boutons.
+
 ---
 
 ## 13. Dépannage
