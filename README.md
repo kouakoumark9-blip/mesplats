@@ -229,7 +229,8 @@ afrimenu/
 ├── middleware.ts                   # Garde d'accès : session + rôle + restaurant actif
 ├── components/
 │   ├── site/                       # Landing : en-tête collant, hero (3 écrans HTML/CSS),
-│   │                               # vignettes de fonctionnalités, section des 3 étapes,
+│   │                               # vignettes de fonctionnalités, section des 3 étapes
+│   │                               # et ses mini-maquettes d'écran,
 │   │                               # bascule tarifs,
 │   │                               # QR inline (SVG), photos de plats, animations au défilement
 │   ├── ui/                         # Design system : bouton, carte, champ, badge, modale,
@@ -497,7 +498,10 @@ Le projet est construit par étapes, chacune vérifiée avant de passer à la su
   bascule mensuel/annuel (FCFA), FAQ et pied de page complet. Vrais QR codes générés en SVG et
   **décodés en test**.
 - **Section « Votre menu en ligne en 3 étapes »** : créez votre menu → imprimez vos QR codes →
-  recevez les commandes, avec un exemple concret sous chaque étape et un appel à l'action.
+  recevez les commandes. Chaque étape est illustrée par une **mini-maquette d'écran** dessinée en
+  HTML/CSS (`components/site/maquettes-etapes.tsx`) : formulaire d'ajout de plat, planche A4 de QR
+  codes, commande reçue sur l'écran de service. Les deux vignettes de QR de l'étape 2 sont de
+  **vrais codes scannables** (décodés en test vers `/m/maquis-le-baoule/t/4`).
 - **Tarifs** : plan Gratuit (0 FCFA, 20 plats, 5 tables) et plan Pro à **4 900 FCFA/mois avec le
   premier mois offert** (annuel : 49 000 FCFA, deux mois offerts), plus une formule
   multi-établissements. Le tarif est repris dans le JSON-LD de la page et dans les paramètres du

@@ -8,18 +8,35 @@
  */
 import { ArrowRight, HandPlatter, QrCode, Sparkles, UtensilsCrossed } from "lucide-react";
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 import { BoutonPilule } from "@/components/site/bouton-pilule";
+import {
+  MaquetteCommandeRecue,
+  MaquetteCreation,
+  MaquetteQrImprimes,
+} from "@/components/site/maquettes-etapes";
 import { Reveler } from "@/components/site/reveler";
 import { TitreSouligne } from "@/components/site/titre-souligne";
 
-const ETAPES = [
+type Etape = {
+  numero: string;
+  titre: string;
+  texte: string;
+  icone: ReactNode;
+  maquette: ReactNode;
+  exemple: string;
+};
+
+function construireEtapes(qrSvg: string): Etape[] {
+  return [
   {
     numero: "1",
     titre: "Créez votre menu",
     texte:
       "Ajoutez vos catégories, vos plats, leurs prix en FCFA et leurs photos. Deux minutes suffisent, depuis votre téléphone ou l'ordinateur du comptoir, sans compétence technique.",
     icone: <UtensilsCrossed className="size-5" aria-hidden />,
+    maquette: <MaquetteCreation />,
     exemple: "Plats ivoiriens · Grillades · Boissons",
   },
   {
@@ -28,6 +45,7 @@ const ETAPES = [
     texte:
       "Chaque table reçoit son propre QR code, plus un QR « À emporter » pour la vitrine ou le comptoir. Exportez-les en PNG, ou en planche PDF A4 prête à photocopier.",
     icone: <QrCode className="size-5" aria-hidden />,
+    maquette: <MaquetteQrImprimes qrSvg={qrSvg} />,
     exemple: "Table 4 · Table 5 · À emporter",
   },
   {
@@ -36,11 +54,21 @@ const ETAPES = [
     texte:
       "Le client scanne, choisit et paie en mobile money. La salle et la cuisine voient la commande arriver en temps réel, et vous suivez le chiffre du jour sans tableau à remplir.",
     icone: <HandPlatter className="size-5" aria-hidden />,
+    maquette: <MaquetteCommandeRecue />,
     exemple: "N° 14 · Table 4 · 6 000 FCFA · Prête",
   },
-];
+  ];
+}
 
-export function Etapes() {
+/**
+ * Section des trois étapes.
+ *
+ * `qrSvg` est un véritable QR code (généré côté serveur) : la vignette de
+ * l'étape 2 reste scannable, comme les QR codes de la section « QR codes ».
+ */
+export function Etapes({ qrSvg }: { qrSvg: string }) {
+  const etapes = construireEtapes(qrSvg);
+
   return (
     <section id="etapes" className="scroll-mt-24 py-16 lg:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
@@ -59,7 +87,7 @@ export function Etapes() {
             className="absolute top-6 right-12 left-12 hidden border-t-2 border-dashed border-marque-200 lg:block"
           />
 
-          {ETAPES.map((etape, index) => (
+          {etapes.map((etape, index) => (
             <Reveler key={etape.numero} delai={index * 110}>
               <div className="group relative flex h-full flex-col rounded-3xl border border-slate-200 bg-white p-6 pt-10 shadow-sm transition hover:-translate-y-1 hover:border-marque-200 hover:shadow-lg">
                 <span
@@ -80,9 +108,11 @@ export function Etapes() {
                   {etape.titre}
                 </h3>
 
-                <p className="mt-3 flex-1 text-slate-600">{etape.texte}</p>
+                <p className="mt-3 text-slate-600">{etape.texte}</p>
 
-                <p className="mt-5 flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-500">
+                <div className="mt-4 flex-1">{etape.maquette}</div>
+
+                <p className="mt-4 flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-500">
                   <Sparkles className="size-3.5 shrink-0 text-marque-500" aria-hidden />
                   {etape.exemple}
                 </p>

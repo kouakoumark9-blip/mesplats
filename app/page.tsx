@@ -602,7 +602,7 @@ export default async function PageAccueil() {
       </section>
 
       {/* ================================== ÉTAPES ================================== */}
-      <Etapes />
+      <Etapes qrSvg={svgTable} />
 
       {/* ================================== TARIFS ================================== */}
       <section
