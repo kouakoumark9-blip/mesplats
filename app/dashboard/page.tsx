@@ -1,24 +1,26 @@
 import { sql } from "drizzle-orm";
-import { ClipboardList, Package, QrCode, TrendingUp, Users, Utensils } from "lucide-react";
+import {
+  ArrowRight,
+  CircleCheck,
+  CircleDashed,
+  ClipboardList,
+  QrCode,
+  Smartphone,
+  TrendingUp,
+  UtensilsCrossed,
+} from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { DeconnexionButton } from "@/components/auth/deconnexion-button";
 import { Badge } from "@/components/ui/badge";
-import { Carte, CarteStat } from "@/components/ui/carte";
-import { Alerte } from "@/components/ui/divers";
+import { Carte, CarteContenu, CarteEntete, CarteStat } from "@/components/ui/carte";
 import { exigerRole } from "@/lib/auth/autorisation";
+import { LIMITE_PRODUITS } from "@/lib/constants";
 import { db } from "@/lib/db";
-
 import { bornesJour, formatFcfa } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Vue d'ensemble" };
 
-/**
- * ÉTAPE 1 — page de vérification.
- * Elle confirme que l'inscription, la connexion et le cloisonnement par
- * restaurant fonctionnent. Les statistiques complètes arrivent à l'étape 7.
- */
 export default async function PageTableauDeBord() {
   const utilisateur = await exigerRole("admin");
   const restaurantId = utilisateur.restaurantId!;
@@ -28,13 +30,20 @@ export default async function PageTableauDeBord() {
     .select({
       produits: sql<number>`(select count(*)::int from "products" as p_compteur where p_compteur.restaurant_id = ${restaurantId})`,
       tables: sql<number>`(select count(*)::int from "tables" as t_compteur where t_compteur.restaurant_id = ${restaurantId})`,
+      paiements: sql<number>`(select count(*)::int from "payment_methods" as m_compteur where m_compteur.restaurant_id = ${restaurantId} and m_compteur.actif)`,
       equipe: sql<number>`(select count(*)::int from "users" as u_compteur where u_compteur.restaurant_id = ${restaurantId})`,
+      categories: sql<number>`(select count(*)::int from "categories" as c_compteur where c_compteur.restaurant_id = ${restaurantId})`,
       commandesJour: sql<number>`(
         select count(*)::int from "orders" as o_jour
         where o_jour.restaurant_id = ${restaurantId}
           and o_jour.created_at >= ${debut.toISOString()}
           and o_jour.created_at < ${fin.toISOString()}
           and o_jour.statut <> 'annulee'
+      )`,
+      aTraiter: sql<number>`(
+        select count(*)::int from "orders" as o_attente
+        where o_attente.restaurant_id = ${restaurantId}
+          and o_attente.statut in ('nouvelle', 'acceptee', 'en_preparation')
       )`,
       chiffreJour: sql<number>`(
         select coalesce(sum(o_jour.total), 0)::int from "orders" as o_jour
@@ -43,109 +52,204 @@ export default async function PageTableauDeBord() {
           and o_jour.created_at < ${fin.toISOString()}
           and o_jour.statut <> 'annulee'
       )`,
-      nouvelles: sql<number>`(select count(*)::int from "orders" as o_attente where o_attente.restaurant_id = ${restaurantId} and o_attente.statut = 'nouvelle')`,
     })
-    .from(sql`(select 1) as unite`);
+    .from(sql`(select 1) as compteurs_ancre`);
+
+  const limite = LIMITE_PRODUITS[utilisateur.plan];
+
+  /*
+   * Liste de mise en route : elle indique au restaurateur ce qu'il reste à
+   * faire pour être opérationnel. Chaque étape pointe vers l'écran concerné.
+   */
+  const etapes = [
+    {
+      titre: "Compléter le profil du restaurant",
+      detail: "Nom, adresse, horaires, téléphone et couleur de marque.",
+      fait: Boolean(utilisateur.telephoneRestaurant),
+      href: "/dashboard/parametres",
+      action: "Ouvrir les paramètres",
+    },
+    {
+      titre: "Créer votre menu",
+      detail:
+        `${compteurs.categories} ${compteurs.categories > 1 ? "catégories" : "catégorie"} · ` +
+        `${compteurs.produits} ${compteurs.produits > 1 ? "plats" : "plat"}` +
+        (limite !== null ? ` sur ${limite} au plan Gratuit.` : " (plan Pro : illimité)."),
+      fait: compteurs.produits > 0 && compteurs.categories > 0,
+      href: "/dashboard/menu",
+      action: "Gérer le menu",
+    },
+    {
+      titre: "Ajouter vos moyens de paiement",
+      detail: `${compteurs.paiements} ${
+        compteurs.paiements > 1 ? "numéros" : "numéro"
+      } mobile money ${compteurs.paiements > 1 ? "actifs" : "actif"}.`,
+      fait: compteurs.paiements > 0,
+      href: "/dashboard/parametres#paiements",
+      action: "Renseigner les numéros",
+    },
+    {
+      titre: "Créer vos tables et imprimer les QR codes",
+      detail: `${compteurs.tables} ${compteurs.tables > 1 ? "tables" : "table"} ${
+        compteurs.tables > 1 ? "enregistrées" : "enregistrée"
+      }.`,
+      fait: compteurs.tables > 0,
+      href: "/dashboard/tables",
+      action: "Gérer les tables",
+    },
+  ] satisfies {
+    titre: string;
+    detail: string;
+    fait: boolean;
+    href: string;
+    action: string;
+  }[];
+
+  const restantes = etapes.filter((etape) => !etape.fait).length;
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <p className="text-sm font-semibold text-marque-600">Back-office</p>
-          <h1 className="font-titre text-2xl font-extrabold text-slate-900 sm:text-3xl">
-            Bonjour {utilisateur.nom.split(" ")[0]} 👋
-          </h1>
-          <p className="mt-1 text-slate-600">
-            {utilisateur.restaurantNom} ·{" "}
-            <Link href={`/m/${utilisateur.restaurantSlug}`} className="font-semibold text-marque-600 hover:underline">
-              /m/{utilisateur.restaurantSlug}
-            </Link>
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Badge ton={utilisateur.plan === "pro" ? "succes" : "neutre"}>
-            Plan {utilisateur.plan === "pro" ? "Pro" : "Gratuit"}
-          </Badge>
-          <DeconnexionButton />
-        </div>
+    <div className="mx-auto max-w-5xl space-y-6">
+      <header>
+        <h1 className="font-titre text-2xl font-extrabold text-slate-900 dark:text-white">
+          Bonjour {utilisateur.nom.split(" ")[0]}
+        </h1>
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          Voici l&apos;état de {utilisateur.restaurantNom} aujourd&apos;hui.
+        </p>
       </header>
 
-      <Alerte ton="info" className="mt-6" icone={<Utensils className="size-4" aria-hidden />}>
-        <strong>Étape 1 terminée</strong> — base de données, seed et authentification opérationnels.
-        L&apos;étape 2 ajoutera la gestion du profil, des catégories et des produits.
-      </Alerte>
-
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <CarteStat
-          libelle="Commandes du jour"
-          valeur={compteurs.commandesJour}
-          icone={<ClipboardList className="size-5" aria-hidden />}
-          detail={`${compteurs.nouvelles} en attente de traitement`}
-        />
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <CarteStat
           libelle="Chiffre d'affaires du jour"
           valeur={formatFcfa(compteurs.chiffreJour, utilisateur.devise)}
+          detail="Commandes non annulées"
           icone={<TrendingUp className="size-5" aria-hidden />}
-          detail="Hors commandes annulées"
         />
         <CarteStat
-          libelle="Produits au menu"
-          valeur={compteurs.produits}
-          icone={<Package className="size-5" aria-hidden />}
-          detail={utilisateur.plan === "gratuit" ? "Limite du plan gratuit : 20" : "Plan Pro : illimité"}
+          libelle="Commandes du jour"
+          valeur={compteurs.commandesJour}
+          detail="Depuis minuit"
+          icone={<ClipboardList className="size-5" aria-hidden />}
         />
         <CarteStat
-          libelle="Tables & équipe"
-          valeur={`${compteurs.tables} / ${compteurs.equipe}`}
-          icone={<QrCode className="size-5" aria-hidden />}
-          detail="Tables QR · comptes employés"
+          libelle="À traiter maintenant"
+          valeur={compteurs.aTraiter}
+          detail="Nouvelles, acceptées ou en préparation"
+          icone={<UtensilsCrossed className="size-5" aria-hidden />}
+        />
+        <CarteStat
+          libelle="Plats au menu"
+          valeur={
+            <>
+              {compteurs.produits}
+              {limite !== null ? (
+                <span className="text-base font-bold text-slate-400"> / {limite}</span>
+              ) : null}
+            </>
+          }
+          detail={limite === null ? "Plan Pro : illimité" : "Plan Gratuit"}
+          icone={<Smartphone className="size-5" aria-hidden />}
         />
       </div>
 
-      <Carte className="mt-6 p-5">
-        <h2 className="font-titre text-lg font-bold text-slate-900">Prochaines étapes de construction</h2>
-        <ul className="mt-3 space-y-2 text-sm text-slate-600">
-          <li>
-            <strong className="text-slate-800">Étape 2</strong> — /dashboard/parametres (profil) et
-            /dashboard/menu (catégories, produits, options, épuisé/disponible)
-          </li>
-          <li>
-            <strong className="text-slate-800">Étape 3</strong> — /dashboard/tables : création en lot,
-            QR codes PNG et planche PDF imprimable
-          </li>
-          <li>
-            <strong className="text-slate-800">Étape 4</strong> — /m/[slug] : menu public, panier,
-            commande et paiement mobile money
-          </li>
-          <li>
-            <strong className="text-slate-800">Étape 5</strong> — /service : écran temps réel, statuts,
-            alertes sonores
-          </li>
-          <li>
-            <strong className="text-slate-800">Étape 6</strong> — suivi client, WhatsApp/SMS, appel
-            serveur
-          </li>
-          <li>
-            <strong className="text-slate-800">Étape 7</strong> — statistiques, équipe, super-admin, PWA
-          </li>
-        </ul>
-      </Carte>
+      {restantes > 0 ? (
+        <Carte>
+          <CarteEntete
+            titre="Mise en route"
+            description={
+              `${restantes} ${restantes > 1 ? "étapes restantes" : "étape restante"} ` +
+              "pour être totalement opérationnel."
+            }
+            icone={<CircleDashed className="size-4" aria-hidden />}
+            action={<Badge ton="alerte">{etapes.length - restantes}/{etapes.length}</Badge>}
+          />
+          <CarteContenu className="space-y-3">
+            {etapes.map((etape) => (
+              <div
+                key={etape.titre}
+                className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-100 px-4 py-3 dark:border-slate-800"
+              >
+                <div className="flex min-w-0 items-start gap-3">
+                  {etape.fait ? (
+                    <CircleCheck className="mt-0.5 size-5 shrink-0 text-feuille-600" aria-hidden />
+                  ) : (
+                    <CircleDashed className="mt-0.5 size-5 shrink-0 text-amber-500" aria-hidden />
+                  )}
+                  <div className="min-w-0">
+                    <p
+                      className={
+                        etape.fait
+                          ? "font-semibold text-slate-500 line-through dark:text-slate-400"
+                          : "font-semibold text-slate-800 dark:text-slate-100"
+                      }
+                    >
+                      {etape.titre}
+                    </p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">{etape.detail}</p>
+                  </div>
+                </div>
+                {!etape.fait ? (
+                  <Link
+                    href={etape.href}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 px-3 py-1.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                  >
+                    {etape.action}
+                    <ArrowRight className="size-4" aria-hidden />
+                  </Link>
+                ) : null}
+              </div>
+            ))}
+          </CarteContenu>
+        </Carte>
+      ) : null}
 
-      <div className="mt-4 flex flex-wrap gap-2 text-sm">
-        <Link href="/service" className="rounded-xl border border-slate-300 px-4 py-2 font-semibold text-slate-700 transition hover:bg-white">
-          Ouvrir l&apos;écran de service
-        </Link>
-        <Link href="/mon-compte" className="rounded-xl border border-slate-300 px-4 py-2 font-semibold text-slate-700 transition hover:bg-white">
-          Mon compte
-        </Link>
-        <Link
-          href="/m/maquis-le-baoule"
-          className="inline-flex items-center gap-2 rounded-xl border border-slate-300 px-4 py-2 font-semibold text-slate-700 transition hover:bg-white"
-        >
-          <Users className="size-4" aria-hidden />
-          Voir le menu de démonstration
-        </Link>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Carte>
+          <CarteEntete
+            titre="Écran de service"
+            description="La salle et la cuisine suivent les commandes en temps réel."
+            icone={<ClipboardList className="size-4" aria-hidden />}
+          />
+          <CarteContenu className="flex flex-wrap items-center gap-3">
+            <Badge ton={compteurs.aTraiter > 0 ? "alerte" : "neutre"}>
+              {compteurs.aTraiter} {compteurs.aTraiter > 1 ? "commandes" : "commande"} à traiter
+            </Badge>
+            <Link
+              href="/service"
+              className="inline-flex items-center gap-1.5 text-sm font-bold text-marque-600 hover:underline"
+            >
+              Ouvrir l&apos;écran de service
+              <ArrowRight className="size-4" aria-hidden />
+            </Link>
+          </CarteContenu>
+        </Carte>
+
+        <Carte>
+          <CarteEntete
+            titre="Mes QR codes"
+            description="Un QR par table et un QR « À emporter » pour la vitrine."
+            icone={<QrCode className="size-4" aria-hidden />}
+          />
+          <CarteContenu className="flex flex-wrap items-center gap-3">
+            <Badge ton="neutre">
+              {compteurs.tables} {compteurs.tables > 1 ? "tables" : "table"}
+            </Badge>
+            <Link
+              href="/dashboard/tables"
+              className="inline-flex items-center gap-1.5 text-sm font-bold text-marque-600 hover:underline"
+            >
+              Générer mes QR codes
+              <ArrowRight className="size-4" aria-hidden />
+            </Link>
+          </CarteContenu>
+        </Carte>
       </div>
+
+      <p className="text-center text-xs text-slate-400 dark:text-slate-500">
+        Établissement : {utilisateur.restaurantSlug} · {compteurs.equipe}{" "}
+        {compteurs.equipe > 1 ? "comptes d'équipe" : "compte d'équipe"} · Commission AfriMenu : 0
+        %.
+      </p>
     </div>
   );
 }

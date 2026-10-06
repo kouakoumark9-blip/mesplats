@@ -217,9 +217,11 @@ afrimenu/
 │   ├── connexion/                  # Connexion
 │   ├── inscription/                # Création du restaurant + compte propriétaire
 │   ├── compte-suspendu/            # Message affiché si l'établissement est suspendu
-│   ├── dashboard/                  # Back-office propriétaire (étape 2 et suivantes)
+│   ├── dashboard/                  # Back-office propriétaire : coque, vue d'ensemble,
+│   │   ├── layout.tsx              #   menu (catégories/plats) et paramètres
 │   ├── service/                    # Écran serveur / cuisine (étape 5)
 │   ├── admin/                      # Espace plateforme super-admin (étape 7)
+│   ├── api/upload/                 # Téléversement des photos de plats (Vercel Blob)
 │   ├── mon-compte/                 # Informations du compte connecté
 │   └── api/auth/[...nextauth]/     # Routes Auth.js
 ├── auth.ts                         # Auth.js complet (provider Credentials, runtime Node)
@@ -232,6 +234,8 @@ afrimenu/
 │   ├── ui/                         # Design system : bouton, carte, champ, badge, modale,
 │   │                               # squelettes, états vides, toasts, interrupteur
 │   ├── auth/                       # Formulaires de connexion / inscription / déconnexion
+│   ├── dashboard/                  # Coque (barre latérale), gestion du menu, formulaire de plat,
+│   │                               # profil du restaurant, moyen de paiement
 │   └── formulaires/                # Choix de l'indicatif téléphonique (pays d'Afrique de l'Ouest)
 ├── lib/
 │   ├── constants.ts                # Rôles, statuts, paiements, pays, pays d'Afrique de l'Ouest
@@ -241,14 +245,15 @@ afrimenu/
 │   │   ├── index.ts                # Client Drizzle unique (postgres.js)
 │   │   ├── schema.ts               # Schéma complet (9 tables, enums, index, relations)
 │   │   ├── agregats.ts             # Sous-requêtes SQL qualifiées (compteurs, CA)
+│   │   ├── catalogue.ts            # Lectures du catalogue, filtrées par restaurant_id
 │   │   └── public.ts               # Lectures publiques (restaurant par slug, menu)
 │   ├── auth/
 │   │   ├── password.ts             # bcrypt : hachage et vérification
 │   │   ├── roles.ts                # Règles d'accès PURES (utilisables en Edge)
 │   │   └── autorisation.ts         # Garde-fous serveur + API (vérification en base)
 │   ├── qr.ts                       # Génération des QR codes (PNG, SVG, Buffer)
-│   ├── validations/                # Schémas Zod partagés client/serveur
-│   └── actions/                    # Server Actions (connexion, inscription…)
+│   ├── validations/                # Schémas Zod partagés client/serveur (auth, catalogue)
+│   └── actions/                    # Server Actions : auth, catalogue (profil, catégories, plats)
 ├── drizzle/                        # Migrations SQL versionnées + métadonnées
 ├── scripts/
 │   ├── seed.ts                     # Restaurant + commandes de démonstration
@@ -465,7 +470,7 @@ Le projet est construit par étapes, chacune vérifiée avant de passer à la su
 | # | Étape | État |
 | --- | --- | --- |
 | 1 | Initialisation, base de données, authentification, design system | ✅ **Terminée** |
-| 2 | Back-office : profil du restaurant, catégories, produits, options | ⏳ À venir |
+| 2 | Back-office : profil du restaurant, catégories, produits, options | ✅ **Terminée** |
 | 3 | Tables et génération des QR codes (PNG + planche PDF) | ⏳ À venir |
 | 4 | Menu public, panier et création de commande | ⏳ À venir |
 | 5 | Écran de service temps réel et gestion des statuts | ⏳ À venir |
@@ -497,6 +502,34 @@ Le projet est construit par étapes, chacune vérifiée avant de passer à la su
   (catégories visibles, plats, options, prix, couleur principale du restaurant) ; les photos des
   plats sont affichées, avec vignette de repli sinon ; une table ou un slug inexistant renvoie
   une page 404.
+
+**Étape 2 — ce qui est livré et vérifié**
+
+- **Coque du back-office** : barre latérale (ordinateur) et tiroir (mobile), navigation par rôle,
+  compteur de plan, lien vers le menu public, déconnexion. La couleur de marque du restaurant est
+  injectée en variables CSS : boutons et accents suivent automatiquement le thème choisi.
+- **Vue d'ensemble** : chiffre d'affaires du jour, commandes du jour, commandes à traiter, plats
+  au menu, liste de mise en route (4 étapes) et raccourcis vers l'écran de service et les QR codes.
+- **Mon menu** (`/dashboard/menu`) : création, renommage, masquage et suppression de catégories ;
+  ajout, modification, duplication et suppression de plats ; **épuisé / disponible en un clic** ;
+  réorganisation des catégories et des plats par flèches ; recherche instantanée ; éditeur de
+  **suppléments** (jusqu'à 8 par plat) ; téléversement de photo vers Vercel Blob (repli par adresse
+  d'image si Blob n'est pas configuré) ; états vides soignés ; bascules optimistes avec retour en
+  arrière en cas d'échec.
+- **Limite du plan Gratuit appliquée par le serveur** : 20 plats maximum. Le bouton d'ajout est
+  désactivé à 20/20 **et** la Server Action refuse l'insertion (vérifié en contournant l'interface).
+- **Paramètres** (`/dashboard/parametres`) : nom, **adresse publique avec vérification d'unicité en
+  direct**, adresse postale, horaires, téléphone (indicatif Afrique de l'Ouest), devise, **couleur
+  de marque** (12 teintes proposées + sélecteur libre) avec aperçu en direct du menu client, plus la
+  formule d'abonnement et la jauge de plats.
+- **Moyens de paiement mobile money** : Orange Money, Moov Money, MTN MoMo — numéro, titulaire,
+  activation/désactivation, suppression, avec écrasement du numéro existant par opérateur.
+- **Validation Zod partagée** (`lib/validations/catalogue.ts`) : jouée côté client *et* rejouée dans
+  chaque Server Action ; toutes les actions sont gardées par `exigerRole("admin")` et filtrent sur
+  le `restaurant_id` de la session.
+- **Publication immédiate** : toute modification apparaît aussitôt sur `/m/[slug]` (nom, couleur,
+  catégories, plats, options). Vérifié au navigateur : 20 contrôles automatisés au vert, aucune
+  erreur console, aucun débordement horizontal sur mobile (390 px).
 
 ---
 
