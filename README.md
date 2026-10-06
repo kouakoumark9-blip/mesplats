@@ -34,11 +34,16 @@ soit **sur place** (à table) ou **à emporter**.
 
 ### Espace public — le client (aucune installation, aucun compte)
 
-| Parcours | Adresse |
-| --- | --- |
-| Menu à emporter | `/m/[slug]` |
-| Menu avec table pré-remplie (sur place) | `/m/[slug]/t/[numero]` |
-| Suivi de commande en direct | `/commande/[id]` |
+| Parcours | Adresse | État |
+| --- | --- | --- |
+| Menu à emporter | `/m/[slug]` | Aperçu en lecture seule (étape 1), commande à l'étape 4 |
+| Menu avec table pré-remplie (sur place) | `/m/[slug]/t/[numero]` | Aperçu en lecture seule (étape 1), commande à l'étape 4 |
+| Suivi de commande en direct | `/commande/[id]` | Étape 6 |
+
+> Les liens de la page d'accueil et du back-office mènent à de **vraies pages** :
+> elles lisent le restaurant, ses catégories, ses plats et ses prix en base de
+> données et appliquent sa couleur principale. La prise de commande (panier,
+> options, paiement, suivi) est livrée à l'étape 4.
 
 - Menu par catégories avec barre de navigation fixe, recherche et photos.
 - Fiche produit avec options/suppléments, note libre (« sans piment »).
@@ -207,7 +212,8 @@ afrimenu/
 ├── app/
 │   ├── layout.tsx                  # Layout racine : polices, métadonnées, toasts
 │   ├── globals.css                 # Système de design Tailwind v4 (couleurs, animations)
-│   ├── page.tsx                    # Page d'accueil du SaaS
+│   ├── page.tsx                    # Page d'accueil du SaaS (landing page)
+│   ├── m/[slug]/                   # Menu public + /t/[numero] (aperçu étape 1)
 │   ├── connexion/                  # Connexion
 │   ├── inscription/                # Création du restaurant + compte propriétaire
 │   ├── compte-suspendu/            # Message affiché si l'établissement est suspendu
@@ -220,6 +226,8 @@ afrimenu/
 ├── auth.config.ts                  # Configuration partagée, compatible Edge (middleware)
 ├── middleware.ts                   # Garde d'accès : session + rôle + restaurant actif
 ├── components/
+│   ├── site/                       # Landing : en-tête, pied de page, maquettes,
+│   │                               # QR inline, animations au défilement
 │   ├── ui/                         # Design system : bouton, carte, champ, badge, modale,
 │   │                               # squelettes, états vides, toasts, interrupteur
 │   ├── auth/                       # Formulaires de connexion / inscription / déconnexion
@@ -230,11 +238,14 @@ afrimenu/
 │   ├── utils.ts                    # Formateurs FCFA, slugs, téléphones, dates, contraste
 │   ├── db/
 │   │   ├── index.ts                # Client Drizzle unique (postgres.js)
-│   │   └── schema.ts               # Schéma complet (9 tables, enums, index, relations)
+│   │   ├── schema.ts               # Schéma complet (9 tables, enums, index, relations)
+│   │   ├── agregats.ts             # Sous-requêtes SQL qualifiées (compteurs, CA)
+│   │   └── public.ts               # Lectures publiques (restaurant par slug, menu)
 │   ├── auth/
 │   │   ├── password.ts             # bcrypt : hachage et vérification
 │   │   ├── roles.ts                # Règles d'accès PURES (utilisables en Edge)
 │   │   └── autorisation.ts         # Garde-fous serveur + API (vérification en base)
+│   ├── qr.ts                       # Génération des QR codes (PNG, SVG, Buffer)
 │   ├── validations/                # Schémas Zod partagés client/serveur
 │   └── actions/                    # Server Actions (connexion, inscription…)
 ├── drizzle/                        # Migrations SQL versionnées + métadonnées
@@ -441,7 +452,8 @@ d'accueil »** : l'application s'installe comme une application native, sans pas
 | **Suspension** | Un restaurant suspendu ne peut plus se connecter **et** les sessions en cours sont coupées à la requête suivante. |
 | **En-têtes HTTP** | `nosniff`, `Referrer-Policy`, `Permissions-Policy`, HSTS en production. Intégration en iframe volontairement autorisée (voir le commentaire dans `next.config.ts`). |
 | **Robustesse** | États vides soignés, squelettes de chargement, messages d'erreur en français actionnables, pages d'erreur dédiées. |
-| **Accessibilité** | Cibles tactiles ≥ 44 px, contrastes vérifiés, navigation clavier, `aria-*` sur les composants interactifs, toasts en `aria-live`. |
+| **Accessibilité** | Cibles tactiles ≥ 44 px, contrastes vérifiés, navigation clavier, `aria-*` sur les composants interactifs, toasts en `aria-live`, animations désactivées si `prefers-reduced-motion`. |
+| **Performance** | Page d'accueil ≈ 250 Ko au total (dont 125 Ko de JS et 50 Ko de HTML), QR codes en SVG (1,5 Ko l'unité au lieu de 3,5 Ko en PNG), polices en `display: swap`. |
 
 ---
 
@@ -472,6 +484,12 @@ Le projet est construit par étapes, chacune vérifiée avant de passer à la su
 - Design system (boutons, cartes, champs, badges, modales, squelettes, états vides, toasts) prêt à
   être réutilisé par les étapes suivantes.
 - Page d'accueil du SaaS, connexion, inscription, mon compte, page « compte suspendu ».
+- **Landing page professionnelle** : en-tête collant avec menu mobile, hero avec maquettes
+  réalisées en HTML/CSS, vrais QR codes générés en SVG, comparatif « avec / sans AfriMenu »,
+  tableau de tarifs, cas d'usage, FAQ et pied de page complet.
+- **Aperçu du menu public** : `/m/[slug]` et `/m/[slug]/t/[numero]` lisent réellement la base
+  (catégories visibles, plats, options, prix, couleur principale du restaurant) ; une table ou
+  un slug inexistant renvoie une page 404.
 
 ---
 

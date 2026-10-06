@@ -9,7 +9,7 @@ import { Carte, CarteStat } from "@/components/ui/carte";
 import { Alerte } from "@/components/ui/divers";
 import { exigerRole } from "@/lib/auth/autorisation";
 import { db } from "@/lib/db";
-import { orders, products, tables, users } from "@/lib/db/schema";
+
 import { bornesJour, formatFcfa } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Vue d'ensemble" };

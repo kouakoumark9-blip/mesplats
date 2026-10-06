@@ -1,4 +1,4 @@
-import { desc, sql } from "drizzle-orm";
+import { desc } from "drizzle-orm";
 import { Building2, ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
 

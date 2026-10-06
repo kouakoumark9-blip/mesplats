@@ -48,6 +48,18 @@
   --animate-clignote: clignote 1.4s ease-in-out infinite;
   --animate-pulse-alerte: pulse-alerte 1.6s ease-out infinite;
   --animate-defilement: defilement 1.4s linear infinite;
+  --animate-flotte: flotte 7s ease-in-out infinite;
+
+  /* Léger flottement du téléphone de démonstration (page d'accueil) */
+  @keyframes flotte {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
 
   @keyframes apparition {
     from {
@@ -159,6 +171,27 @@
 @layer base {
   html {
     -webkit-tap-highlight-color: transparent;
+    /* Défilement fluide vers les ancres (#tarifs, #qr…) */
+    scroll-behavior: smooth;
+  }
+
+  /*
+    Accessibilité : respect strict du réglage « réduire les animations ».
+    Les interfaces de restaurant sont utilisées toute la journée ; une
+    animation incessante devient vite fatigante.
+  */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 
   body {
