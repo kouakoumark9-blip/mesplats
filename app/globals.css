@@ -1,0 +1,242 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   AfriMenu — Système de design
+   Tailwind CSS v4 : les jetons de design sont déclarés dans @theme et
+   deviennent automatiquement des utilitaires (bg-marque-500, text-marque-600…).
+   ========================================================================== */
+
+/*
+  Mode sombre piloté par une CLASSE plutôt que par la préférence système :
+  l'écran de service (/service) propose un interrupteur clair/sombre
+  indépendant du réglage du téléphone ou de la tablette.
+*/
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* --- Typographie ------------------------------------------------------- */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-titre: var(--font-jakarta), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  /* --- Palette de marque : terracotta chaleureuse, lisible au soleil ----- */
+  --color-marque-50: #fef5f1;
+  --color-marque-100: #fde8de;
+  --color-marque-200: #fbcdb9;
+  --color-marque-300: #f7a98a;
+  --color-marque-400: #f07d54;
+  --color-marque-500: #e4572e;
+  --color-marque-600: #cf4520;
+  --color-marque-700: #ab351b;
+  --color-marque-800: #8a2d1a;
+  --color-marque-900: #71291a;
+
+  /* --- Vert « feuille » : accents positif / paiement validé -------------- */
+  --color-feuille-50: #f0fdf6;
+  --color-feuille-100: #dcfce9;
+  --color-feuille-200: #baf7d5;
+  --color-feuille-300: #83eeb5;
+  --color-feuille-400: #45dd8d;
+  --color-feuille-500: #1dc46d;
+  --color-feuille-600: #12a057;
+  --color-feuille-700: #127e47;
+  --color-feuille-800: #14633c;
+  --color-feuille-900: #125133;
+
+  /* --- Animations -------------------------------------------------------- */
+  --animate-apparition: apparition 0.25s ease-out both;
+  --animate-glisse: glisse 0.3s ease-out both;
+  --animate-clignote: clignote 1.4s ease-in-out infinite;
+  --animate-pulse-alerte: pulse-alerte 1.6s ease-out infinite;
+  --animate-defilement: defilement 1.4s linear infinite;
+
+  @keyframes apparition {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes glisse {
+    from {
+      opacity: 0;
+      transform: translateX(14px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes clignote {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.45;
+    }
+  }
+
+  /* Halo utilisé par les nouvelles commandes sur l'écran de service. */
+  @keyframes pulse-alerte {
+    0% {
+      box-shadow: 0 0 0 0 rgb(228 87 46 / 0.55);
+    }
+    70% {
+      box-shadow: 0 0 0 16px rgb(228 87 46 / 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgb(228 87 46 / 0);
+    }
+  }
+
+  @keyframes defilement {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(100%);
+    }
+  }
+}
+
+/* ==========================================================================
+   Variables dynamiques : la couleur principale est définie par restaurant
+   (colonne `couleur_principale`) et appliquée au conteneur racine de son
+   espace. Les classes ci-dessous s'y réfèrent automatiquement.
+   ========================================================================== */
+:root {
+  --couleur-principale: #e4572e;
+  --couleur-sur-principale: #ffffff;
+  --couleur-principale-claire: #fef5f1;
+}
+
+@layer components {
+  /* Bouton principal : couleur du restaurant, contraste calculé côté serveur */
+  .fond-principal {
+    background-color: var(--couleur-principale);
+    color: var(--couleur-sur-principale);
+  }
+
+  .fond-principal-hover:hover {
+    background-color: color-mix(in srgb, var(--couleur-principale) 86%, black);
+  }
+
+  .texte-principal {
+    color: var(--couleur-principale);
+  }
+
+  .bordure-principale {
+    border-color: var(--couleur-principale);
+  }
+
+  .anneau-principal:focus-visible {
+    outline: 2px solid var(--couleur-principale);
+    outline-offset: 2px;
+  }
+
+  .fond-principal-clair {
+    background-color: color-mix(in srgb, var(--couleur-principale) 10%, white);
+  }
+
+  /* Dégradé d'en-tête du menu client */
+  .degrade-principal {
+    background-image: linear-gradient(
+      135deg,
+      var(--couleur-principale) 0%,
+      color-mix(in srgb, var(--couleur-principale) 62%, #1f2937) 100%
+    );
+  }
+}
+
+/* ==========================================================================
+   Styles de base
+   ========================================================================== */
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-slate-50 text-slate-900 antialiased;
+    font-family: var(--font-sans);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-titre);
+    letter-spacing: -0.015em;
+  }
+
+  /* Cibles tactiles confortables sur téléphone */
+  button,
+  a {
+    touch-action: manipulation;
+  }
+
+  /* Anneau de focus unifié, visible au clavier uniquement */
+  :focus-visible {
+    outline: 2px solid var(--color-marque-500);
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  /* Encoches des iPhone / safe areas PWA */
+  .pb-safe {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.75rem);
+  }
+
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .barre-defilement-fine {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(148 163 184 / 0.5) transparent;
+  }
+
+  .masquer-defilement {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .masquer-defilement::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Texte tronqué sur deux lignes (descriptions de produits) */
+  .ligne-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Empêche la sélection accidentelle pendant les clics rapides en service */
+  .non-selectionnable {
+    user-select: none;
+  }
+}
+
+/* Impression : la page « QR codes » doit sortir proprement en A4 */
+@media print {
+  .sans-impression {
+    display: none !important;
+  }
+
+  .saut-page {
+    break-after: page;
+    page-break-after: always;
+  }
+
+  body {
+    background: #fff !important;
+  }
+}

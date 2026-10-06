@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="AfriMenu">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F07D54"/>
+      <stop offset="100%" stop-color="#CF4520"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#g)"/>
+  <g fill="none" stroke="#fff" stroke-width="26" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M176 132v96a34 34 0 0 0 34 34h4a34 34 0 0 0 34-34v-96"/>
+    <path d="M212 262v118"/>
+    <path d="M336 132c-24 0-40 22-40 52s16 52 40 52 40-22 40-52-16-52-40-52Z"/>
+    <path d="M336 236v144"/>
+  </g>
+  <g fill="#fff">
+    <rect x="96" y="404" width="42" height="42" rx="12" opacity="0.95"/>
+    <rect x="374" y="404" width="42" height="42" rx="12" opacity="0.95"/>
+  </g>
+</svg>

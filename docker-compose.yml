@@ -1,0 +1,30 @@
+# PostgreSQL local pour le développement d'AfriMenu.
+#   docker compose up -d      → démarre la base
+#   docker compose down       → l'arrête (les données restent dans le volume)
+#   docker compose down -v    → l'arrête et efface les données
+#
+# DATABASE_URL correspondante (à mettre dans .env.local) :
+#   postgresql://afrimenu:afrimenu@localhost:5432/afrimenu_dev
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: afrimenu-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: afrimenu
+      POSTGRES_PASSWORD: afrimenu
+      POSTGRES_DB: afrimenu_dev
+      # Accents et apostrophes français correctement triés.
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    ports:
+      - "5432:5432"
+    volumes:
+      - afrimenu-donnees:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U afrimenu -d afrimenu_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  afrimenu-donnees:
