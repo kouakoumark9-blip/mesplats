@@ -226,8 +226,9 @@ afrimenu/
 ├── auth.config.ts                  # Configuration partagée, compatible Edge (middleware)
 ├── middleware.ts                   # Garde d'accès : session + rôle + restaurant actif
 ├── components/
-│   ├── site/                       # Landing : en-tête, pied de page, maquettes,
-│   │                               # QR inline, animations au défilement
+│   ├── site/                       # Landing : en-tête collant, hero (3 écrans HTML/CSS),
+│   │                               # vignettes de fonctionnalités, bascule tarifs, accordéon,
+│   │                               # QR inline (SVG), photos de plats, animations au défilement
 │   ├── ui/                         # Design system : bouton, carte, champ, badge, modale,
 │   │                               # squelettes, états vides, toasts, interrupteur
 │   ├── auth/                       # Formulaires de connexion / inscription / déconnexion
@@ -484,12 +485,18 @@ Le projet est construit par étapes, chacune vérifiée avant de passer à la su
 - Design system (boutons, cartes, champs, badges, modales, squelettes, états vides, toasts) prêt à
   être réutilisé par les étapes suivantes.
 - Page d'accueil du SaaS, connexion, inscription, mon compte, page « compte suspendu ».
-- **Landing page professionnelle** : en-tête collant avec menu mobile, hero avec maquettes
-  réalisées en HTML/CSS, vrais QR codes générés en SVG, comparatif « avec / sans AfriMenu »,
-  tableau de tarifs, cas d'usage, FAQ et pied de page complet.
+- **Landing page professionnelle** : en-tête collant avec menu mobile, titre à mot souligné,
+  boutons pilule, hero avec trois écrans de téléphone dessinés en HTML/CSS et cartes flottantes,
+  bandeau de chiffres, grille de fonctionnalités illustrée, section « un QR par table », écran de
+  service sur fond sombre, tarifs avec bascule mensuel/annuel (FCFA), accordéon illustré par une
+  photo de maquis, FAQ et pied de page complet. Vrais QR codes générés en SVG et **décodés en test**.
+- **Photos de plats** : `public/plats/*.jpg` et `public/ambiance/maquis.jpg`, servies par
+  `next/image` (WebP, redimensionnement) ; `components/site/photo-plat.tsx` gère le repli quand
+  un plat n'a pas encore de photo.
 - **Aperçu du menu public** : `/m/[slug]` et `/m/[slug]/t/[numero]` lisent réellement la base
-  (catégories visibles, plats, options, prix, couleur principale du restaurant) ; une table ou
-  un slug inexistant renvoie une page 404.
+  (catégories visibles, plats, options, prix, couleur principale du restaurant) ; les photos des
+  plats sont affichées, avec vignette de repli sinon ; une table ou un slug inexistant renvoie
+  une page 404.
 
 ---
 

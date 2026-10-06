@@ -12,10 +12,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { PhotoPlat } from "@/components/site/photo-plat";
 import { Badge } from "@/components/ui/badge";
 import { classesBouton } from "@/components/ui/bouton";
 import { Alerte, EtatVide } from "@/components/ui/divers";
-import { contrasteSur, formatFcfa } from "@/lib/utils";
+import { cn, contrasteSur, formatFcfa } from "@/lib/utils";
 import { menuPublic, restaurantParSlug } from "@/lib/db/public";
 
 type Proprietes = { params: Promise<{ slug: string }> };
@@ -137,9 +138,19 @@ export default async function PageMenuPublic({ params }: Proprietes) {
                     {categorie.produits.map((produit) => (
                       <li
                         key={produit.id}
-                        className="flex items-start justify-between gap-4 rounded-2xl border border-slate-100 bg-white p-3 shadow-sm"
+                        className={cn(
+                          "flex items-start gap-3 rounded-2xl border border-slate-100 bg-white p-3 shadow-sm",
+                          !produit.disponible && "opacity-70",
+                        )}
                       >
-                        <div className="min-w-0">
+                        <PhotoPlat
+                          src={produit.photo}
+                          alt={produit.nom}
+                          taille={80}
+                          className="size-20 rounded-xl"
+                        />
+
+                        <div className="min-w-0 flex-1">
                           <p className="font-bold text-slate-900">
                             {produit.nom}
                             {!produit.disponible ? (

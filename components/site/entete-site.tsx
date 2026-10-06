@@ -1,17 +1,19 @@
 "use client";
 
 /**
- * En-tête du site public : barre d'annonce, navigation collante, menu mobile.
+ * En-tête du site public : bandeau d'annonce, navigation centrale,
+ * bouton d'action « pilule » et menu mobile plein écran.
  */
-import { ArrowRight, LogIn, Menu, QrCode, Utensils, X } from "lucide-react";
+import { ArrowRight, LogIn, Menu, QrCode, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { BoutonPilule } from "@/components/site/bouton-pilule";
+import { LogoAfriMenu } from "@/components/site/logo";
 import { classesBouton } from "@/components/ui/bouton";
 import { cn } from "@/lib/utils";
 
 const LIENS = [
-  { href: "#fonctionnement", libelle: "Comment ça marche" },
   { href: "#fonctionnalites", libelle: "Fonctionnalités" },
   { href: "#qr", libelle: "QR codes" },
   { href: "#tarifs", libelle: "Tarifs" },
@@ -21,8 +23,7 @@ const LIENS = [
 export function EnteteSite() {
   const [menuOuvert, setMenuOuvert] = useState(false);
 
-  // Empêche le défilement de la page derrière le menu mobile ouvert
-  // et permet de le refermer avec la touche Échap.
+  // Bloque le défilement derrière le menu mobile et permet de le fermer avec Échap.
   useEffect(() => {
     document.body.style.overflow = menuOuvert ? "hidden" : "";
 
@@ -41,35 +42,27 @@ export function EnteteSite() {
 
   return (
     <>
-      {/* Barre d'annonce — défile avec la page, ne gêne pas la navigation */}
-      <div className="bg-slate-950 px-4 py-2 text-center text-xs font-medium text-slate-300 sm:text-sm">
+      {/* Bandeau d'annonce */}
+      <div className="bg-gradient-to-r from-marque-600 via-marque-500 to-slate-900 px-4 py-2.5 text-center text-xs font-medium text-white sm:text-sm">
         <span className="inline-flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
-          <span className="rounded-full bg-marque-500/20 px-2 py-0.5 text-[11px] font-bold text-marque-300 uppercase">
-            Nouveau
-          </span>
-          Paiement Orange Money, Moov Money et MTN MoMo affiché directement au client
-          <Link
-            href="/m/maquis-le-baoule"
-            className="inline-flex items-center gap-1 font-bold text-white underline underline-offset-4 hover:text-marque-300"
+          Créez votre menu cette semaine et recevez vos cartes QR de table imprimées
+          <a
+            href="#qr"
+            className="inline-flex items-center gap-1 font-bold text-white underline underline-offset-4 hover:text-marque-100"
           >
-            voir un menu
+            En savoir plus
             <ArrowRight className="size-3.5" aria-hidden />
-          </Link>
+          </a>
         </span>
       </div>
 
-      <header className="sticky top-0 z-50 border-b border-slate-200/70 bg-white/85 backdrop-blur-lg">
+      <header className="sticky top-0 z-50 border-b border-slate-200/70 bg-white/90 backdrop-blur-lg">
         <nav
           aria-label="Navigation principale"
-          className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6"
+          className="mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6"
         >
-          <Link href="/" className="inline-flex shrink-0 items-center gap-2.5">
-            <span className="flex size-9 items-center justify-center rounded-xl bg-marque-500 text-white shadow-sm">
-              <Utensils className="size-5" aria-hidden />
-            </span>
-            <span className="font-titre text-lg font-extrabold tracking-tight text-slate-900">
-              AfriMenu
-            </span>
+          <Link href="/" aria-label="AfriMenu — accueil">
+            <LogoAfriMenu />
           </Link>
 
           <div className="hidden items-center gap-1 lg:flex">
@@ -77,7 +70,7 @@ export function EnteteSite() {
               <a
                 key={lien.href}
                 href={lien.href}
-                className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+                className="rounded-full px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-slate-900"
               >
                 {lien.libelle}
               </a>
@@ -87,20 +80,20 @@ export function EnteteSite() {
           <div className="flex items-center gap-2">
             <Link
               href="/connexion"
-              className="hidden items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 sm:inline-flex"
+              className="hidden items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 sm:inline-flex"
             >
               <LogIn className="size-4" aria-hidden />
               Connexion
             </Link>
-            <Link href="/inscription" className={classesBouton("principal", "md", "shadow-sm")}>
-              Créer mon restaurant
-            </Link>
+            <BoutonPilule href="/inscription" className="hidden sm:inline-flex">
+              Créer mon menu
+            </BoutonPilule>
             <button
               type="button"
               onClick={() => setMenuOuvert(true)}
               aria-label="Ouvrir le menu"
               aria-expanded={menuOuvert}
-              className="inline-flex size-11 items-center justify-center rounded-xl text-slate-700 transition hover:bg-slate-100 lg:hidden"
+              className="inline-flex size-11 items-center justify-center rounded-full text-slate-800 transition hover:bg-slate-100 lg:hidden"
             >
               <Menu className="size-5" aria-hidden />
             </button>
@@ -108,16 +101,11 @@ export function EnteteSite() {
         </nav>
       </header>
 
-      {/* Menu mobile plein écran */}
+      {/* Menu mobile */}
       <div
-        className={cn(
-          "fixed inset-0 z-[60] lg:hidden",
-          menuOuvert ? "pointer-events-auto" : "pointer-events-none",
-        )}
+        className={cn("fixed inset-0 z-[60] lg:hidden", menuOuvert ? "pointer-events-auto" : "pointer-events-none")}
         aria-hidden={!menuOuvert}
       >
-        {/* Voile : ferme au clic, mais reste hors du parcours clavier
-            (la croix et la touche Échap sont les commandes accessibles). */}
         <button
           type="button"
           tabIndex={-1}
@@ -136,17 +124,12 @@ export function EnteteSite() {
           )}
         >
           <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-            <span className="inline-flex items-center gap-2 font-titre font-extrabold text-slate-900">
-              <span className="flex size-8 items-center justify-center rounded-lg bg-marque-500 text-white">
-                <Utensils className="size-4" aria-hidden />
-              </span>
-              AfriMenu
-            </span>
+            <LogoAfriMenu />
             <button
               type="button"
               onClick={() => setMenuOuvert(false)}
               aria-label="Fermer le menu"
-              className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+              className="rounded-full p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
             >
               <X className="size-5" aria-hidden />
             </button>
@@ -179,7 +162,7 @@ export function EnteteSite() {
               onClick={() => setMenuOuvert(false)}
               className={classesBouton("principal", "lg", "w-full")}
             >
-              Créer mon restaurant
+              Créer mon menu
             </Link>
             <Link
               href="/connexion"

@@ -40,6 +40,8 @@ type ProduitSeed = {
   prix: number;
   options?: OptionSeed[];
   disponible?: boolean;
+  /** Chemin public de la photo (voir /public/plats). */
+  photo?: string;
 };
 type CategorieSeed = { nom: string; ordre: number; produits: ProduitSeed[] };
 
@@ -53,6 +55,7 @@ const CATALOGUE_DEMO: CategorieSeed[] = [
         description:
           "Attiéké frais servi avec un poisson braisé entier, oignons et tomates fraîches.",
         prix: 2500,
+        photo: "/plats/attieke-poisson.jpg",
         options: [
           { nom: "Piment vert écrasé", supplementPrix: 200 },
           { nom: "Supplément poisson", supplementPrix: 1500 },
@@ -67,6 +70,7 @@ const CATALOGUE_DEMO: CategorieSeed[] = [
         nom: "Kedjenou de poulet",
         description: "Poulet mijoté à l'étouffée avec tomates, oignons et épices maison.",
         prix: 3000,
+        photo: "/plats/kedjenou-poulet.jpg",
         options: [{ nom: "Portion supplémentaire d'attiéké", supplementPrix: 500 }],
       },
       {
@@ -106,6 +110,7 @@ const CATALOGUE_DEMO: CategorieSeed[] = [
         nom: "Alloco",
         description: "Bananes plantain frites, sauce tomate épicée maison.",
         prix: 500,
+        photo: "/plats/alloco.jpg",
       },
     ],
   },
@@ -117,6 +122,7 @@ const CATALOGUE_DEMO: CategorieSeed[] = [
         nom: "Bissap frais",
         description: "Infusion d'hibiscus glacée, légèrement sucrée.",
         prix: 500,
+        photo: "/plats/bissap.jpg",
       },
       {
         nom: "Jus de gingembre",
@@ -198,6 +204,7 @@ async function creerCatalogue(restaurantId: string, catalogue: CategorieSeed[]) 
           nom: produit.nom,
           description: produit.description,
           prix: produit.prix,
+          photo: produit.photo ?? null,
           disponible: produit.disponible ?? true,
           ordre: ordre++,
         })

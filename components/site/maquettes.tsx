@@ -18,143 +18,13 @@ import {
   Copy,
   Flame,
   MessageCircle,
-  Plus,
-  Search,
-  ShoppingBag,
   Smartphone,
   Timer,
   Volume2,
-  Wifi,
 } from "lucide-react";
 
 import { QrCodeInline } from "@/components/site/qr-code";
 import { cn } from "@/lib/utils";
-
-/* -------------------------------------------------------------------------- */
-/*                        Menu client dans un téléphone                       */
-/* -------------------------------------------------------------------------- */
-
-const PLATS_MAQUETTE = [
-  { emoji: "🐟", nom: "Attiéké poisson", prix: "2 500", options: "Piment vert · +200" },
-  { emoji: "🍗", nom: "Kedjenou poulet", prix: "3 000", options: "Attiéké en plus · +500" },
-  { emoji: "🍌", nom: "Alloco", prix: "500", options: null },
-];
-
-export function MaquetteTelephone({
-  mode = "sur_place",
-  numeroTable = "4",
-  className,
-}: {
-  mode?: "sur_place" | "emporter";
-  numeroTable?: string;
-  className?: string;
-}) {
-  const total = "6 000";
-
-  return (
-    <div className={cn("relative mx-auto w-full max-w-[19rem]", className)}>
-      {/* Cadre du téléphone */}
-      <div className="rounded-[2.6rem] border-[10px] border-slate-900 bg-slate-900 shadow-2xl shadow-slate-900/25">
-        <div className="overflow-hidden rounded-[2rem] bg-white">
-          {/* Barre d'état */}
-          <div className="flex items-center justify-between bg-slate-900 px-5 pt-2 pb-1 text-[10px] font-semibold text-white/90">
-            <span>12:42</span>
-            <span className="flex items-center gap-1.5">
-              <Wifi className="size-3" aria-hidden />
-              <span className="inline-block h-2.5 w-5 rounded-[3px] border border-white/60 p-[1.5px]">
-                <span className="block h-full w-3/4 rounded-[1px] bg-white/90" />
-              </span>
-            </span>
-          </div>
-
-          {/* En-tête du menu aux couleurs du restaurant */}
-          <div className="degrade-principal px-4 pb-4 text-white">
-            <div className="flex items-center gap-2">
-              <span className="flex size-7 items-center justify-center rounded-lg bg-white/20 text-xs font-bold">
-                MB
-              </span>
-              <div className="min-w-0">
-                <p className="truncate text-[11px] font-bold">Maquis Le Baoulé</p>
-                <p className="text-[10px] text-white/75">Cocody · Abidjan</p>
-              </div>
-            </div>
-
-            <div className="mt-3 flex items-center justify-between gap-2">
-              <p className="font-titre text-[15px] leading-tight font-extrabold">
-                {mode === "sur_place" ? `Table ${numeroTable}` : "À emporter"}
-              </p>
-              <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold whitespace-nowrap">
-                {mode === "sur_place" ? "Sur place" : "Retrait 13h00"}
-              </span>
-            </div>
-
-            <div className="mt-2.5 flex items-center gap-2 rounded-xl bg-white/95 px-3 py-2 text-slate-400 shadow-sm">
-              <Search className="size-3.5" aria-hidden />
-              <span className="text-[11px]">Rechercher un plat…</span>
-            </div>
-          </div>
-
-          {/* Catégories */}
-          <div className="masquer-defilement flex gap-1.5 overflow-x-auto px-3 py-2.5">
-            {["Plats ivoiriens", "Grillades", "Boissons"].map((categorie, index) => (
-              <span
-                key={categorie}
-                className={cn(
-                  "shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold whitespace-nowrap",
-                  index === 0 ? "fond-principal" : "bg-slate-100 text-slate-600",
-                )}
-              >
-                {categorie}
-              </span>
-            ))}
-          </div>
-
-          {/* Produits */}
-          <div className="space-y-2 px-3 pb-3">
-            {PLATS_MAQUETTE.map((plat) => (
-              <div
-                key={plat.nom}
-                className="flex items-center gap-2.5 rounded-2xl border border-slate-100 bg-white p-2 shadow-sm"
-              >
-                <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-marque-50 to-marque-100 text-lg">
-                  {plat.emoji}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-[11.5px] leading-tight font-bold text-slate-900">
-                    {plat.nom}
-                  </p>
-                  {plat.options ? (
-                    <p className="truncate text-[9.5px] text-slate-500">{plat.options}</p>
-                  ) : null}
-                  <p className="text-[11.5px] font-extrabold text-marque-600">{plat.prix} FCFA</p>
-                </div>
-                <span className="fond-principal flex size-7 shrink-0 items-center justify-center rounded-xl">
-                  <Plus className="size-4" aria-hidden />
-                </span>
-              </div>
-            ))}
-          </div>
-
-          {/* Barre de panier */}
-          <div className="mx-3 mb-3 flex items-center justify-between gap-2 rounded-2xl bg-slate-900 px-3 py-2.5">
-            <span className="flex min-w-0 items-center gap-1.5 text-[10.5px] font-bold whitespace-nowrap text-white">
-              <ShoppingBag className="size-3.5 shrink-0" aria-hidden />
-              3 art. · {total} FCFA
-            </span>
-            <span className="fond-principal shrink-0 rounded-xl px-2.5 py-1.5 text-[10.5px] font-bold whitespace-nowrap">
-              Commander
-            </span>
-          </div>
-
-          {/* Indicateur d'accueil du téléphone */}
-          <div className="flex justify-center pb-1.5">
-            <span className="h-1 w-24 rounded-full bg-slate-300" />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 /* -------------------------------------------------------------------------- */
 /*                    Écran de service (tablette, mode sombre)                 */
@@ -367,7 +237,7 @@ export function CarteQrTable({
           Aucune application à installer
         </p>
 
-        <p className="mt-3 max-w-full truncate font-mono text-[10px] text-slate-400">{url}</p>
+        <p className="mt-3 max-w-full truncate font-mono text-[9px] text-slate-400">{url}</p>
       </div>
     </div>
   );
