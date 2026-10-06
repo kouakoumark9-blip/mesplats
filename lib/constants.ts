@@ -32,6 +32,12 @@ export const LIMITE_PRODUITS: Record<Plan, number | null> = {
   pro: null,
 };
 
+/** Limite du nombre de tables selon le plan (null = illimité). */
+export const LIMITE_TABLES: Record<Plan, number | null> = {
+  gratuit: 5,
+  pro: null,
+};
+
 export const LIBELLES_PLAN: Record<Plan, string> = {
   gratuit: "Gratuit",
   pro: "Pro",

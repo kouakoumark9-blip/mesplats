@@ -11,6 +11,11 @@ export type EtatFormulaire = {
   message?: string;
   /** Erreurs par champ, produites par Zod côté serveur. */
   erreurs?: Record<string, string>;
+  /**
+   * Nombre d'enregistrements réellement créés, renvoyé par les actions qui
+   * travaillent en lot (ex. « créer 12 tables d'un coup »).
+   */
+  nombre?: number;
 };
 
 export const etatInitial: EtatFormulaire = { ok: false };

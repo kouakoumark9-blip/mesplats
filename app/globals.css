@@ -260,6 +260,12 @@
 
 /* Impression : la page « QR codes » doit sortir proprement en A4 */
 @media print {
+  /* A4 portrait, marges de 8 mm : 8 cartes par planche (2 colonnes × 4 rangées) */
+  @page {
+    size: A4 portrait;
+    margin: 8mm;
+  }
+
   .sans-impression {
     display: none !important;
   }
@@ -271,5 +277,10 @@
 
   body {
     background: #fff !important;
+  }
+
+  /* Les QR codes sont en SVG : on force l'impression nette, sans anti-aliasing flou */
+  svg {
+    shape-rendering: crispEdges;
   }
 }

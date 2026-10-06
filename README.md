@@ -473,7 +473,7 @@ Le projet est construit par étapes, chacune vérifiée avant de passer à la su
 | --- | --- | --- |
 | 1 | Initialisation, base de données, authentification, design system | ✅ **Terminée** |
 | 2 | Back-office : profil du restaurant, catégories, produits, options | ✅ **Terminée** |
-| 3 | Tables et génération des QR codes (PNG + planche PDF) | ⏳ À venir |
+| 3 | Tables et génération des QR codes (PNG + planche PDF) | ✅ **Terminée** |
 | 4 | Menu public, panier et création de commande | ⏳ À venir |
 | 5 | Écran de service temps réel et gestion des statuts | ⏳ À venir |
 | 6 | Suivi client, paiement manuel, liens WhatsApp/SMS | ⏳ À venir |
@@ -542,6 +542,41 @@ Le projet est construit par étapes, chacune vérifiée avant de passer à la su
 - **Publication immédiate** : toute modification apparaît aussitôt sur `/m/[slug]` (nom, couleur,
   catégories, plats, options). Vérifié au navigateur : 20 contrôles automatisés au vert, aucune
   erreur console, aucun débordement horizontal sur mobile (390 px).
+
+**Étape 3 — ce qui est livré et vérifié**
+
+- **Écran « Tables & QR codes »** (`/dashboard/tables`) : une carte par table (QR code, adresse
+  publique, bouton PNG, copier le lien, renommer, supprimer) et, en bas, la carte **QR « À
+  emporter »** à coller sur la vitrine.
+- **Création en lot** : « Ajouter des tables » demande le nombre (1 à 60), le premier numéro et un
+  préfixe facultatif, avec **aperçu immédiat des numéros** (« 6 7 8 9 10 »). Les numéros déjà pris
+  sont ignorés au lieu de faire échouer tout le lot, et le message final récapitule créées /
+  ignorées / refusées.
+- **Limite du plan Gratuit appliquée par le serveur** : 5 tables (`LIMITE_TABLES`). L'interface
+  affiche le reste disponible et désactive le bouton à 5/5 ; une Server Action contournée refuse
+  quand même l'insertion (vérifié en test : 4 tables demandées, 2 créées, message explicite).
+- **Un QR code unique par table**, calculé **côté serveur en SVG** (`lib/qr.ts`) : net à
+  l'impression, à peine 1,5 Ko, injecté dans la page — le client n'a rien à télécharger. Le lien
+  encodé est `…/m/[slug]/t/[numero]`, la table est donc pré-remplie sur le menu public.
+- **Export PNG 1024 px** dans le navigateur (`qrcode`) : fichier `qr-table-4.png`, **décodé en test**
+  vers la bonne adresse.
+- **Planche PDF A4** générée dans le navigateur (`jspdf`) : 8 cartes par page (2 × 4), cadre de
+  découpe, nom du restaurant, titre de table, QR 600 px, consigne de scan et adresse courte —
+  **23 Ko** pour 6 cartes grâce à `compress: true` (sans lui, 6,3 Mo : intenable en 3G).
+- **Planche A4 imprimable** (`/dashboard/tables/impression`) : une carte par table plus le QR
+  « À emporter », feuille A4 pilotée par `@page { size: A4; margin: 8mm }`, barre d'outils masquée à
+  l'impression (`sans-impression`) et sauts de page propres (`break-inside-avoid`). **Vérifié en
+  générant le PDF d'impression : 1 page A4, QR re-décodé depuis la planche.**
+- **Renommage et suppression** : renommer une table régénère son QR (le lien contient le numéro,
+  l'ancienne carte doit être remplacée — c'est rappelé dans la modale) ; suppression d'une table ou
+  de **toutes** les tables avec confirmation, en annulant l'affichage en cas d'échec serveur.
+- **Isolation multi-tenant** : chaque requête part du `restaurant_id` de la session ; un serveur ou
+  un cuisinier qui ouvre `/dashboard/tables` est renvoyé vers son espace, un visiteur vers
+  `/connexion`. Un restaurant ne voit jamais les tables d'un autre (vérifié en test).
+- **Vérification navigateur** : **30 contrôles automatisés au vert** — création de lot, quota du
+  plan Gratuit, PNG 1024 px décodé, PDF A4 d'une page, QR lus à l'écran, à l'impression et sur la
+  planche, renommage, suppressions, isolation, contrôle d'accès, mobile 390 px sans débordement,
+  aucune erreur console.
 
 ---
 

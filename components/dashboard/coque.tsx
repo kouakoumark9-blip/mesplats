@@ -104,9 +104,9 @@ export function Coque({
     element.exact ? chemin === element.href : chemin.startsWith(element.href);
 
   return (
-    <div className="min-h-dvh bg-slate-50 lg:flex dark:bg-slate-950" style={variables}>
+    <div className="min-h-dvh bg-slate-50 lg:flex print:block print:bg-white dark:bg-slate-950" style={variables}>
       {/* ------------------------------- En-tête mobile ------------------------------ */}
-      <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-slate-200 bg-white px-4 py-3 lg:hidden dark:border-slate-800 dark:bg-slate-900">
+      <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-slate-200 bg-white px-4 py-3 lg:hidden print:hidden dark:border-slate-800 dark:bg-slate-900">
         <button
           type="button"
           onClick={() => setTiroirOuvert(true)}
@@ -134,7 +134,7 @@ export function Coque({
 
       {/* --------------------------------- Tiroir mobile -------------------------------- */}
       {tiroirOuvert ? (
-        <div className="fixed inset-0 z-50 lg:hidden">
+        <div className="fixed inset-0 z-50 lg:hidden print:hidden">
           <div
             tabIndex={-1}
             aria-hidden
@@ -171,7 +171,7 @@ export function Coque({
       ) : null}
 
       {/* ----------------------------- Barre latérale (lg) ---------------------------- */}
-      <aside className="sticky top-0 hidden h-dvh w-72 shrink-0 flex-col border-r border-slate-200 bg-white lg:flex dark:border-slate-800 dark:bg-slate-900">
+      <aside className="sticky top-0 hidden h-dvh w-72 shrink-0 flex-col border-r border-slate-200 bg-white lg:flex print:hidden dark:border-slate-800 dark:bg-slate-900">
         <ContenuBarreLatele
           nomRestaurant={nomRestaurant}
           slug={slug}
@@ -186,7 +186,9 @@ export function Coque({
       </aside>
 
       {/* ---------------------------------- Contenu --------------------------------- */}
-      <main className="min-w-0 flex-1 px-4 py-6 pb-24 sm:px-6 lg:px-8 lg:pb-10">{children}</main>
+      <main className="min-w-0 flex-1 px-4 py-6 pb-24 sm:px-6 lg:px-8 lg:pb-10 print:w-full print:max-w-none print:p-0">
+        {children}
+      </main>
     </div>
   );
 }
