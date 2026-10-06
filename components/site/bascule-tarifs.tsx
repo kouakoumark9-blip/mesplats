@@ -3,8 +3,8 @@
 /**
  * Grille tarifaire avec bascule Mensuel / Annuel.
  *
- * Les montants annuels correspondent à 10 mois payés sur 12 (soit deux mois
- * offerts, un argument courant sur ce marché). Les prix sont affichés en FCFA.
+ * Le plan Pro est offert le premier mois, puis facturé 4 900 FCFA par mois.
+ * Sur l'annuel, on paie 10 mois sur 12 (deux mois offerts). Prix en FCFA.
  */
 import { ArrowRight, Check, Sparkles, X } from "lucide-react";
 import Link from "next/link";
@@ -22,6 +22,8 @@ type Offre = {
   annuel: number;
   avantages: string[];
   absent?: string[];
+  /** Précision affichée sous le prix (remplace la mention par défaut). */
+  note?: string;
   populaire?: boolean;
   cta: { libelle: string; href: string };
 };
@@ -46,8 +48,9 @@ const OFFRES: Offre[] = [
   {
     nom: "Pro",
     accroche: "Le plan des restaurants en activité",
-    mensuel: 9_900,
-    annuel: 99_000,
+    note: "1er mois offert, puis 4 900 FCFA par mois. Sans engagement.",
+    mensuel: 4_900,
+    annuel: 49_000,
     avantages: [
       "Produits et catégories illimités",
       "Tables et QR codes illimités",
@@ -57,7 +60,7 @@ const OFFRES: Offre[] = [
       "Support WhatsApp prioritaire",
     ],
     populaire: true,
-    cta: { libelle: "Essayer le plan Pro", href: "/inscription" },
+    cta: { libelle: "Commencer mes 30 jours offerts", href: "/inscription" },
   },
   {
     nom: "Multi-établissements",
@@ -120,7 +123,8 @@ export function BasculeTarifs() {
       </div>
 
       <p className="mt-3 text-center text-sm text-slate-500">
-        14 jours d&apos;essai du plan Pro, sans carte bancaire et sans engagement.
+        <strong className="font-bold text-marque-700">Le premier mois est offert</strong> — sans
+        carte bancaire et sans engagement, résiliable à tout moment.
       </p>
 
       {/* Cartes */}
@@ -159,12 +163,12 @@ export function BasculeTarifs() {
                   FCFA{offre.mensuel === 0 ? "" : " / mois"}
                 </span>
               </p>
-              <p className="mt-1 h-5 text-xs text-slate-500">
+              <p className="mt-1 min-h-10 text-xs text-slate-500">
                 {offre.mensuel === 0
                   ? "Gratuit pour toujours"
                   : annuel
-                    ? `Facturé ${formatFcfa(offre.annuel)} par an`
-                    : "Sans engagement, résiliable à tout moment"}
+                    ? `Facturé ${formatFcfa(offre.annuel)} par an, 2 mois offerts`
+                    : (offre.note ?? "Sans engagement, résiliable à tout moment")}
               </p>
 
               <p className="mt-6 text-xs font-bold tracking-wide text-slate-400 uppercase">

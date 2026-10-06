@@ -10,7 +10,6 @@ import {
   Clock,
   Globe,
   HandPlatter,
-  LayoutDashboard,
   MapPin,
   MessageCircle,
   Percent,
@@ -28,7 +27,6 @@ import {
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { AccordeonAvantages } from "@/components/site/accordeon-avantages";
 import { BasculeTarifs } from "@/components/site/bascule-tarifs";
 import { BoutonPilule } from "@/components/site/bouton-pilule";
 import { EnteteSite } from "@/components/site/entete-site";
@@ -41,7 +39,7 @@ import {
   EcranProfilRestaurant,
   PastilleQr,
 } from "@/components/site/hero-phones";
-import { CarteQrTable, MaquetteEcranService, MaquettePaiement } from "@/components/site/maquettes";
+import { CarteQrTable, MaquettePaiement } from "@/components/site/maquettes";
 import { PiedDePage } from "@/components/site/pied-de-page";
 import { Reveler } from "@/components/site/reveler";
 import { TitreSouligne } from "@/components/site/titre-souligne";
@@ -61,7 +59,6 @@ import { Carte } from "@/components/ui/carte";
 import { urlMenu } from "@/lib/env";
 import { qrSvg } from "@/lib/qr";
 
-import photoMaquis from "@/public/ambiance/maquis.jpg";
 
 export const metadata: Metadata = {
   title: "AfriMenu — Créez votre menu QR code pour restaurant en Afrique de l'Ouest",
@@ -135,32 +132,14 @@ const FAQ = [
       "Aucune. AfriMenu est un abonnement, pas un intermédiaire : vous encaissez directement le client, en mobile money ou en espèces, et la totalité de la somme reste chez vous. Le plan gratuit ne prend pas de commission non plus.",
   },
   {
+    question: "Comment fonctionne le premier mois gratuit ?",
+    reponse:
+      "Vous créez votre compte sans carte bancaire : le plan Pro est offert pendant 30 jours, avec toutes les fonctionnalités (menu illimité, QR codes de table, écran de service, paiement mobile money). Au bout du mois, vous choisissez : vous continuez en Pro pour 4 900 FCFA par mois, ou vous restez sur le plan Gratuit sans rien perdre de votre menu.",
+  },
+  {
     question: "Ai-je besoin de matériel particulier ?",
     reponse:
       "Un téléphone suffit pour commencer. Une tablette ou un ordinateur d'occasion rend l'écran de service plus confortable en cuisine ou au comptoir. Rien à installer : tout fonctionne dans le navigateur, et l'application peut s'ajouter à l'écran d'accueil.",
-  },
-];
-
-const ARGUMENTS = [
-  {
-    titre: "Simple et rapide à mettre en place",
-    texte:
-      "Vous créez votre compte, vous saisissez vos plats et vos prix, et vos QR codes sont prêts. Il n'y a rien à installer, rien à configurer, aucun matériel spécifique à acheter.",
-  },
-  {
-    titre: "Une carte toujours à jour",
-    texte:
-      "Modifiez un prix, masquez un plat épuisé, ajoutez une formule : la carte des clients change immédiatement, sans réimpression. Vous gardez ainsi une carte juste, même pendant les périodes de forte affluence.",
-  },
-  {
-    titre: "Une meilleure expérience client",
-    texte:
-      "Vos clients accèdent en un scan à un menu clair, illustré et adapté au mobile. Fini les cartes abîmées ou les informations difficiles à lire : le client voit les photos, les descriptions et les suppléments, choisit tranquillement et commande sans attendre un serveur. La salle est moins sollicitée pour les questions, et l'image de votre établissement y gagne.",
-  },
-  {
-    titre: "Vos équipes gagnent du temps",
-    texte:
-      "Les commandes arrivent écrites, avec le numéro de table, les suppléments et les notes du client. Plus d'erreurs d'écoute dans le bruit, plus de plats oubliés : la cuisine et la salle travaillent sur la même information.",
   },
 ];
 
@@ -201,9 +180,9 @@ export default async function PageAccueil() {
       {
         "@type": "Offer",
         name: "Pro",
-        price: "9900",
+        price: "4900",
         priceCurrency: "XOF",
-        description: "Produits et tables illimités, comptes équipe illimités, statistiques avancées.",
+        description: "Premier mois gratuit, puis 4 900 FCFA par mois : produits et tables illimités, comptes équipe illimités, statistiques avancées.",
       },
       {
         "@type": "Offer",
@@ -273,7 +252,7 @@ export default async function PageAccueil() {
               </li>
               <li className="inline-flex items-center gap-1.5">
                 <Check className="size-4 text-feuille-600" aria-hidden />
-                14 jours d&apos;essai Pro
+                Premier mois gratuit
               </li>
               <li className="inline-flex items-center gap-1.5">
                 <Check className="size-4 text-feuille-600" aria-hidden />
@@ -621,66 +600,11 @@ export default async function PageAccueil() {
         </div>
       </section>
 
-      {/* ============================ ÉCRAN DE SERVICE ============================ */}
-      <section className="border-y border-slate-800 bg-slate-900 py-16 lg:py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="grid items-center gap-12 lg:grid-cols-[1fr_1.15fr]">
-            <Reveler>
-              <Badge ton="marque" className="bg-marque-500/15 text-marque-300">
-                Écran de service
-              </Badge>
-              <h2 className="mt-4 font-titre text-3xl font-extrabold tracking-tight text-balance text-white sm:text-4xl">
-                La salle et la cuisine voient la même commande
-              </h2>
-              <p className="mt-4 text-lg text-slate-300">
-                Chaque nouvelle commande apparaît en haut de l&apos;écran avec une alerte sonore. Un
-                clic pour accepter, un clic quand c&apos;est prêt, un clic quand c&apos;est payé.
-              </p>
-
-              <ul className="mt-7 space-y-3.5">
-                {[
-                  "Filtres par statut et par type (sur place / à emporter)",
-                  "Table, articles, suppléments et notes du client bien visibles",
-                  "Refus ou annulation avec motif, conservé dans l'historique",
-                  "Mode sombre et grands caractères pour la cuisine",
-                  "Alerte « Appeler le serveur » envoyée par le client",
-                ].map((element) => (
-                  <li key={element} className="flex items-start gap-3 text-slate-200">
-                    <Check className="mt-1 size-4 shrink-0 text-feuille-400" aria-hidden />
-                    {element}
-                  </li>
-                ))}
-              </ul>
-
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Link
-                  href="/connexion"
-                  className="inline-flex h-12 items-center gap-2 rounded-full bg-white px-6 font-bold text-slate-900 transition hover:bg-slate-100"
-                >
-                  <LayoutDashboard className="size-4" aria-hidden />
-                  Voir l&apos;écran de démonstration
-                </Link>
-                <Link
-                  href="/inscription"
-                  className="inline-flex h-12 items-center gap-2 rounded-full border border-white/25 px-6 font-bold text-white transition hover:bg-white/10"
-                >
-                  Créer mon compte
-                </Link>
-              </div>
-            </Reveler>
-
-            <Reveler delai={120}>
-              <MaquetteEcranService />
-              <p className="mt-4 text-center text-sm text-slate-400">
-                Aperçu de l&apos;écran de service — identique sur téléphone, tablette et ordinateur.
-              </p>
-            </Reveler>
-          </div>
-        </div>
-      </section>
-
       {/* ================================== TARIFS ================================== */}
-      <section id="tarifs" className="scroll-mt-24 py-16 lg:py-24">
+      <section
+        id="tarifs"
+        className="scroll-mt-24 border-y border-slate-200 bg-slate-50 py-16 lg:py-24"
+      >
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <Reveler className="mx-auto max-w-3xl text-center">
             <TitreSouligne avant="Un plan pour" accent="chaque restaurant" />
@@ -692,31 +616,6 @@ export default async function PageAccueil() {
 
           <Reveler className="mt-10">
             <BasculeTarifs />
-          </Reveler>
-        </div>
-      </section>
-
-      {/* ==================== TOUT CE DONT VOTRE RESTAURANT A BESOIN ==================== */}
-      <section className="border-y border-slate-200 bg-slate-50 py-16 lg:py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <Reveler className="mx-auto max-w-3xl text-center">
-            <TitreSouligne avant="Tout ce dont votre restaurant" accent="a besoin" />
-            <p className="mt-5 text-lg text-slate-600">
-              De la création de la carte jusqu&apos;au suivi des commandes, AfriMenu réunit
-              l&apos;essentiel pour servir vite, sans matériel coûteux ni logiciel compliqué.
-            </p>
-          </Reveler>
-
-          <Reveler className="mt-14">
-            <AccordeonAvantages
-              elements={ARGUMENTS}
-              image={photoMaquis}
-              altImage="Terrasse d'un maquis ivoirien à l'heure du déjeuner"
-              cartouche={{
-                titre: "Un service plus fluide",
-                texte: "Les commandes arrivent écrites, la salle ne court plus après les informations.",
-              }}
-            />
           </Reveler>
         </div>
       </section>
@@ -778,8 +677,8 @@ export default async function PageAccueil() {
                   Essayez AfriMenu gratuitement
                 </h2>
                 <p className="mt-4 max-w-xl text-lg text-white/90">
-                  14 jours d&apos;essai du plan Pro pour tester toutes les fonctionnalités : menu
-                  illustré, QR codes de table, commandes en temps réel et paiement mobile money.
+                  Le premier mois du plan Pro est offert : menu illustré, QR codes de table,
+                  commandes en temps réel et paiement mobile money, puis 4 900 FCFA par mois.
                 </p>
 
                 <div className="mt-8 flex flex-wrap gap-3">

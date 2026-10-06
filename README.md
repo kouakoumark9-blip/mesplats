@@ -229,7 +229,7 @@ afrimenu/
 ├── middleware.ts                   # Garde d'accès : session + rôle + restaurant actif
 ├── components/
 │   ├── site/                       # Landing : en-tête collant, hero (3 écrans HTML/CSS),
-│   │                               # vignettes de fonctionnalités, bascule tarifs, accordéon,
+│   │                               # vignettes de fonctionnalités, bascule tarifs,
 │   │                               # QR inline (SVG), photos de plats, animations au défilement
 │   ├── ui/                         # Design system : bouton, carte, champ, badge, modale,
 │   │                               # squelettes, états vides, toasts, interrupteur
@@ -492,9 +492,13 @@ Le projet est construit par étapes, chacune vérifiée avant de passer à la su
 - Page d'accueil du SaaS, connexion, inscription, mon compte, page « compte suspendu ».
 - **Landing page professionnelle** : en-tête collant avec menu mobile, titre à mot souligné,
   boutons pilule, hero avec trois écrans de téléphone dessinés en HTML/CSS et cartes flottantes,
-  bandeau de chiffres, grille de fonctionnalités illustrée, section « un QR par table », écran de
-  service sur fond sombre, tarifs avec bascule mensuel/annuel (FCFA), accordéon illustré par une
-  photo de maquis, FAQ et pied de page complet. Vrais QR codes générés en SVG et **décodés en test**.
+  bandeau de chiffres, grille de fonctionnalités illustrée, section « un QR par table », tarifs avec
+  bascule mensuel/annuel (FCFA), FAQ et pied de page complet. Vrais QR codes générés en SVG et
+  **décodés en test**.
+- **Tarifs** : plan Gratuit (0 FCFA, 20 plats, 5 tables) et plan Pro à **4 900 FCFA/mois avec le
+  premier mois offert** (annuel : 49 000 FCFA, deux mois offerts), plus une formule
+  multi-établissements. Le tarif est repris dans le JSON-LD de la page et dans les paramètres du
+  back-office.
 - **Photos de plats** : `public/plats/*.jpg` et `public/ambiance/maquis.jpg`, servies par
   `next/image` (WebP, redimensionnement) ; `components/site/photo-plat.tsx` gère le repli quand
   un plat n'a pas encore de photo.
@@ -530,6 +534,18 @@ Le projet est construit par étapes, chacune vérifiée avant de passer à la su
 - **Publication immédiate** : toute modification apparaît aussitôt sur `/m/[slug]` (nom, couleur,
   catégories, plats, options). Vérifié au navigateur : 20 contrôles automatisés au vert, aucune
   erreur console, aucun débordement horizontal sur mobile (390 px).
+
+---
+
+## 12 bis. Choix de contenu de la page d'accueil
+
+Certaines sections ont été volontairement retirées de la page d'accueil pour l'alléger :
+
+- **Section « Écran de service »** (aperçu sur fond sombre) — l'écran reste accessible depuis le
+  back-office et sera présenté à l'étape 5 ;
+- **Section « Tout ce dont votre restaurant a besoin »** (accordéon illustré) — le composant
+  `components/site/accordeon-avantages.tsx` est conservé dans le projet : il suffit de réimporter
+  `AccordeonAvantages` dans `app/page.tsx` pour le remettre en place.
 
 ---
 

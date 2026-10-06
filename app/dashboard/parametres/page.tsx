@@ -13,7 +13,7 @@ import { formatFcfa, lienSms, lienWhatsApp } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Paramètres" };
 
-const MESSAGE_PRO = "Bonjour AfriMenu, je souhaite passer mon restaurant au plan Pro (menu illimité).";
+const MESSAGE_PRO = "Bonjour AfriMenu, je souhaite activer le plan Pro de mon restaurant (4 900 FCFA par mois, premier mois offert).";
 
 export default async function PageParametres() {
   const utilisateur = await exigerRole("admin");
@@ -137,7 +137,7 @@ export default async function PageParametres() {
                   className="inline-flex h-11 items-center gap-2 rounded-xl bg-feuille-600 px-4 text-sm font-semibold text-white transition hover:bg-feuille-700"
                 >
                   <MessageCircle className="size-4" aria-hidden />
-                  Activer le plan Pro — {formatFcfa(9900)} / mois
+                  Activer le plan Pro — {formatFcfa(4900)} / mois
                 </Link>
                 <Link
                   href={lienWhatsApp(
