@@ -18,7 +18,7 @@ const AVANTAGES = [
   "Commandes sur place et à emporter",
   "Écran de service en temps réel (téléphone ou tablette)",
   "Paiement Orange Money, Moov Money, MTN MoMo ou espèces",
-  "Plan gratuit : 20 produits, commandes illimitées",
+  "Premier mois du plan Pro offert, sans carte bancaire",
 ];
 
 export default async function PageInscription() {
@@ -52,7 +52,8 @@ export default async function PageInscription() {
         </div>
 
         <p className="relative text-sm text-marque-100">
-          Déjà 5 minutes pour tout installer. Aucune carte bancaire requise.
+          Comptez 5 minutes pour tout installer. Aucune carte bancaire requise, aucun
+          engagement : vous restez libre d&apos;arrêter quand vous voulez.
         </p>
       </section>
 
@@ -79,7 +80,8 @@ export default async function PageInscription() {
             Créer mon restaurant
           </h1>
           <p className="mt-2 mb-6 text-slate-600">
-            Quelques informations suffisent : votre menu et vos QR codes sont générés automatiquement.
+            Quelques informations suffisent : votre menu et vos QR codes sont générés
+            automatiquement. Le premier mois du plan Pro est offert, sans carte bancaire.
           </p>
 
           <FormulaireInscription />

@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 
 const LIENS = [
   { href: "#fonctionnalites", libelle: "Fonctionnalités" },
+  { href: "#etapes", libelle: "Étapes" },
   { href: "#qr", libelle: "QR codes" },
   { href: "#tarifs", libelle: "Tarifs" },
   { href: "#questions", libelle: "Questions" },

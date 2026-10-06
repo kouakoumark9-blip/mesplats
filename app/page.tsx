@@ -30,6 +30,7 @@ import Link from "next/link";
 import { BasculeTarifs } from "@/components/site/bascule-tarifs";
 import { BoutonPilule } from "@/components/site/bouton-pilule";
 import { EnteteSite } from "@/components/site/entete-site";
+import { Etapes } from "@/components/site/etapes";
 import {
   BandeauCuisineFlottant,
   CarteBoissonFlottante,
@@ -599,6 +600,9 @@ export default async function PageAccueil() {
           </div>
         </div>
       </section>
+
+      {/* ================================== ÉTAPES ================================== */}
+      <Etapes />
 
       {/* ================================== TARIFS ================================== */}
       <section
