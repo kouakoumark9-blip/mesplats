@@ -132,8 +132,8 @@ export function FormulaireInscription() {
       </div>
 
       <Alerte ton="info" icone={<Store className="size-4" aria-hidden />}>
-        Le plan <strong>Gratuit</strong> vous permet d&apos;enregistrer jusqu&apos;à 20 produits, sans
-        limite de commandes. Aucune carte bancaire n&apos;est demandée.
+        Votre compte démarre par <strong>1 mois gratuit</strong> : toutes les fonctionnalités sont
+        débloquées, sans limite de plats ni de commandes. Aucune carte bancaire n&apos;est demandée.
       </Alerte>
 
       <Bouton

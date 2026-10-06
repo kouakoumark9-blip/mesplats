@@ -120,12 +120,12 @@ const FAQ = [
   {
     question: "Y a-t-il une commission sur mes ventes ?",
     reponse:
-      "Aucune. AfriMenu est un abonnement, pas un intermédiaire : vous encaissez directement le client, en mobile money ou en espèces, et la totalité de la somme reste chez vous. Le plan gratuit ne prend pas de commission non plus.",
+      "Aucune. AfriMenu est un abonnement, pas un intermédiaire : vous encaissez directement le client, en mobile money ou en espèces, et la totalité de la somme reste chez vous. Aucune commission n'est prélevée, ni pendant le mois gratuit ni ensuite.",
   },
   {
     question: "Comment fonctionne le premier mois gratuit ?",
     reponse:
-      "Vous créez votre compte sans carte bancaire : le plan Pro est offert pendant 30 jours, avec toutes les fonctionnalités (menu illimité, QR codes de table, écran de service, paiement mobile money). Au bout du mois, vous choisissez : vous continuez en Pro pour 4 900 FCFA par mois, ou vous restez sur le plan Gratuit sans rien perdre de votre menu.",
+      "Vous créez votre compte sans carte bancaire : pendant 30 jours, vous utilisez tout, sans limite (plats et catégories illimités, tables et QR codes illimités, écran de service, paiement mobile money, statistiques, comptes équipe). Au bout des 30 jours, vous décidez : vous continuez en Pro pour 4 900 FCFA par mois, ou vous arrêtez — sans engagement et sans prélèvement automatique.",
   },
   {
     question: "Ai-je besoin de matériel particulier ?",
@@ -241,11 +241,7 @@ export default async function PageAccueil() {
             <ul className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm font-semibold text-slate-600">
               <li className="inline-flex items-center gap-1.5">
                 <Check className="size-4 text-feuille-600" aria-hidden />
-                À partir de 0 FCFA
-              </li>
-              <li className="inline-flex items-center gap-1.5">
-                <Check className="size-4 text-feuille-600" aria-hidden />
-                Premier mois gratuit
+                1er mois gratuit, tout inclus
               </li>
               <li className="inline-flex items-center gap-1.5">
                 <Check className="size-4 text-feuille-600" aria-hidden />
@@ -446,8 +442,9 @@ export default async function PageAccueil() {
           <Reveler className="mx-auto max-w-3xl text-center">
             <TitreSouligne avant="Un plan pour" accent="chaque restaurant" />
             <p className="mt-5 text-lg text-slate-600">
-              Commencez gratuitement, passez au plan Pro quand votre carte devient trop longue, ou
-              choisissez la formule multi-établissements si vous gérez plusieurs adresses.
+              Commencez par un mois gratuit avec toutes les fonctionnalités débloquées, puis
+              choisissez le plan Pro à 4 900 FCFA par mois, ou la formule multi-établissements si
+              vous gérez plusieurs adresses.
             </p>
           </Reveler>
 
@@ -564,7 +561,7 @@ export default async function PageAccueil() {
           {[
             { icone: <ShieldCheck className="size-4" aria-hidden />, texte: "Données isolées par restaurant" },
             { icone: <Wifi className="size-4" aria-hidden />, texte: "Rapide en 3G comme en 4G" },
-            { icone: <ClipboardList className="size-4" aria-hidden />, texte: "Commandes illimitées, même en gratuit" },
+            { icone: <ClipboardList className="size-4" aria-hidden />, texte: "Commandes illimitées dès le premier jour" },
             { icone: <Utensils className="size-4" aria-hidden />, texte: "Support en français à Abidjan" },
             { icone: <MapPin className="size-4" aria-hidden />, texte: "Pensé pour la Côte d'Ivoire" },
           ].map((element) => (

@@ -16,15 +16,27 @@ export function cn(...entrees: ClassValue[]): string {
 
 const formateurNombre = new Intl.NumberFormat("fr-FR");
 
+/*
+ * `Intl.NumberFormat("fr-FR")` sépare les milliers par une espace fine insécable
+ * (U+202F). Selon la police utilisée — et notamment dans les tableaux de bord et
+ * les factures — ce caractère est si étroit qu'il disparaît : « 24 900 » se lit
+ * alors « 24900 » et « 2 500 FCFA » se lit « 2500FCFA ». On normalise donc sur
+ * l'espace insécable classique (U+00A0), visible et qui empêche toujours la
+ * coupure en fin de ligne.
+ */
+function grouper(nombre: number): string {
+  return formateurNombre.format(nombre).replace(/\u202F|\u00A0|\u2009/g, "\u00A0");
+}
+
 /** 1500 → « 1 500 FCFA » */
 export function formatFcfa(montant: number, devise = "FCFA"): string {
   const valeur = Number.isFinite(montant) ? Math.round(montant) : 0;
-  return `${formateurNombre.format(valeur)} ${devise}`;
+  return `${grouper(valeur)}\u00A0${devise}`;
 }
 
 /** 1500 → « 1 500 » (sans devise, pour les tableaux compacts) */
 export function formatNombre(montant: number): string {
-  return formateurNombre.format(Math.round(montant || 0));
+  return grouper(Math.round(montant || 0));
 }
 
 /* -------------------------------------------------------------------------- */

@@ -3,17 +3,19 @@
 /**
  * Grille tarifaire avec bascule Mensuel / Annuel.
  *
- * Le plan Pro est offert le premier mois, puis facturé 4 900 FCFA par mois.
- * Sur l'annuel, on paie 10 mois sur 12 (deux mois offerts). Prix en FCFA.
+ * Première carte : un mois gratuit avec TOUTES les fonctionnalités débloquées
+ * (l'ancienne carte « Gratuit · 0 FCFA · pour toujours » a été retirée à la
+ * demande du propriétaire). Ensuite le plan Pro à 4 900 FCFA par mois, ou la
+ * formule multi-établissements. Sur l'annuel, on paie 10 mois sur 12.
  */
-import { ArrowRight, Check, Sparkles, X } from "lucide-react";
+import { ArrowRight, Check, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
 import { BoutonPilule } from "@/components/site/bouton-pilule";
 import { Badge } from "@/components/ui/badge";
 import { Carte } from "@/components/ui/carte";
-import { cn, formatFcfa } from "@/lib/utils";
+import { cn, formatFcfa, formatNombre } from "@/lib/utils";
 
 type Offre = {
   nom: string;
@@ -21,7 +23,12 @@ type Offre = {
   mensuel: number;
   annuel: number;
   avantages: string[];
-  absent?: string[];
+  /**
+   * Offres sans prix chiffré (ex. « 1 mois gratuit ») : ces deux champs
+   * remplacent l'affichage « 4 900 FCFA / mois ».
+   */
+  prixTitre?: string;
+  prixSuffixe?: string;
   /** Précision affichée sous le prix (remplace la mention par défaut). */
   note?: string;
   populaire?: boolean;
@@ -30,25 +37,27 @@ type Offre = {
 
 const OFFRES: Offre[] = [
   {
-    nom: "Gratuit",
-    accroche: "Pour démarrer sans risque",
+    nom: "1 mois gratuit",
+    accroche: "Tout utiliser, sans aucune limite",
+    prixTitre: "1 mois",
+    prixSuffixe: "gratuit, tout inclus",
+    note: "Puis 4 900 FCFA par mois. Sans carte bancaire, sans engagement.",
     mensuel: 0,
     annuel: 0,
     avantages: [
-      "20 produits au menu",
-      "5 tables avec QR code",
-      "Commandes illimitées",
+      "Tout le plan Pro débloqué dès l'inscription",
+      "Plats, catégories et suppléments illimités",
+      "Tables et QR codes illimités",
       "Écran de service temps réel",
       "Paiement Orange, Moov, MTN ou espèces",
-      "1 compte équipe",
+      "Statistiques et comptes équipe illimités",
     ],
-    absent: ["Statistiques avancées", "Support WhatsApp prioritaire"],
-    cta: { libelle: "Commencer gratuitement", href: "/inscription" },
+    cta: { libelle: "Commencer mes 30 jours", href: "/inscription" },
   },
   {
     nom: "Pro",
     accroche: "Le plan des restaurants en activité",
-    note: "1er mois offert, puis 4 900 FCFA par mois. Sans engagement.",
+    note: "Après votre mois gratuit. Sans engagement, résiliable à tout moment.",
     mensuel: 4_900,
     annuel: 49_000,
     avantages: [
@@ -60,7 +69,7 @@ const OFFRES: Offre[] = [
       "Support WhatsApp prioritaire",
     ],
     populaire: true,
-    cta: { libelle: "Commencer mes 30 jours offerts", href: "/inscription" },
+    cta: { libelle: "Passer au plan Pro", href: "/inscription" },
   },
   {
     nom: "Multi-établissements",
@@ -123,8 +132,10 @@ export function BasculeTarifs() {
       </div>
 
       <p className="mt-3 text-center text-sm text-slate-500">
-        <strong className="font-bold text-marque-700">Le premier mois est offert</strong> — sans
-        carte bancaire et sans engagement, résiliable à tout moment.
+        <strong className="font-bold text-marque-700">
+          Le premier mois est offert, tout est débloqué
+        </strong>{" "}
+        — sans carte bancaire et sans engagement, résiliable à tout moment.
       </p>
 
       {/* Cartes */}
@@ -155,17 +166,32 @@ export function BasculeTarifs() {
               <h3 className="font-titre text-lg font-extrabold text-slate-900">{offre.nom}</h3>
               <p className="mt-1 text-sm text-slate-500">{offre.accroche}</p>
 
-              <p className="mt-5 flex items-baseline gap-1.5">
-                <span className="font-titre text-4xl font-extrabold tracking-tight text-slate-900">
-                  {offre.mensuel === 0 ? "0" : formatFcfa(prixAffiche).replace(" FCFA", "")}
-                </span>
-                <span className="text-sm font-semibold text-slate-500">
-                  FCFA{offre.mensuel === 0 ? "" : " / mois"}
-                </span>
+              <p className="mt-5 flex flex-wrap items-baseline gap-1.5">
+                {offre.prixTitre ? (
+                  <>
+                    <span className="font-titre text-4xl font-extrabold tracking-tight text-slate-900">
+                      {offre.prixTitre}
+                    </span>
+                    <span className="text-sm font-semibold text-slate-500">
+                      {offre.prixSuffixe}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="font-titre text-4xl font-extrabold tracking-tight text-slate-900">
+                      {/* `formatNombre` et non `formatFcfa(...).replace(" FCFA", "")` :
+                          l'espace qui précède la devise est insécable, un simple
+                          remplacement sur l'espace ordinaire laissait « 4 900 FCFA »
+                          suivi du suffixe, soit un « FCFA FCFA » affiché. */}
+                      {formatNombre(prixAffiche)}
+                    </span>
+                    <span className="text-sm font-semibold text-slate-500">FCFA / mois</span>
+                  </>
+                )}
               </p>
               <p className="mt-1 min-h-10 text-xs text-slate-500">
-                {offre.mensuel === 0
-                  ? "Gratuit pour toujours"
+                {offre.prixTitre
+                  ? offre.note
                   : annuel
                     ? `Facturé ${formatFcfa(offre.annuel)} par an, 2 mois offerts`
                     : (offre.note ?? "Sans engagement, résiliable à tout moment")}
@@ -181,14 +207,6 @@ export function BasculeTarifs() {
                       <Check className="size-2.5" aria-hidden />
                     </span>
                     {avantage}
-                  </li>
-                ))}
-                {offre.absent?.map((element) => (
-                  <li key={element} className="flex items-start gap-2.5 text-sm text-slate-400">
-                    <span className="mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-400">
-                      <X className="size-2.5" aria-hidden />
-                    </span>
-                    {element}
                   </li>
                 ))}
               </ul>

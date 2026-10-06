@@ -601,6 +601,24 @@ Certaines sections ont été volontairement retirées de la page d'accueil pour 
 La page d'accueil enchaîne donc : héros → chiffres → « Pourquoi choisir AfriMenu » →
 « Un QR code pour chaque table » → « 3 étapes » → tarifs → questions → appel final → pied de page.
 
+**Tarifs : plus de formule « Gratuit · 0 FCFA · pour toujours ».** La première carte s'intitule
+désormais **« 1 mois gratuit — tout utiliser, sans aucune limite »** : elle affiche « 1 mois / gratuit,
+tout inclus », annonce la suite (« puis 4 900 FCFA par mois, sans carte bancaire, sans engagement »)
+et liste **les avantages du plan Pro débloqués dès l'inscription** (plats illimités, tables et QR
+codes illimités, écran de service, paiement mobile money, statistiques, comptes équipe) — plus aucune
+ligne « non inclus ». Les autres mentions ont suivi : le héros (« 1er mois gratuit, tout inclus » à la
+place de « À partir de 0 FCFA »), le bandeau de confiance, l'introduction de la section tarifs, les
+deux questions de la FAQ, le message d'inscription, et le JSON-LD (`Pro: 4900 XOF`). Les formules Pro
+(4 900 FCFA/mois) et Multi-établissements (24 900 FCFA/mois) restent inchangées.
+
+**Montants : les milliers s'affichent enfin.** `Intl.NumberFormat("fr-FR")` sépare les milliers par
+une **espace fine insécable (U+202F)**, si étroite qu'elle disparaît selon les polices : on lisait
+« 24900 FCFA » au lieu de « 24 900 FCFA », et un `.replace(" FCFA", "")` (espace ordinaire) ne
+matchait plus, produisant « 4 900 FCFA **FCFA** / mois ». `lib/utils.ts` normalise désormais sur
+l'espace insécable classique (U+00A0) via le helper `grouper()`, et `formatNombre()` remplace le
+remplacement de chaîne dans la grille tarifaire. Vérifié sur l'accueil, l'inscription, le menu public
+et le tableau de bord : aucune occurrence de « 0 FCFA », de « FCFA FCFA » ni de chiffres collés.
+
 **Appel final : la maquette de téléphone est affichée entière.** Elle était auparavant décalée de
 40 px vers le bas et recouverte d'un dégradé de 96 px (`from-marque-700/90`) : le cadre sortait de
 la carte de 48 px et le bouton « Commander » du panier devenait illisible sous le voile. Le cadre
