@@ -499,8 +499,9 @@ Le projet est construit par étapes, chacune vérifiée avant de passer à la su
   **décodés en test**.
 - **Section « Votre menu en ligne en 3 étapes »** : créez votre menu → imprimez vos QR codes →
   recevez les commandes. Chaque étape est illustrée par une **mini-maquette d'écran** dessinée en
-  HTML/CSS (`components/site/maquettes-etapes.tsx`) : formulaire d'ajout de plat, planche A4 de QR
-  codes, commande reçue sur l'écran de service. Les deux vignettes de QR de l'étape 2 sont de
+  HTML/CSS (`components/site/maquettes-etapes.tsx`) : **écran de téléphone** pour l'ajout d'un plat,
+  **planche A4** de QR codes, **écran de tablette** pour la commande reçue. Les cadres d'appareil
+  réutilisent le composant `Telephone` du héro (`components/site/hero-phones.tsx`). Les deux vignettes de QR de l'étape 2 sont de
   **vrais codes scannables** (décodés en test vers `/m/maquis-le-baoule/t/4`).
 - **Tarifs** : plan Gratuit (0 FCFA, 20 plats, 5 tables) et plan Pro à **4 900 FCFA/mois avec le
   premier mois offert** (annuel : 49 000 FCFA, deux mois offerts), plus une formule

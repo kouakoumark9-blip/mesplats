@@ -26,17 +26,22 @@ import photoKedjenou from "@/public/plats/kedjenou-poulet.jpg";
 /*                              Éléments communs                              */
 /* -------------------------------------------------------------------------- */
 
-/** Coque de téléphone réutilisable. */
-function Telephone({
+/** Coque de téléphone réutilisable (aussi utilisée par les maquettes d'étapes). */
+export function Telephone({
   children,
   className,
   taille = "md",
 }: {
   children: React.ReactNode;
   className?: string;
-  taille?: "md" | "lg";
+  /** Largeur prédéfinie. Ignorée si `className` impose sa propre largeur. */
+  taille?: "sm" | "md" | "lg";
 }) {
-  const largeurs = { md: "w-[15rem] sm:w-[16.5rem]", lg: "w-[16.5rem] sm:w-[19rem]" };
+  const largeurs = {
+    sm: "",
+    md: "w-[15rem] sm:w-[16.5rem]",
+    lg: "w-[16.5rem] sm:w-[19rem]",
+  };
 
   return (
     <div className={cn("relative shrink-0", largeurs[taille], className)}>
