@@ -288,6 +288,7 @@ afrimenu/
 | `npm run db:seed` | Charge les restaurants de démonstration |
 | `npm run db:reset` | Supprime toutes les tables (**développement uniquement**) |
 | `npm run db:setup` | `db:migrate` + `db:seed` |
+| `bash scripts/relancer-apercu.sh` | **Environnement éphémère** : redémarre PostgreSQL, rejoue migrations et seed (si la base est vide) et reconstruit le projet. Ajoutez `--sans-build` pour gagner du temps, ou passez une URL en argument. |
 
 **Modifier le schéma de données :**
 
@@ -607,6 +608,19 @@ La page d'accueil enchaîne donc : héros → chiffres → « Pourquoi choisir A
 **`Variable d'environnement manquante : DATABASE_URL`**
 Le fichier `.env.local` est absent ou incomplet. Copiez `.env.example` vers `.env.local`, ou
 renseignez les variables dans Vercel → Settings → Environment Variables.
+
+**L'environnement a été réinitialisé (sandbox, conteneur jetable) : plus de base, plus de build**
+Tout ce qui n'est pas un fichier du projet disparaît entre deux sessions. Une seule commande remet
+l'ensemble en état de marche, puis démarrez le serveur :
+
+```bash
+bash scripts/relancer-apercu.sh          # PostgreSQL + dépendances + migrations + seed + build
+npm start -- -H 0.0.0.0 -p 3000          # à lancer dans un processus persistant
+```
+
+Le script détecte l'adresse publique du sandbox (`E2B_SANDBOX_ID`) et la reporte dans
+`NEXT_PUBLIC_APP_URL` — indispensable, car **les QR codes sont figés au moment du build** : après un
+changement d'adresse, il faut reconstruire pour qu'ils pointent au bon endroit.
 
 **`relation "restaurants" does not exist`**
 Les migrations n'ont pas été appliquées sur cette base :
