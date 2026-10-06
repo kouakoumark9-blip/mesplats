@@ -16,6 +16,13 @@ export type EtatFormulaire = {
    * travaillent en lot (ex. « créer 12 tables d'un coup »).
    */
   nombre?: number;
+  /**
+   * Lien de secours renvoyé par la demande de réinitialisation lorsque aucun
+   * service d'e-mail n'est configuré sur l'installation.
+   */
+  lien?: string;
+  /** Précisions complémentaires (ex. étapes de secours affichées au demandeur). */
+  note?: string;
 };
 
 export const etatInitial: EtatFormulaire = { ok: false };

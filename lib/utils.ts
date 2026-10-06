@@ -2,8 +2,11 @@ import { clsx, type ClassValue } from "clsx";
 import { format, isToday, isYesterday } from "date-fns";
 import { fr } from "date-fns/locale";
 import { twMerge } from "tailwind-merge";
-
-import { PAYS_AFRIQUE_OUEST, PAYS_DEFAUT } from "@/lib/constants";
+import {
+  PAYS_AFRIQUE_OUEST,
+  PAYS_DEFAUT,
+  type DisponibiliteCategorie,
+} from "@/lib/constants";
 
 /** Fusionne des classes Tailwind sans conflits. */
 export function cn(...entrees: ClassValue[]): string {
@@ -219,4 +222,81 @@ export function estCouleurHex(valeur: string): boolean {
 
 export function identifiantCourt(): string {
   return Math.random().toString(36).slice(2, 10);
+}
+
+
+/* -------------------------------------------------------------------------- */
+/*                        Disponibilité des catégories                        */
+/* -------------------------------------------------------------------------- */
+
+/** « HH:MM » → minutes depuis minuit. */
+function enMinutes(heure: string): number {
+  const [h, m] = heure.split(":").map((v) => Number.parseInt(v, 10));
+  return (Number.isFinite(h) ? h : 0) * 60 + (Number.isFinite(m) ? m : 0);
+}
+
+/** Heure locale d'Abidjan (UTC+0, sans heure d'été) ramenée à un jour + minutes. */
+export function heureAbidjan(reference = new Date()): { jour: number; minutes: number } {
+  // `getUTCDay()` renvoie 0 pour dimanche : on repasse sur 0 = lundi.
+  const jour = (reference.getUTCDay() + 6) % 7;
+  return { jour, minutes: reference.getUTCHours() * 60 + reference.getUTCMinutes() };
+}
+
+/** Phrase lisible : « Tous les jours · 11:30 – 15:00 ». */
+export function resumeDisponibilite(disponibilite: DisponibiliteCategorie | null | undefined): string {
+  if (!disponibilite) return "Tous les jours, à toute heure";
+
+  const jours = disponibilite.jours ?? [];
+  const creneaux = disponibilite.creneaux ?? [];
+
+  const texteJours = jours.length
+    ? [
+        "Lundi",
+        "Mardi",
+        "Mercredi",
+        "Jeudi",
+        "Vendredi",
+        "Samedi",
+        "Dimanche",
+      ]
+        .filter((_, index) => jours.includes(index))
+        .join(", ")
+    : "Tous les jours";
+
+  const texteCreneaux = creneaux.length
+    ? creneaux.map((c) => `${c.debut} – ${c.fin}`).join(" et ")
+    : "toute la journée";
+
+  return `${texteJours} · ${texteCreneaux}`;
+}
+
+/**
+ * La catégorie est-elle servie maintenant ?
+ * Un réglage vide (ou absent) signifie « disponible en permanence », ce qui est
+ * le cas de la grande majorité des catégories.
+ */
+export function estDisponibleMaintenant(
+  disponibilite: DisponibiliteCategorie | null | undefined,
+  reference = new Date(),
+): boolean {
+  if (!disponibilite) return true;
+
+  const { jour, minutes } = heureAbidjan(reference);
+  const jours = disponibilite.jours ?? [];
+  if (jours.length > 0 && !jours.includes(jour)) return false;
+
+  const creneaux = disponibilite.creneaux ?? [];
+  if (creneaux.length === 0) return true;
+
+  return creneaux.some(
+    (creneau) => minutes >= enMinutes(creneau.debut) && minutes <= enMinutes(creneau.fin),
+  );
+}
+
+/** true si le réglage porte au moins une contrainte (jours ou horaires). */
+export function disponibiliteContrainte(
+  disponibilite: DisponibiliteCategorie | null | undefined,
+): boolean {
+  if (!disponibilite) return false;
+  return Boolean((disponibilite.jours ?? []).length || (disponibilite.creneaux ?? []).length);
 }

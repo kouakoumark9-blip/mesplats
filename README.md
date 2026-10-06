@@ -140,6 +140,30 @@ défile.
 - Vérifié au navigateur : les 5 pastilles mesurent exactement **48 × 48 px avec un rayon de 12 px**
   sur les trois pages, chacune avec son fond de marque.
 
+## 1 quater. Fonctionnalités ajoutées (passe « plus professionnel »)
+
+Cette passe reprend les fonctionnalités d'un outil de menu QR du marché
+(MonQrMenu) en les adaptant au modèle Mesplats : français, **FCFA**, mobile money
+Orange / Moov / MTN / Wave, formules payantes 9 900 et 19 900 FCFA, temps réel par
+polling, aucune API payante.
+
+| Domaine | Ce qui a été ajouté |
+| --- | --- |
+| **Connexion** | **Mot de passe oublié** : `/mot-de-passe-oublie` puis `/reinitialiser-mot-de-passe?jeton=…`. Jeton aléatoire de 32 octets, stocké **haché** (SHA-256), valable 30 minutes, à usage unique. Réponse toujours identique (pas d'énumération des comptes). Envoi par e-mail si `RESEND_API_KEY` est configurée, sinon le lien est affiché au demandeur. Indicateur de robustesse du mot de passe en direct. |
+| **Catégories** | **Disponibilité** par catégorie : raccourcis *Toujours*, *Midi*, *Soir*, *Week-end*, *Personnalisé*, puis choix des jours (L → D) et de 1 à 4 créneaux horaires. La carte publique affiche « Servi 06:00 – 11:00 » et grise la catégorie hors créneau (« Cette partie de la carte revient plus tard »), calculé sur l'heure d'Abidjan (UTC+0). |
+| **Menu** | Recherche, **Tout déplier / Tout replier** par catégorie, **Sélectionner** (actions de masse : épuisé, remise en vente, suppression), compteurs de catégories et de plats, réordonnancement par flèches (utilisable au doigt comme au clavier, contrairement au glisser-déposer), **nombre de personnes** min/max sur les plats à partager. |
+| **Page « QR Code »** | Écran dédié `/dashboard/qr` : **5 styles** (Classique, Arrondi, Points, Chic, Élégant), couleur du motif et du fond (palettes + sélecteur libre), **logo au centre** (correction d'erreur renforcée automatiquement), adresse encodée avec bouton **Copier**, export **PNG 1024 px** et **SVG** vecteur. Les QR des tables reprennent les mêmes réglages. |
+| **Paramètres** | Sommaire ancré et cinq sections : **Établissement** (nom, slug, présentation, adresse + complément, code postal, ville, téléphone, horaires, devise, couleur), **Apparence** (logo + bannière, téléversement Blob ou adresse d'image), **Personnalisation de la carte** (thème clair/sombre, fond Neutre/Blanc/Crème/Menthe/Ciel/Rosé, 5 polices, aperçu en direct + « Prévisualiser la carte »), **Langues du menu** (français + anglais, espagnol, arabe), **Réseaux sociaux** (Instagram, Facebook, X, Snapchat), **Zone sensible** (suppression de l'établissement sur double confirmation : nom exact + mot de passe revérifié). |
+| **Carte publique** | Applique le thème, la couleur de fond, la police, la bannière, le logo, la présentation courte, l'adresse complète, les réseaux sociaux et les horaires. Sélecteur de langue par l'URL (`?lang=en`), sens de lecture géré pour l'arabe, gratuité signalée pour les plats épuisés. |
+| **Nouveaux écrans** | **Boutique** (chevalets, stickers, affiches : commande par WhatsApp, impression à partir de vos réglages QR) et **S'abonner** (comparatif 9 900 / 19 900 FCFA, paiement mobile money, activation expliquée pas à pas). Navigation du back-office complétée : *Menu · QR Code · Tables · Boutique · Paramètres · S'abonner*. |
+
+**Qualité vérifiée (build `Mesplats`)** : `tsc --noEmit` et `eslint` silencieux, `npm run build`
+sans erreur, **65/65 vérifications Playwright** (`/home/user/qa/verif-nouveautes.mjs`) et
+**5/5 styles de QR décodés** par un décodeur ZXing (`/home/user/qa/qr-scannabilite.mjs`), y compris
+avec le logo au centre. Aucune erreur console, aucun débordement horizontal en 390 px.
+
+---
+
 ## 2. Stack technique
 
 | Domaine | Choix |
@@ -223,7 +247,9 @@ Copiez `.env.example` vers `.env.local` en développement, et déclarez les mêm
 | `DATABASE_URL` | ✅ | Chaîne de connexion PostgreSQL (Neon en production). Ajoutez `?sslmode=require`. |
 | `AUTH_SECRET` | ✅ | Secret de signature des sessions. Généré avec `openssl rand -base64 32`. |
 | `BLOB_READ_WRITE_TOKEN` | ⬜¹ | Jeton d'écriture **Vercel Blob** pour les photos de plats et les logos. |
-| `NEXT_PUBLIC_APP_URL` | ⬜² | URL publique utilisée dans les QR codes (ex. `https://afrimenu.ci`). Sur Vercel, déduite automatiquement de `VERCEL_URL` si absente. |
+| `NEXT_PUBLIC_APP_URL` | ⬜² | URL publique utilisée dans les QR codes (ex. `https://mesplats.ci`). Sur Vercel, déduite automatiquement de `VERCEL_URL` si absente. |
+| `RESEND_API_KEY` | ⬜³ | Envoi des e-mails transactionnels (lien « mot de passe oublié ») via Resend. Sans clé, le lien est affiché directement au demandeur — aucun blocage. |
+| `EMAIL_EXPEDITEUR` | ⬜³ | Expéditeur affiché, ex. `Mesplats <notifications@mesplats.ci>`. |
 | `DRIZZLE_LOG` | ⬜ | `true` pour journaliser les requêtes SQL générées. |
 
 ¹ Requis dès que vous téléversez des photos (étapes 2 et 3). Sans ce jeton, l'interface masque les
@@ -231,6 +257,10 @@ boutons d'envoi et affiche une explication.
 
 ² Indispensable en production : les QR codes imprimés doivent pointer vers votre domaine définitif.
 Définissez cette variable **avant** de générer et d'imprimer vos cartes de table.
+
+³ Facultatif : sans `RESEND_API_KEY`, la page « mot de passe oublié » affiche elle-même le lien de
+réinitialisation (valable 30 minutes) au lieu de l'envoyer par e-mail. Pratique en auto-hébergement et
+pour la démonstration ; en production, renseignez la clé pour que le lien parte par e-mail.
 
 > ⚠️ `.env.local` est ignoré par Git (`.gitignore` → `.env*`). Ne committez jamais de secret.
 
@@ -325,6 +355,25 @@ afrimenu/
 ```
 
 ---
+
+### Fichiers notables ajoutés par la passe « fonctionnalités »
+
+```
+lib/qr-styles.ts                              moteur de rendu des QR (5 styles, logo, SVG + canvas)
+lib/i18n-public.ts                            libellés de la carte en français, anglais, espagnol, arabe
+lib/auth/jetons.ts                            jetons de réinitialisation (32 octets, SHA-256, 30 min)
+lib/email.ts                                  e-mail transactionnel Resend, avec mode de secours
+components/dashboard/atelier-qr.tsx            écran « QR Code » (aperçu en direct, exports)
+components/dashboard/disponibilite-categorie.tsx  jours + créneaux horaires d'une catégorie
+components/dashboard/formulaire-carte.tsx      thème, fond, police, langues + aperçu
+components/dashboard/formulaire-vitrine.tsx    logo, bannière, présentation, adresse
+components/dashboard/formulaire-reseaux.tsx    Instagram, Facebook, X, Snapchat
+components/dashboard/zone-danger.tsx           suppression de l'établissement (triple garde)
+components/ui/icones-reseaux.tsx               pictogrammes de réseaux (tracés maison, 24 × 24)
+app/dashboard/qr · app/dashboard/boutique · app/dashboard/abonnement
+app/mot-de-passe-oublie · app/reinitialiser-mot-de-passe
+drizzle/0002_*.sql                             migration : apparence, langues, QR, disponibilité, personnes
+```
 
 ## 7. Scripts npm
 

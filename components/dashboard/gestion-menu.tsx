@@ -12,10 +12,17 @@
 import {
   ArrowDown,
   ArrowUp,
+  Ban,
+  CheckCircle2,
+  ChevronDown,
+  ChevronRight,
+  ChevronsDown,
+  ChevronsUp,
   Copy,
   Eye,
   EyeOff,
   FolderPlus,
+  ListChecks,
   Pencil,
   Plus,
   Search,
@@ -34,6 +41,7 @@ import { Carte, CarteEntete } from "@/components/ui/carte";
 import { Entree } from "@/components/ui/champ";
 import { Alerte, EtatVide } from "@/components/ui/divers";
 import { Interrupteur } from "@/components/ui/interrupteur";
+import { DisponibiliteCategorie as SelecteurDisponibilite } from "@/components/dashboard/disponibilite-categorie";
 import { Modale } from "@/components/ui/modale";
 import { useToasts } from "@/components/ui/toast";
 import {
@@ -48,7 +56,13 @@ import {
   type ResultatAction,
 } from "@/lib/actions/catalogue";
 import { etatInitial } from "@/lib/actions/etat";
-import { cn, formatFcfa } from "@/lib/utils";
+import type { DisponibiliteCategorie } from "@/lib/constants";
+import {
+  cn,
+  disponibiliteContrainte,
+  formatFcfa,
+  resumeDisponibilite,
+} from "@/lib/utils";
 
 export type OptionAffichee = { id: string; nom: string; supplementPrix: number };
 
@@ -58,6 +72,9 @@ export type PlatAffiche = {
   nom: string;
   description: string | null;
   prix: number;
+  /** Plats à partager : « pour 2 à 4 personnes ». */
+  personnesMin?: number | null;
+  personnesMax?: number | null;
   photo: string | null;
   disponible: boolean;
   options: OptionAffichee[];
@@ -67,6 +84,8 @@ export type CategorieAffichee = {
   id: string;
   nom: string;
   visible: boolean;
+  /** Jours et créneaux pendant lesquels la catégorie est servie. */
+  disponibilite?: DisponibiliteCategorie | null;
   produits: PlatAffiche[];
 };
 
@@ -96,6 +115,10 @@ export function GestionMenu({
     plat?: PlatModifiable | null;
     categorieParDefaut?: string;
   } | null>(null);
+  /** Identifiants des catégories repliées (tout est déplié par défaut). */
+  const [repliees, setRepliees] = useState<string[]>([]);
+  /** Mode sélection : null = inactif, sinon identifiants des plats cochés. */
+  const [selection, setSelection] = useState<string[] | null>(null);
   const [suppression, setSuppression] = useState<
     | { type: "categorie"; categorie: CategorieAffichee }
     | { type: "produit"; plat: PlatAffiche }
@@ -170,6 +193,42 @@ export function GestionMenu({
     );
 
   /** Échange deux catégories dans l'ordre affiché (retour visuel immédiat). */
+  /** Applique une action de masse aux plats sélectionnés, l'un après l'autre. */
+  function agirSurSelection(action: (id: string) => Promise<ResultatAction>, succes: string, rendreDisponible?: boolean) {
+    const ids = selection ?? [];
+    if (ids.length === 0) return;
+    demarrer(async () => {
+      let reussis = 0;
+      for (const id of ids) {
+        const resultat = await action(id);
+        if (resultat.ok) reussis += 1;
+      }
+      setSelection(null);
+      if (rendreDisponible !== undefined) {
+        setCategories((liste) =>
+          liste.map((categorie) => ({
+            ...categorie,
+            produits: categorie.produits.map((plat) =>
+              ids.includes(plat.id) && reussis > 0 ? { ...plat, disponible: rendreDisponible } : plat,
+            ),
+          })),
+        );
+      }
+      notifier({
+        titre: succes,
+        description: `${reussis} plat(s) sur ${ids.length}.`,
+        ton: reussis === ids.length ? "succes" : "alerte",
+      });
+      router.refresh();
+    });
+  }
+
+  function basculerRepli(id: string) {
+    setRepliees((liste) =>
+      liste.includes(id) ? liste.filter((valeur) => valeur !== id) : [...liste, id],
+    );
+  }
+
   function deplacerCategorieLocalement(id: string, sens: "haut" | "bas") {
     const index = categories.findIndex((categorie) => categorie.id === id);
     const cible = sens === "haut" ? index - 1 : index + 1;
@@ -253,8 +312,75 @@ export function GestionMenu({
           >
             Ajouter un plat
           </Bouton>
+          {categories.length > 1 ? (
+            <Bouton
+              variante="contour"
+              icone={repliees.length > 0 ? <ChevronsDown className="size-4" aria-hidden /> : <ChevronsUp className="size-4" aria-hidden />}
+              onClick={() => setRepliees(repliees.length > 0 ? [] : categories.map((c) => c.id))}
+            >
+              {repliees.length > 0 ? "Tout déplier" : "Tout replier"}
+            </Bouton>
+          ) : null}
+          {nbProduits > 0 ? (
+            <Bouton
+              variante={selection ? "secondaire" : "contour"}
+              icone={<ListChecks className="size-4" aria-hidden />}
+              onClick={() => setSelection(selection ? null : [])}
+            >
+              {selection ? "Quitter la sélection" : "Sélectionner"}
+            </Bouton>
+          ) : null}
         </div>
       </Carte>
+
+      {/* Barre d'actions de masse */}
+      {selection ? (
+        <Carte className="flex flex-wrap items-center justify-between gap-3 border-marque-200 bg-marque-50/60 p-3 dark:border-marque-900 dark:bg-marque-950/30">
+          <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+            {selection.length === 0
+              ? "Cochez les plats à modifier."
+              : `${selection.length} plat(s) sélectionné(s).`}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Bouton
+              variante="contour"
+              taille="sm"
+              disabled={selection.length === 0 || enTransition}
+              icone={<Ban className="size-4" aria-hidden />}
+              onClick={() =>
+                agirSurSelection((id) => basculerDisponibilite(id, false), "Plats marqués épuisés", false)
+              }
+            >
+              Marquer épuisé
+            </Bouton>
+            <Bouton
+              variante="contour"
+              taille="sm"
+              disabled={selection.length === 0 || enTransition}
+              icone={<CheckCircle2 className="size-4" aria-hidden />}
+              onClick={() =>
+                agirSurSelection((id) => basculerDisponibilite(id, true), "Plats remis en vente", true)
+              }
+            >
+              Remettre en vente
+            </Bouton>
+            <Bouton
+              variante="danger"
+              taille="sm"
+              disabled={selection.length === 0 || enTransition}
+              icone={<Trash2 className="size-4" aria-hidden />}
+              onClick={() =>
+                agirSurSelection((id) => supprimerProduit(id), "Plats supprimés")
+              }
+            >
+              Supprimer
+            </Bouton>
+            <Bouton variante="fantome" taille="sm" onClick={() => setSelection(null)}>
+              Annuler
+            </Bouton>
+          </div>
+        </Carte>
+      ) : null}
 
       {/* Liste des catégories */}
       {categories.length === 0 ? (
@@ -294,8 +420,30 @@ export function GestionMenu({
               titre={categorie.nom}
               description={`${categorie.produits.length} plat${categorie.produits.length > 1 ? "s" : ""}${
                 categorie.visible ? "" : " · masquée du menu public"
+              }${
+                disponibiliteContrainte(categorie.disponibilite)
+                  ? ` · ${resumeDisponibilite(categorie.disponibilite)}`
+                  : ""
               }`}
-              icone={<UtensilsCrossed className="size-4" aria-hidden />}
+              icone={
+                <button
+                  type="button"
+                  onClick={() => basculerRepli(categorie.id)}
+                  aria-expanded={!repliees.includes(categorie.id)}
+                  aria-label={
+                    repliees.includes(categorie.id)
+                      ? `Déplier la catégorie ${categorie.nom}`
+                      : `Replier la catégorie ${categorie.nom}`
+                  }
+                  className="rounded-lg border border-slate-200 p-1.5 text-slate-500 transition hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800"
+                >
+                  {repliees.includes(categorie.id) ? (
+                    <ChevronRight className="size-4" aria-hidden />
+                  ) : (
+                    <ChevronDown className="size-4" aria-hidden />
+                  )}
+                </button>
+              }
               action={
                 <>
                   <button
@@ -370,7 +518,7 @@ export function GestionMenu({
               }
             />
 
-            {categorie.produits.length === 0 ? (
+            {repliees.includes(categorie.id) ? null : categorie.produits.length === 0 ? (
               <div className="px-4 py-6 text-center sm:px-5">
                 <p className="text-sm text-slate-500 dark:text-slate-400">
                   Aucun plat dans cette catégorie.
@@ -390,6 +538,23 @@ export function GestionMenu({
               <ul className="divide-y divide-slate-100 dark:divide-slate-800">
                 {categorie.produits.map((plat, indexPlat) => (
                   <li key={plat.id} className="flex flex-wrap items-start gap-3 p-4 sm:p-5">
+                    {selection ? (
+                      <label className="flex items-center gap-2 pt-1">
+                        <input
+                          type="checkbox"
+                          className="size-5 accent-marque-500"
+                          checked={selection.includes(plat.id)}
+                          onChange={() =>
+                            setSelection((liste) =>
+                              (liste ?? []).includes(plat.id)
+                                ? (liste ?? []).filter((id) => id !== plat.id)
+                                : [...(liste ?? []), plat.id],
+                            )
+                          }
+                          aria-label={`Sélectionner ${plat.nom}`}
+                        />
+                      </label>
+                    ) : null}
                     <PhotoPlat
                       src={plat.photo}
                       alt={plat.nom}
@@ -414,6 +579,15 @@ export function GestionMenu({
                       {plat.description ? (
                         <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                           {plat.description}
+                        </p>
+                      ) : null}
+                      {plat.personnesMin || plat.personnesMax ? (
+                        <p className="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                          {plat.personnesMin && plat.personnesMax
+                            ? `Pour ${plat.personnesMin} à ${plat.personnesMax} personnes`
+                            : plat.personnesMin
+                              ? `À partir de ${plat.personnesMin} personne(s)`
+                              : `Jusqu'à ${plat.personnesMax} personne(s)`}
                         </p>
                       ) : null}
                       {plat.options.length > 0 ? (
@@ -718,6 +892,15 @@ export function FormulaireCategorie({
               {etat.erreurs.nom}
             </p>
           ) : null}
+        </div>
+
+        <div className="border-t border-slate-100 pt-4 dark:border-slate-800">
+          <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">Disponibilité</p>
+          <p className="mt-0.5 mb-3 text-xs text-slate-500 dark:text-slate-400">
+            Utile pour les cartes qui changent au fil de la journée : petit-déjeuner le matin,
+            grillades le soir, brunch le week-end.
+          </p>
+          <SelecteurDisponibilite valeurInitiale={categorie?.disponibilite ?? null} />
         </div>
       </form>
     </Modale>

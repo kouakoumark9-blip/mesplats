@@ -26,6 +26,13 @@ const TYPES_ACCEPTES: Record<string, string> = {
 /** 5 Mo : une photo de plat prise avec un téléphone reste bien en dessous. */
 const TAILLE_MAX = 5 * 1024 * 1024;
 
+/** Dossiers autorisés (les photos de plats, le logo et la bannière). */
+const DOSSIERS: Record<string, string> = {
+  plats: "plats",
+  logo: "logo",
+  banniere: "banniere",
+};
+
 export async function POST(requete: Request) {
   const garde = await exigerApiRestaurant("admin");
   if ("reponse" in garde) return garde.reponse;
@@ -70,9 +77,12 @@ export async function POST(requete: Request) {
     );
   }
 
+  const dossierDemande = String(donnees.get("dossier") ?? "plats");
+  const dossier = DOSSIERS[dossierDemande] ?? "plats";
+
   try {
     const { url } = await put(
-      `restaurants/${garde.utilisateur.restaurantId}/plats/${Date.now()}-${identifiantCourt()}.${extension}`,
+      `restaurants/${garde.utilisateur.restaurantId}/${dossier}/${Date.now()}-${identifiantCourt()}.${extension}`,
       fichier,
       { access: "public", token: jeton, contentType: fichier.type },
     );

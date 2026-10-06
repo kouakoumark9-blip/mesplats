@@ -34,6 +34,9 @@ export type PlatModifiable = {
   photo: string | null;
   disponible: boolean;
   options: { id: string; nom: string; supplementPrix: number }[];
+  /** Plats à partager (ex. « pour 2 à 4 personnes »). */
+  personnesMin?: number | null;
+  personnesMax?: number | null;
 };
 
 type OptionEditee = { cle: string; nom: string; supplementPrix: number };
@@ -371,6 +374,45 @@ export function FormulaireProduit({
                 </option>
               ))}
             </Selecteur>
+          </Champ>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Champ
+            label="Nombre de personnes (début)"
+            htmlFor="plat-personnes-min"
+            aide="Pour les plats à partager. Laissez vide si non concerné."
+            erreur={erreurs.personnesMin}
+          >
+            <Entree
+              id="plat-personnes-min"
+              name="personnesMin"
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={50}
+              defaultValue={plat?.personnesMin ?? ""}
+              placeholder="2"
+              erreur={Boolean(erreurs.personnesMin)}
+            />
+          </Champ>
+
+          <Champ
+            label="Nombre de personnes (fin)"
+            htmlFor="plat-personnes-max"
+            erreur={erreurs.personnesMax}
+          >
+            <Entree
+              id="plat-personnes-max"
+              name="personnesMax"
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={50}
+              defaultValue={plat?.personnesMax ?? ""}
+              placeholder="4"
+              erreur={Boolean(erreurs.personnesMax)}
+            />
           </Champ>
         </div>
 

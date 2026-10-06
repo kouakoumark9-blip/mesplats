@@ -12,8 +12,10 @@ import { etatInitial } from "@/lib/actions/etat";
 
 export function FormulaireConnexion({
   messageInscription,
+  messageReinitialise,
 }: {
   messageInscription?: string;
+  messageReinitialise?: string;
 }) {
   const [etat, action, enCours] = useActionState(connexionAction, etatInitial);
   const [motDePasseVisible, setMotDePasseVisible] = useState(false);
@@ -31,6 +33,12 @@ export function FormulaireConnexion({
       {messageInscription ? (
         <Alerte ton="succes" titre="Compte créé !">
           Connectez-vous avec vos identifiants pour accéder à votre back-office.
+        </Alerte>
+      ) : null}
+
+      {messageReinitialise ? (
+        <Alerte ton="succes" titre="Mot de passe modifié">
+          Choisissez votre nouveau mot de passe ci-dessous pour vous connecter.
         </Alerte>
       ) : null}
 
@@ -97,6 +105,15 @@ export function FormulaireConnexion({
         <Sparkles className="size-4" aria-hidden />
         Remplir avec le compte de démonstration
       </button>
+
+      <p className="text-center text-sm">
+        <Link
+          href="/mot-de-passe-oublie"
+          className="font-semibold text-slate-600 hover:text-marque-600 hover:underline dark:text-slate-300"
+        >
+          Mot de passe oublié ?
+        </Link>
+      </p>
 
       <p className="text-center text-sm text-slate-600 dark:text-slate-400">
         Pas encore de compte ?{" "}

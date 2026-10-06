@@ -86,6 +86,26 @@ export const telephoneOuestAfricainSchema = z
     { message: "Choisissez un indicatif d'Afrique de l'Ouest (+225, +221, …)." },
   );
 
+/* -------------------------------------------------------------------------- */
+/*                      Mot de passe oublié / réinitialisé                    */
+/* -------------------------------------------------------------------------- */
+
+export const demandeReinitialisationSchema = z.object({
+  email: emailSchema,
+});
+
+export const reinitialisationSchema = z
+  .object({
+    jeton: z.string("Lien incomplet : demandez un nouveau lien.").min(16, "Lien invalide."),
+    motDePasse: motDePasseSchema,
+    confirmation: z.string("Confirmez le nouveau mot de passe."),
+  })
+  .refine((d) => d.motDePasse === d.confirmation, {
+    message: "Les deux mots de passe ne sont pas identiques.",
+    path: ["confirmation"],
+  });
+export type DonneesReinitialisation = z.infer<typeof reinitialisationSchema>;
+
 export const changementMotDePasseSchema = z
   .object({
     motDePasseActuel: z.string("Saisissez votre mot de passe actuel.").min(1),

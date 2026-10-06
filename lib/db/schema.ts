@@ -55,12 +55,34 @@ export const restaurants = pgTable(
     nom: text("nom").notNull(),
     /** Identifiant public utilisé dans les URLs : /m/[slug] */
     slug: text("slug").notNull().unique(),
+    /** URL du logo affiché sur le menu public. */
     logo: text("logo"),
+    /** URL de la bannière (photo d'ambiance) affichée en haut du menu public. */
+    banniere: text("banniere"),
     couleurPrincipale: text("couleur_principale").notNull().default("#E4572E"),
     adresse: text("adresse"),
+    /** Complément d'adresse (bâtiment, étage, repère). */
+    adresseComplement: text("adresse_complement"),
+    codePostal: text("code_postal"),
+    ville: text("ville"),
     telephone: text("telephone"),
     horaires: text("horaires"),
+    description: text("description"),
     devise: text("devise").notNull().default("FCFA"),
+    /* --- Apparence de la carte numérique (paramètres → Personnalisation) --- */
+    themeMenu: text("theme_menu").notNull().default("clair"),
+    couleurFond: text("couleur_fond").notNull().default("neutre"),
+    policeMenu: text("police_menu").notNull().default("moderne"),
+    /** Langues proposées sur la carte, la première étant la langue principale. */
+    langues: text("langues").array().notNull().default(sql`ARRAY['fr']::text[]`),
+    /** Réseaux sociaux affichés sur le menu : { instagram, facebook, x, snapchat }. */
+    reseaux: jsonb("reseaux").$type<Record<string, string>>(),
+    /* --- Personnalisation des QR codes (écran « Tables & QR codes ») --- */
+    qrStyle: text("qr_style").notNull().default("classique"),
+    qrCouleur: text("qr_couleur").notNull().default("#0f172a"),
+    qrFond: text("qr_fond").notNull().default("#ffffff"),
+    /** Affiche le logo du restaurant au centre des QR codes. */
+    qrLogo: boolean("qr_logo").notNull().default(false),
     plan: planEnum("plan").notNull().default("gratuit"),
     actif: boolean("actif").notNull().default(true),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -87,6 +109,11 @@ export const users = pgTable(
     role: roleEnum("role").notNull().default("admin"),
     actif: boolean("actif").notNull().default(true),
     dernierAccesAt: timestamp("dernier_acces_at", { withTimezone: true }),
+    /** Jeton de réinitialisation du mot de passe (haché) — usage unique. */
+    resetToken: text("reset_token"),
+    resetExpire: timestamp("reset_expire", { withTimezone: true }),
+    /** true si la session doit expirer vite (case « Se souvenir de moi » décochée). */
+    sessionCourte: boolean("session_courte").notNull().default(false),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
@@ -110,6 +137,15 @@ export const categories = pgTable(
     /** Ordre d'affichage dans le menu (croissant). */
     ordre: integer("ordre").notNull().default(0),
     visible: boolean("visible").notNull().default(true),
+    /**
+     * Disponibilité de la catégorie : { jours: 0-6, creneaux: [{debut,fin}] }.
+     * `null` (ou vide) = disponible en permanence. Sert à afficher « Petit-déjeuner »
+     * le matin, « Grillades » le soir, etc.
+     */
+    disponibilite: jsonb("disponibilite").$type<{
+      jours?: number[];
+      creneaux?: { debut: string; fin: string }[];
+    } | null>(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("categories_restaurant_ordre_idx").on(t.restaurantId, t.ordre)],
@@ -132,6 +168,9 @@ export const products = pgTable(
     photo: text("photo"),
     /** false = « épuisé » : masqué du menu client mais conservé au catalogue. */
     disponible: boolean("disponible").notNull().default(true),
+    /** Nombre de personnes (plats à partager : « pour 2 à 4 personnes »). */
+    personnesMin: integer("personnes_min"),
+    personnesMax: integer("personnes_max"),
     ordre: integer("ordre").notNull().default(0),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),

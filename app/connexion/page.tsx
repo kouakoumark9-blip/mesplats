@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 export default async function PageConnexion({
   searchParams,
 }: {
-  searchParams: Promise<{ inscription?: string }>;
+  searchParams: Promise<{ inscription?: string; reinitialise?: string }>;
 }) {
   const parametres = await searchParams;
 
@@ -96,7 +96,10 @@ export default async function PageConnexion({
             Connectez-vous pour gérer votre menu, vos tables et vos commandes.
           </p>
 
-          <FormulaireConnexion messageInscription={parametres.inscription} />
+          <FormulaireConnexion
+            messageInscription={parametres.inscription}
+            messageReinitialise={parametres.reinitialise}
+          />
 
           <div className="mt-8 rounded-2xl bg-slate-100 p-4 text-xs text-slate-600 dark:bg-slate-900 dark:text-slate-400">
             <p className="font-bold text-slate-800 dark:text-slate-200">Comptes de démonstration</p>

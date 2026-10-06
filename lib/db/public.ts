@@ -5,6 +5,8 @@
  */
 import { and, asc, eq } from "drizzle-orm";
 
+import type { DisponibiliteCategorie } from "@/lib/constants";
+
 import { db } from "@/lib/db";
 import { categories, productOptions, products, restaurants, tables } from "@/lib/db/schema";
 
@@ -35,6 +37,8 @@ export async function tableParNumero(restaurantId: string, numero: string) {
 export type CategorieAvecProduits = {
   id: string;
   nom: string;
+  /** Jours et créneaux : `null` = servie en permanence. */
+  disponibilite: DisponibiliteCategorie | null;
   produits: {
     id: string;
     nom: string;
@@ -42,6 +46,8 @@ export type CategorieAvecProduits = {
     prix: number;
     photo: string | null;
     disponible: boolean;
+    personnesMin: number | null;
+    personnesMax: number | null;
     options: { id: string; nom: string; supplementPrix: number }[];
   }[];
 };
@@ -53,7 +59,11 @@ export type CategorieAvecProduits = {
  */
 export async function menuPublic(restaurantId: string): Promise<CategorieAvecProduits[]> {
   const rubriques = await db
-    .select({ id: categories.id, nom: categories.nom })
+    .select({
+      id: categories.id,
+      nom: categories.nom,
+      disponibilite: categories.disponibilite,
+    })
     .from(categories)
     .where(and(eq(categories.restaurantId, restaurantId), eq(categories.visible, true)))
     .orderBy(asc(categories.ordre), asc(categories.nom));
@@ -69,6 +79,8 @@ export async function menuPublic(restaurantId: string): Promise<CategorieAvecPro
       prix: products.prix,
       photo: products.photo,
       disponible: products.disponible,
+      personnesMin: products.personnesMin,
+      personnesMax: products.personnesMax,
     })
     .from(products)
     .where(eq(products.restaurantId, restaurantId))
@@ -104,6 +116,8 @@ export async function menuPublic(restaurantId: string): Promise<CategorieAvecPro
       prix: plat.prix,
       photo: plat.photo,
       disponible: plat.disponible,
+      personnesMin: plat.personnesMin,
+      personnesMax: plat.personnesMax,
       options: optionsParProduit.get(plat.id) ?? [],
     });
     parCategorie.set(plat.categoryId, liste);
@@ -113,6 +127,7 @@ export async function menuPublic(restaurantId: string): Promise<CategorieAvecPro
     .map((rubrique) => ({
       id: rubrique.id,
       nom: rubrique.nom,
+      disponibilite: rubrique.disponibilite ?? null,
       produits: parCategorie.get(rubrique.id) ?? [],
     }))
     .filter((rubrique) => rubrique.produits.length > 0);

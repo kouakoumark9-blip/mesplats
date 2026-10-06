@@ -11,6 +11,11 @@ function lire(nom: string): string | undefined {
   return valeur && valeur.trim().length > 0 ? valeur.trim() : undefined;
 }
 
+/** Lecture d'une variable d'environnement optionnelle (chaîne vide = absente). */
+export function lireEnv(nom: string): string | null {
+  return lire(nom) ?? null;
+}
+
 function obligatoire(nom: string, aide: string): string {
   const valeur = lire(nom);
   if (!valeur) {

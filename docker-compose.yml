@@ -1,4 +1,4 @@
-# PostgreSQL local pour le développement d'AfriMenu.
+# PostgreSQL local pour le développement de Mesplats.
 #   docker compose up -d      → démarre la base
 #   docker compose down       → l'arrête (les données restent dans le volume)
 #   docker compose down -v    → l'arrête et efface les données

@@ -17,6 +17,8 @@ import {
   Receipt,
   Settings,
   Smartphone,
+  Sparkles,
+  Store,
   Table2,
   UtensilsCrossed,
   Wallet,
@@ -47,7 +49,9 @@ const NAVIGATION: ElementNavigation[] = [
     exact: true,
   },
   { href: "/dashboard/menu", libelle: "Mon menu", icone: <UtensilsCrossed className="size-5" aria-hidden /> },
-  { href: "/dashboard/tables", libelle: "Tables & QR", icone: <QrCode className="size-5" aria-hidden />, aVenir: "étape 3" },
+  { href: "/dashboard/qr", libelle: "QR Code", icone: <QrCode className="size-5" aria-hidden /> },
+  { href: "/dashboard/tables", libelle: "Tables", icone: <Table2 className="size-5" aria-hidden /> },
+  { href: "/dashboard/boutique", libelle: "Boutique", icone: <Store className="size-5" aria-hidden /> },
   { href: "/dashboard/commandes", libelle: "Commandes", icone: <Receipt className="size-5" aria-hidden />, aVenir: "étape 5" },
   { href: "/dashboard/equipe", libelle: "Équipe", icone: <Wallet className="size-5" aria-hidden />, aVenir: "étape 7" },
   { href: "/dashboard/paiements", libelle: "Paiements", icone: <Smartphone className="size-5" aria-hidden />, aVenir: "étape 6" },
@@ -55,6 +59,11 @@ const NAVIGATION: ElementNavigation[] = [
     href: "/dashboard/parametres",
     libelle: "Paramètres",
     icone: <Settings className="size-5" aria-hidden />,
+  },
+  {
+    href: "/dashboard/abonnement",
+    libelle: "S'abonner",
+    icone: <Sparkles className="size-5" aria-hidden />,
   },
 ];
 

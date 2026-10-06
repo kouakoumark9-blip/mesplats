@@ -16,6 +16,7 @@ import { revalidatePath } from "next/cache";
 
 import type { EtatFormulaire } from "@/lib/actions/etat";
 import { exigerRole } from "@/lib/auth/autorisation";
+import { verifierMotDePasse } from "@/lib/auth/password";
 import { LIBELLES_PLAN, LIMITE_PRODUITS } from "@/lib/constants";
 import { db } from "@/lib/db";
 import {
@@ -24,12 +25,18 @@ import {
   productOptions,
   products,
   restaurants,
+  users,
 } from "@/lib/db/schema";
 import {
+  apparenceSchema,
   categorieSchema,
   moyenPaiementSchema,
+  personnalisationQrSchema,
   produitSchema,
   profilRestaurantSchema,
+  reseauxSchema,
+  vitrineSchema,
+  suppressionEtablissementSchema,
   type DonneesOption,
 } from "@/lib/validations/catalogue";
 import { erreursParChamp } from "@/lib/validations/auth";
@@ -92,6 +99,10 @@ export async function enregistrerProfil(
     nom: formData.get("nom"),
     slug: formData.get("slug"),
     adresse: formData.get("adresse") ?? "",
+    adresseComplement: formData.get("adresseComplement") ?? "",
+    codePostal: formData.get("codePostal") ?? "",
+    ville: formData.get("ville") ?? "",
+    description: formData.get("description") ?? "",
     horaires: formData.get("horaires") ?? "",
     telephone: formData.get("telephone") ?? "",
     couleurPrincipale: formData.get("couleurPrincipale"),
@@ -124,6 +135,10 @@ export async function enregistrerProfil(
       nom: donnees.nom,
       slug: donnees.slug,
       adresse: donnees.adresse || null,
+      adresseComplement: donnees.adresseComplement || null,
+      codePostal: donnees.codePostal || null,
+      ville: donnees.ville || null,
+      description: donnees.description || null,
       horaires: donnees.horaires || null,
       telephone: donnees.telephone ? normaliserTelephone(donnees.telephone) : null,
       couleurPrincipale: donnees.couleurPrincipale.toUpperCase(),
@@ -220,13 +235,14 @@ export async function enregistrerCategorie(
     id: formData.get("id") ?? "",
     nom: formData.get("nom"),
     visible: formData.get("visible") !== "false",
+    disponibilite: (formData.get("disponibilite") as string | null) ?? "",
   });
 
   if (!analyse.success) {
     return { ok: false, erreurs: erreursParChamp(analyse.error) };
   }
 
-  const { id, nom, visible } = analyse.data;
+  const { id, nom, visible, disponibilite } = analyse.data;
 
   if (id) {
     // La catégorie doit appartenir au restaurant (isolation multi-tenant).
@@ -240,7 +256,7 @@ export async function enregistrerCategorie(
 
     await db
       .update(categories)
-      .set({ nom, visible: visible ?? true })
+      .set({ nom, visible: visible ?? true, disponibilite })
       .where(and(eq(categories.id, id), eq(categories.restaurantId, restaurantId)));
   } else {
     const [max] = await db
@@ -253,6 +269,7 @@ export async function enregistrerCategorie(
       nom,
       ordre: (max?.ordre ?? 0) + 1,
       visible: visible ?? true,
+      disponibilite,
     });
   }
 
@@ -385,6 +402,8 @@ export async function enregistrerProduit(
     prix: formData.get("prix"),
     photo: formData.get("photo") ?? "",
     disponible: formData.get("disponible") !== "false",
+    personnesMin: (formData.get("personnesMin") as string | null) ?? "",
+    personnesMax: (formData.get("personnesMax") as string | null) ?? "",
     options,
   });
 
@@ -413,6 +432,8 @@ export async function enregistrerProduit(
     prix: donnees.prix,
     photo: donnees.photo || null,
     disponible: donnees.disponible ?? true,
+    personnesMin: typeof donnees.personnesMin === "number" ? donnees.personnesMin : null,
+    personnesMax: typeof donnees.personnesMax === "number" ? donnees.personnesMax : null,
   };
 
   const identifiant = donnees.id || null;
@@ -640,4 +661,255 @@ export async function supprimerProduit(id: string): Promise<ResultatAction> {
 
   rafraichir(utilisateur.restaurantSlug);
   return { ok: true, message: "Plat supprimé." };
+}
+
+
+/* -------------------------------------------------------------------------- */
+/*              Apparence de la carte, réseaux sociaux et QR codes             */
+/* -------------------------------------------------------------------------- */
+
+/** Thème, couleur de fond, police et langues du menu public. */
+export async function enregistrerCarte(
+  _etat: EtatFormulaire,
+  formData: FormData,
+): Promise<EtatFormulaire> {
+  const utilisateur = await exigerRole("admin");
+
+  const analyse = apparenceSchema.safeParse({
+    themeMenu: formData.get("themeMenu"),
+    couleurFond: formData.get("couleurFond"),
+    policeMenu: formData.get("policeMenu"),
+    langues: formData.getAll("langues").map(String).filter(Boolean),
+  });
+
+  if (!analyse.success) {
+    return { ok: false, erreurs: erreursParChamp(analyse.error) };
+  }
+
+  const { themeMenu, couleurFond, policeMenu, langues } = analyse.data;
+
+  await db
+    .update(restaurants)
+    .set({
+      themeMenu,
+      couleurFond,
+      policeMenu,
+      // Le français reste la langue principale : il arrive en tête de liste.
+      langues: ["fr", ...langues.filter((l) => l !== "fr")],
+      updatedAt: new Date(),
+    })
+    .where(eq(restaurants.id, utilisateur.restaurantId!));
+
+  rafraichir(utilisateur.restaurantSlug);
+  return {
+    ok: true,
+    message: "Apparence enregistrée. Ouvrez votre carte pour la voir en vrai.",
+  };
+}
+
+/** Réseaux sociaux affichés en pied de carte publique. */
+export async function enregistrerReseaux(
+  _etat: EtatFormulaire,
+  formData: FormData,
+): Promise<EtatFormulaire> {
+  const utilisateur = await exigerRole("admin");
+
+  const analyse = reseauxSchema.safeParse({
+    reseaux: formData.getAll("reseauCle").map((cle, index) => ({
+      cle: String(cle),
+      url: String(formData.getAll("reseauUrl")[index] ?? ""),
+    })),
+  });
+
+  if (!analyse.success) {
+    return { ok: false, erreurs: erreursParChamp(analyse.error) };
+  }
+
+  const reseaux: Record<string, string> = {};
+  for (const reseau of analyse.data.reseaux) {
+    const valeur = nettoyerLienReseau(reseau.cle, reseau.url ?? "");
+    if (valeur) reseaux[reseau.cle] = valeur;
+  }
+
+  await db
+    .update(restaurants)
+    .set({ reseaux, updatedAt: new Date() })
+    .where(eq(restaurants.id, utilisateur.restaurantId!));
+
+  rafraichir(utilisateur.restaurantSlug);
+  return { ok: true, message: "Réseaux sociaux enregistrés." };
+}
+
+/** Accepte « @compte », « compte » ou une adresse complète. */
+function nettoyerLienReseau(cle: string, valeur: string): string | null {
+  const texte = valeur.trim();
+  if (!texte) return null;
+  if (/^https?:\/\//i.test(texte)) return texte;
+
+  const compte = texte.replace(/^@/, "");
+  switch (cle) {
+    case "instagram":
+      return `https://instagram.com/${compte}`;
+    case "facebook":
+      return `https://facebook.com/${compte}`;
+    case "x":
+      return `https://x.com/${compte}`;
+    case "snapchat":
+      return `https://snapchat.com/add/${compte}`;
+    default:
+      return null;
+  }
+}
+
+/** Style, couleurs et logo des QR codes imprimés du restaurant. */
+export async function enregistrerPersonnalisationQr(
+  _etat: EtatFormulaire,
+  formData: FormData,
+): Promise<EtatFormulaire> {
+  const utilisateur = await exigerRole("admin");
+
+  const analyse = personnalisationQrSchema.safeParse({
+    qrStyle: formData.get("qrStyle"),
+    qrCouleur: formData.get("qrCouleur"),
+    qrFond: formData.get("qrFond"),
+    qrLogo: formData.get("qrLogo") === "true",
+  });
+
+  if (!analyse.success) {
+    return { ok: false, erreurs: erreursParChamp(analyse.error) };
+  }
+
+  const { qrStyle, qrCouleur, qrFond, qrLogo } = analyse.data;
+
+  if (qrLogo && !utilisateur.restaurantId) {
+    return { ok: false, message: "Restaurant introuvable." };
+  }
+
+  await db
+    .update(restaurants)
+    .set({
+      qrStyle,
+      qrCouleur: qrCouleur.toUpperCase(),
+      qrFond: qrFond.toUpperCase(),
+      qrLogo,
+      updatedAt: new Date(),
+    })
+    .where(eq(restaurants.id, utilisateur.restaurantId!));
+
+  rafraichir(utilisateur.restaurantSlug);
+  return { ok: true, message: "Personnalisation des QR codes enregistrée." };
+}
+
+/**
+ * Vitrine : logo, bannière, description et coordonnées complètes.
+ * Les images sont déjà téléversées dans Vercel Blob ou collées sous forme
+ * d'adresse : cette action ne fait que les rattacher au restaurant.
+ */
+export async function enregistrerVitrine(
+  _etat: EtatFormulaire,
+  formData: FormData,
+): Promise<EtatFormulaire> {
+  const utilisateur = await exigerRole("admin");
+
+  const analyse = vitrineSchema.safeParse({
+    logo: formData.get("logo") ?? "",
+    banniere: formData.get("banniere") ?? "",
+    description: formData.get("description") ?? "",
+    adresse: formData.get("adresse") ?? "",
+    adresseComplement: formData.get("adresseComplement") ?? "",
+    codePostal: formData.get("codePostal") ?? "",
+    ville: formData.get("ville") ?? "",
+    telephone: formData.get("telephone") ?? "",
+  });
+
+  if (!analyse.success) {
+    return { ok: false, erreurs: erreursParChamp(analyse.error) };
+  }
+
+  const donnees = analyse.data;
+
+  await db
+    .update(restaurants)
+    .set({
+      logo: donnees.logo || null,
+      banniere: donnees.banniere || null,
+      description: donnees.description || null,
+      adresse: donnees.adresse || null,
+      adresseComplement: donnees.adresseComplement || null,
+      codePostal: donnees.codePostal || null,
+      ville: donnees.ville || null,
+      telephone: donnees.telephone ? normaliserTelephone(donnees.telephone) : null,
+      updatedAt: new Date(),
+    })
+    .where(eq(restaurants.id, utilisateur.restaurantId!));
+
+  rafraichir(utilisateur.restaurantSlug);
+  return { ok: true, message: "Vitrine mise à jour : vos clients voient déjà le changement." };
+}
+
+/* -------------------------------------------------------------------------- */
+/*                    Suppression volontaire de l'établissement                */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Supprime définitivement l'établissement et TOUTES ses données (catégories,
+ * plats, tables, commandes, comptes d'équipe). Double garde : le nom exact de
+ * l'établissement doit être recopié et le mot de passe du propriétaire est
+ * revérifié côté serveur.
+ */
+export async function supprimerEtablissement(
+  _etat: EtatFormulaire,
+  formData: FormData,
+): Promise<EtatFormulaire> {
+  const utilisateur = await exigerRole("admin");
+  const restaurantId = utilisateur.restaurantId!;
+
+  const analyse = suppressionEtablissementSchema.safeParse({
+    confirmation: formData.get("confirmation"),
+    motDePasse: formData.get("motDePasse"),
+  });
+
+  if (!analyse.success) {
+    return { ok: false, erreurs: erreursParChamp(analyse.error) };
+  }
+
+  const [restaurant] = await db
+    .select({ nom: restaurants.nom, slug: restaurants.slug })
+    .from(restaurants)
+    .where(eq(restaurants.id, restaurantId))
+    .limit(1);
+
+  if (!restaurant) return { ok: false, message: "Établissement introuvable." };
+
+  if (analyse.data.confirmation.trim().toLowerCase() !== restaurant.nom.trim().toLowerCase()) {
+    return {
+      ok: false,
+      erreurs: {
+        confirmation: "Le nom saisi ne correspond pas exactement au nom de l'établissement.",
+      },
+    };
+  }
+
+  const [compte] = await db
+    .select({ motDePasseHash: users.motDePasseHash })
+    .from(users)
+    .where(eq(users.id, utilisateur.id))
+    .limit(1);
+
+  const motDePasseValide = await verifierMotDePasse(
+    analyse.data.motDePasse,
+    compte?.motDePasseHash,
+  );
+  if (!motDePasseValide) {
+    return { ok: false, erreurs: { motDePasse: "Mot de passe incorrect." } };
+  }
+
+  // Les clés étrangères sont en `onDelete: cascade` : une seule requête suffit.
+  await db.delete(restaurants).where(eq(restaurants.id, restaurantId));
+
+  revalidatePath("/", "layout");
+  return {
+    ok: true,
+    message: "Votre établissement a été supprimé. Vous allez être déconnecté…",
+  };
 }

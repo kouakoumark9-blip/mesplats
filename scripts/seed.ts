@@ -40,10 +40,19 @@ type ProduitSeed = {
   prix: number;
   options?: OptionSeed[];
   disponible?: boolean;
+  /** Plats à partager : « pour 2 à 4 personnes ». */
+  personnesMin?: number;
+  personnesMax?: number;
   /** Chemin public de la photo (voir /public/plats). */
   photo?: string;
 };
-type CategorieSeed = { nom: string; ordre: number; produits: ProduitSeed[] };
+type CategorieSeed = {
+  nom: string;
+  ordre: number;
+  /** Jours (0 = lundi) et créneaux horaires ; absent = servie en permanence. */
+  disponibilite?: { jours?: number[]; creneaux?: { debut: string; fin: string }[] } | null;
+  produits: ProduitSeed[];
+};
 
 const CATALOGUE_DEMO: CategorieSeed[] = [
   {
@@ -53,8 +62,10 @@ const CATALOGUE_DEMO: CategorieSeed[] = [
       {
         nom: "Attiéké poisson braisé",
         description:
-          "Attiéké frais servi avec un poisson braisé entier, oignons et tomates fraîches.",
+          "Attiéké frais servi avec un poisson braisé entier, oignons et tomates fraîches. Plat à partager.",
         prix: 2500,
+        personnesMin: 2,
+        personnesMax: 3,
         photo: "/plats/attieke-poisson.jpg",
         options: [
           { nom: "Piment vert écrasé", supplementPrix: 200 },
@@ -133,6 +144,25 @@ const CATALOGUE_DEMO: CategorieSeed[] = [
   },
 ];
 
+const CATALOGUE_PETIT_DEJEUNER: CategorieSeed = {
+  nom: "Petit-déjeuner",
+  ordre: 0,
+  // Servi uniquement le matin : la carte publique l'annonce et le grise le reste du temps.
+  disponibilite: { creneaux: [{ debut: "06:00", fin: "11:00" }] },
+  produits: [
+    {
+      nom: "Bouillie de mil",
+      description: "Bouillie de mil sucrée, parfumée au gingembre et à la cannelle.",
+      prix: 500,
+    },
+    {
+      nom: "Pain brochettes",
+      description: "Brochettes de bœuf grillées, pain frais et sauce piment.",
+      prix: 1500,
+    },
+  ],
+};
+
 const CATALOGUE_TANTIE: CategorieSeed[] = [
   {
     nom: "Spécialités",
@@ -191,7 +221,12 @@ async function creerCatalogue(restaurantId: string, catalogue: CategorieSeed[]) 
   for (const categorie of catalogue) {
     const [creee] = await db
       .insert(categories)
-      .values({ restaurantId, nom: categorie.nom, ordre: categorie.ordre })
+      .values({
+        restaurantId,
+        nom: categorie.nom,
+        ordre: categorie.ordre,
+        disponibilite: categorie.disponibilite ?? null,
+      })
       .returning({ id: categories.id });
 
     let ordre = 1;
@@ -206,6 +241,8 @@ async function creerCatalogue(restaurantId: string, catalogue: CategorieSeed[]) 
           prix: produit.prix,
           photo: produit.photo ?? null,
           disponible: produit.disponible ?? true,
+          personnesMin: produit.personnesMin ?? null,
+          personnesMax: produit.personnesMax ?? null,
           ordre: ordre++,
         })
         .returning({ id: products.id });
@@ -252,16 +289,38 @@ async function semer() {
       nom: "Maquis Le Baoulé",
       slug: "maquis-le-baoule",
       couleurPrincipale: "#E4572E",
-      adresse: "Rue des Jardins, Cocody — Abidjan",
+      adresse: "Rue des Jardins",
+      adresseComplement: "Immeuble Les Palmiers, 2e étage",
+      codePostal: "00225",
+      ville: "Abidjan",
+      description:
+        "Maquis familial de Cocody depuis 1998 : poisson braisé, attiéké tout juste fait et jus de bissap maison.",
       telephone: "+225 07 07 12 34 56",
       horaires: "Tous les jours de 11h00 à 23h00",
       devise: "FCFA",
       plan: "pro",
       actif: true,
+      // Apparence de la carte publique (paramètres → Personnalisation).
+      themeMenu: "clair",
+      couleurFond: "creme",
+      policeMenu: "moderne",
+      langues: ["fr", "en"],
+      reseaux: {
+        instagram: "https://instagram.com/maquislebaoule",
+        facebook: "https://facebook.com/maquislebaoule",
+      },
+      // Habillage des QR codes.
+      qrStyle: "arrondi",
+      qrCouleur: "#0F172A",
+      qrFond: "#FFFFFF",
+      qrLogo: false,
     })
     .returning();
 
-  const produitsDemo = await creerCatalogue(demo.id, CATALOGUE_DEMO);
+  const produitsDemo = await creerCatalogue(demo.id, [
+    CATALOGUE_PETIT_DEJEUNER,
+    ...CATALOGUE_DEMO,
+  ]);
 
   const tablesDemo = await db
     .insert(tables)

@@ -16,7 +16,7 @@ import { ChoixTelephone } from "@/components/formulaires/choix-telephone";
 import { Badge } from "@/components/ui/badge";
 import { Bouton } from "@/components/ui/bouton";
 import { Carte, CarteContenu, CarteEntete } from "@/components/ui/carte";
-import { Champ, Entree, Selecteur } from "@/components/ui/champ";
+import { Champ, Entree, Selecteur, ZoneTexte } from "@/components/ui/champ";
 import { Alerte } from "@/components/ui/divers";
 import { useToasts } from "@/components/ui/toast";
 import { enregistrerProfil, verifierSlugAction } from "@/lib/actions/catalogue";
@@ -29,6 +29,10 @@ export type ProfilAffiche = {
   nom: string;
   slug: string;
   adresse: string | null;
+  adresseComplement: string | null;
+  codePostal: string | null;
+  ville: string | null;
+  description: string | null;
   horaires: string | null;
   telephone: string | null;
   couleurPrincipale: string;
@@ -42,6 +46,10 @@ export function FormulaireProfil({ restaurant }: { restaurant: ProfilAffiche }) 
   const [nom, setNom] = useState(restaurant.nom);
   const [slug, setSlug] = useState(restaurant.slug);
   const [adresse, setAdresse] = useState(restaurant.adresse ?? "");
+  const [adresseComplement, setAdresseComplement] = useState(restaurant.adresseComplement ?? "");
+  const [codePostal, setCodePostal] = useState(restaurant.codePostal ?? "");
+  const [ville, setVille] = useState(restaurant.ville ?? "");
+  const [description, setDescription] = useState(restaurant.description ?? "");
   const [horaires, setHoraires] = useState(restaurant.horaires ?? "");
   const [couleur, setCouleur] = useState(restaurant.couleurPrincipale);
   const [devise, setDevise] = useState(restaurant.devise);
@@ -194,7 +202,24 @@ export function FormulaireProfil({ restaurant }: { restaurant: ProfilAffiche }) 
               </p>
             </Champ>
 
-            <Champ label="Adresse du restaurant" htmlFor="profil-adresse" erreur={erreurs.adresse}>
+            <Champ
+              label="Présentation courte"
+              htmlFor="profil-description"
+              aide="Deux phrases affichées sous le nom de votre établissement, sur la carte publique."
+              erreur={erreurs.description}
+            >
+              <ZoneTexte
+                id="profil-description"
+                name="description"
+                rows={3}
+                maxLength={280}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Maquis familial depuis 1998. Poisson braisé, attiéké et jus de bissap maison."
+              />
+            </Champ>
+
+            <Champ label="Adresse" htmlFor="profil-adresse" erreur={erreurs.adresse}>
               <Entree
                 id="profil-adresse"
                 name="adresse"
@@ -204,6 +229,47 @@ export function FormulaireProfil({ restaurant }: { restaurant: ProfilAffiche }) 
                 maxLength={160}
               />
             </Champ>
+
+            <div className="grid gap-4 sm:grid-cols-3">
+              <Champ
+                label="Complément"
+                htmlFor="profil-complement"
+                aide="Quartier, repère…"
+                erreur={erreurs.adresseComplement}
+              >
+                <Entree
+                  id="profil-complement"
+                  name="adresseComplement"
+                  value={adresseComplement}
+                  onChange={(e) => setAdresseComplement(e.target.value)}
+                  placeholder="Face à la pharmacie"
+                  maxLength={120}
+                />
+              </Champ>
+
+              <Champ label="Ville" htmlFor="profil-ville" erreur={erreurs.ville}>
+                <Entree
+                  id="profil-ville"
+                  name="ville"
+                  value={ville}
+                  onChange={(e) => setVille(e.target.value)}
+                  placeholder="Abidjan"
+                  maxLength={60}
+                />
+              </Champ>
+
+              <Champ label="Code postal" htmlFor="profil-codepostal" erreur={erreurs.codePostal}>
+                <Entree
+                  id="profil-codepostal"
+                  name="codePostal"
+                  inputMode="numeric"
+                  value={codePostal}
+                  onChange={(e) => setCodePostal(e.target.value)}
+                  placeholder="00225"
+                  maxLength={12}
+                />
+              </Champ>
+            </div>
 
             <Champ
               label="Horaires d'ouverture"

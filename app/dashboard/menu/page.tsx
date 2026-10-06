@@ -21,6 +21,7 @@ export default async function PageMenu() {
     id: categorie.id,
     nom: categorie.nom,
     visible: categorie.visible,
+    disponibilite: categorie.disponibilite ?? null,
     produits: categorie.produits.map((produit) => ({
       id: produit.id,
       categoryId: produit.categoryId,
@@ -29,6 +30,8 @@ export default async function PageMenu() {
       prix: produit.prix,
       photo: produit.photo,
       disponible: produit.disponible,
+      personnesMin: produit.personnesMin,
+      personnesMax: produit.personnesMax,
       options: produit.options.map((option) => ({
         id: option.id,
         nom: option.nom,

@@ -131,6 +131,108 @@ export const CODES_PAIEMENT: Record<ModePaiement, string> = {
 };
 
 export const OPERATEURS = ["orange", "moov", "mtn", "wave"] as const;
+
+/* -------------------------------------------------------------------------- */
+/*                    Apparence de la carte numérique (paramètres)            */
+/* -------------------------------------------------------------------------- */
+
+export const THEMES_MENU = ["clair", "sombre"] as const;
+export type ThemeMenu = (typeof THEMES_MENU)[number];
+
+/** Fonds proposés pour la carte : nom technique → libellé + couleur. */
+export const COULEURS_FOND_MENU = [
+  { cle: "neutre", libelle: "Neutre", couleur: "#f8fafc" },
+  { cle: "blanc", libelle: "Blanc", couleur: "#ffffff" },
+  { cle: "creme", libelle: "Crème", couleur: "#fdf6ec" },
+  { cle: "menthe", libelle: "Menthe", couleur: "#ecfdf5" },
+  { cle: "ciel", libelle: "Ciel", couleur: "#eff6ff" },
+  { cle: "rose", libelle: "Rosé", couleur: "#fdf2f8" },
+] as const;
+export type CouleurFondMenu = (typeof COULEURS_FOND_MENU)[number]["cle"];
+
+/**
+ * Polices proposées pour la carte publique. Chaque entrée indique la variable
+ * CSS à appliquer : les familles sont déjà chargées par `next/font`, donc
+ * changer de police ne déclenche aucun téléchargement supplémentaire.
+ */
+export const POLICES_MENU = [
+  { cle: "moderne", libelle: "Moderne", variable: "var(--font-titre)", exemple: "Aa" },
+  { cle: "elegant", libelle: "Élégant", variable: "Georgia, 'Times New Roman', serif", exemple: "Aa" },
+  { cle: "classique", libelle: "Classique", variable: "var(--font-sans)", exemple: "Aa" },
+  { cle: "convivial", libelle: "Convivial", variable: "var(--font-marque)", exemple: "Aa" },
+  { cle: "epure", libelle: "Épuré", variable: "ui-monospace, 'SF Mono', Menlo, monospace", exemple: "Aa" },
+] as const;
+export type PoliceMenu = (typeof POLICES_MENU)[number]["cle"];
+
+/** Langues proposées pour la carte (la traduction est manuelle, hors ligne). */
+export const LANGUES_MENU = [
+  { cle: "fr", libelle: "Français" },
+  { cle: "en", libelle: "Anglais" },
+  { cle: "es", libelle: "Espagnol" },
+  { cle: "ar", libelle: "Arabe" },
+] as const;
+
+export const RESEAUX_SOCIAUX = [
+  { cle: "instagram", libelle: "Instagram", gabarit: "https://instagram.com/…" },
+  { cle: "facebook", libelle: "Facebook", gabarit: "https://facebook.com/…" },
+  { cle: "x", libelle: "X (Twitter)", gabarit: "https://x.com/…" },
+  { cle: "snapchat", libelle: "Snapchat", gabarit: "https://snapchat.com/add/…" },
+] as const;
+
+/* -------------------------------------------------------------------------- */
+/*                       Disponibilité des catégories                         */
+/* -------------------------------------------------------------------------- */
+
+/** 0 = lundi … 6 = dimanche (comme `Date.getDay()` converti). */
+export const JOURS_SEMAINE = [
+  { index: 0, court: "L", libelle: "Lundi" },
+  { index: 1, court: "Ma", libelle: "Mardi" },
+  { index: 2, court: "Me", libelle: "Mercredi" },
+  { index: 3, court: "J", libelle: "Jeudi" },
+  { index: 4, court: "V", libelle: "Vendredi" },
+  { index: 5, court: "S", libelle: "Samedi" },
+  { index: 6, court: "D", libelle: "Dimanche" },
+] as const;
+
+/** Raccourcis proposés au-dessus du sélecteur personnalisé. */
+export const PRESETS_DISPONIBILITE = [
+  { cle: "toujours", libelle: "Toujours" },
+  { cle: "midi", libelle: "Midi" },
+  { cle: "soir", libelle: "Soir" },
+  { cle: "weekend", libelle: "Week-end" },
+  { cle: "personnalise", libelle: "Personnalisé" },
+] as const;
+export type PresetDisponibilite = (typeof PRESETS_DISPONIBILITE)[number]["cle"];
+
+/** Disponibilité d'une catégorie enregistrée en base (voir `categories`). */
+export type DisponibiliteCategorie = {
+  /** 0 = lundi … 6 = dimanche. Vide = tous les jours. */
+  jours?: number[];
+  /** Créneaux horaires « HH:MM ». Vide = toute la journée. */
+  creneaux?: { debut: string; fin: string }[];
+};
+
+/* -------------------------------------------------------------------------- */
+/*                        Personnalisation des QR codes                       */
+/* -------------------------------------------------------------------------- */
+
+export const STYLES_QR = [
+  { cle: "classique", libelle: "Classique" },
+  { cle: "arrondi", libelle: "Arrondi" },
+  { cle: "points", libelle: "Points" },
+  { cle: "chic", libelle: "Chic" },
+  { cle: "elegant", libelle: "Élégant" },
+] as const;
+export type StyleQr = (typeof STYLES_QR)[number]["cle"];
+
+export const COULEURS_QR = [
+  "#0f172a",
+  "#000000",
+  "#E4572E",
+  "#0b6b3a",
+  "#0b5fa5",
+  "#7c2d12",
+] as const;
 export type Operateur = (typeof OPERATEURS)[number];
 
 export const PAIEMENT_STATUTS = ["en_attente", "paye"] as const;
