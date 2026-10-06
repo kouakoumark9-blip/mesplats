@@ -8,6 +8,13 @@
       "when": 1791284105646,
       "tag": "0000_greedy_terrax",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791326461673,
+      "tag": "0001_red_wildside",
+      "breakpoints": true
     }
   ]
 }

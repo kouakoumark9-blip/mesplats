@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import { Baloo_2, Inter, Plus_Jakarta_Sans } from "next/font/google";
 import type { ReactNode } from "react";
 
 import { FournisseurToasts } from "@/components/ui/toast";
@@ -16,6 +16,18 @@ const inter = Inter({
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-jakarta",
+  display: "swap",
+});
+
+/*
+ * Baloo 2 : lettrage arrondi et géométrique, réservé aux noms de marque (le
+ * mot-symbole « Mesplats » et les logos des moyens de paiement). Les interfaces
+ * restent sur Inter + Plus Jakarta Sans : trois familles, chacune son rôle.
+ */
+const baloo = Baloo_2({
+  subsets: ["latin"],
+  weight: ["600", "800"],
+  variable: "--police-marque",
   display: "swap",
 });
 
@@ -58,7 +70,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="fr" className={`${inter.variable} ${jakarta.variable}`}>
+    <html lang="fr" className={`${inter.variable} ${jakarta.variable} ${baloo.variable}`}>
       <head>
         {/*
           Restaure le thème sombre avant le premier rendu pour éviter tout

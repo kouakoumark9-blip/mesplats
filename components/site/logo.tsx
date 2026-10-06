@@ -44,7 +44,7 @@ export function LogoMesplats({
       </svg>
 
       {!compact ? (
-        <span className="font-titre text-lg leading-none font-extrabold tracking-tight text-slate-900">
+        <span className="font-marque text-xl leading-none font-extrabold tracking-tight text-slate-900">
           Mesplats
         </span>
       ) : null}

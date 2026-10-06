@@ -287,7 +287,13 @@ async function semer() {
       numero: "+225 05 05 05 05 05",
       titulaire: "Maquis Le Baoulé",
     },
-  ]);
+    {
+      restaurantId: demo.id,
+      operateur: "wave" as const,
+      numero: "+225 07 88 55 44 33",
+      titulaire: "Maquis Le Baoulé",
+    },
+]);
 
   await db.insert(users).values([
     {

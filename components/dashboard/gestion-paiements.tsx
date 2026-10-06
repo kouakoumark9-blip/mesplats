@@ -18,6 +18,7 @@ import { Entree } from "@/components/ui/champ";
 import { useToasts } from "@/components/ui/toast";
 import { enregistrerMoyenPaiement, supprimerMoyenPaiement } from "@/lib/actions/catalogue";
 import { etatInitial } from "@/lib/actions/etat";
+import { LogoPaiement } from "@/components/ui/logos-paiement";
 import { LIBELLES_PAIEMENT, OPERATEURS, type Operateur } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
@@ -28,16 +29,17 @@ export type MoyenPaiementAffiche = {
   actif: boolean;
 };
 
-/** Couleurs officielles approximatives des opérateurs (repères visuels). */
-const COULEURS_OPERATEUR: Record<Operateur, string> = {
-  orange: "#FF7900",
-  moov: "#0072BC",
-  mtn: "#FFCC00",
+/** Nom commercial durable de chaque opérateur, tel qu'il est dessiné. */
+const MARQUE_LOGO: Record<Operateur, "orange" | "moov" | "mtn" | "wave"> = {
+  orange: "orange",
+  moov: "moov",
+  mtn: "mtn",
+  wave: "wave",
 };
 
 export function GestionPaiements({ moyens }: { moyens: MoyenPaiementAffiche[] }) {
   return (
-    <div className="grid gap-4 lg:grid-cols-3">
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {OPERATEURS.map((operateur) => (
         <LigneMoyenPaiement
           key={operateur}
@@ -76,13 +78,11 @@ function LigneMoyenPaiement({
       <CarteContenu className="space-y-3">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <span
-              className="flex size-10 items-center justify-center rounded-xl text-xs font-extrabold text-slate-900"
-              style={{ backgroundColor: COULEURS_OPERATEUR[operateur] }}
-              aria-hidden
-            >
-              {operateur === "orange" ? "OM" : operateur === "moov" ? "MOOV" : "MTN"}
-            </span>
+            <LogoPaiement
+              marque={MARQUE_LOGO[operateur]}
+              taille="md"
+              libelle={`Logo ${LIBELLES_PAIEMENT[operateur]}`}
+            />
             <div>
               <p className="font-titre text-sm font-bold text-slate-900 dark:text-white">
                 {LIBELLES_PAIEMENT[operateur]}

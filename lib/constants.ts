@@ -111,13 +111,14 @@ export const ACCENTS_STATUT: Record<Statut, string> = {
   annulee: "bg-rose-500",
 };
 
-export const MODES_PAIEMENT = ["orange", "moov", "mtn", "especes"] as const;
+export const MODES_PAIEMENT = ["orange", "moov", "mtn", "wave", "especes"] as const;
 export type ModePaiement = (typeof MODES_PAIEMENT)[number];
 
 export const LIBELLES_PAIEMENT: Record<ModePaiement, string> = {
   orange: "Orange Money",
   moov: "Moov Money",
   mtn: "MTN MoMo",
+  wave: "Wave",
   especes: "Espèces sur place",
 };
 
@@ -125,10 +126,11 @@ export const CODES_PAIEMENT: Record<ModePaiement, string> = {
   orange: "OM",
   moov: "Moov",
   mtn: "MoMo",
+  wave: "Wave",
   especes: "Cash",
 };
 
-export const OPERATEURS = ["orange", "moov", "mtn"] as const;
+export const OPERATEURS = ["orange", "moov", "mtn", "wave"] as const;
 export type Operateur = (typeof OPERATEURS)[number];
 
 export const PAIEMENT_STATUTS = ["en_attente", "paye"] as const;

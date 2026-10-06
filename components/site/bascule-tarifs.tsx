@@ -144,7 +144,7 @@ export function BasculeTarifs() {
               <p className="mt-1 text-sm text-slate-500">{offre.accroche}</p>
 
               <p className="mt-5 flex flex-wrap items-baseline gap-1.5">
-                <span className="font-titre text-4xl font-extrabold tracking-tight text-slate-900">
+                <span className="chiffres font-titre text-4xl font-extrabold tracking-tight text-slate-900">
                   {/* `formatNombre` et non `formatFcfa(...).replace(" FCFA", "")` : l'espace
                       qui précède la devise est insécable, un remplacement sur l'espace
                       ordinaire laissait « 9 900 FCFA » suivi du suffixe, soit « FCFA FCFA ». */}

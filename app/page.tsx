@@ -47,6 +47,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { classesBouton } from "@/components/ui/bouton";
 import { Carte } from "@/components/ui/carte";
+import { RangeeLogosPaiement } from "@/components/ui/logos-paiement";
 import { urlMenu } from "@/lib/env";
 import { qrSvg } from "@/lib/qr";
 
@@ -519,6 +520,11 @@ export default async function PageAccueil() {
                   >
                     Voir un menu de démonstration
                   </Link>
+                </div>
+
+                <div className="mt-8 flex flex-wrap items-center gap-3">
+                  <span className="text-sm font-semibold text-white/85">Paiements acceptés :</span>
+                  <RangeeLogosPaiement taille="md" />
                 </div>
 
                 <ul className="mt-7 flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold">

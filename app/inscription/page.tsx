@@ -4,6 +4,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { FormulaireInscription } from "@/components/auth/formulaire-inscription";
+import { RangeeLogosPaiement } from "@/components/ui/logos-paiement";
 import { utilisateurCourant } from "@/lib/auth/autorisation";
 import { espaceParDefaut } from "@/lib/auth/roles";
 
@@ -17,7 +18,7 @@ const AVANTAGES = [
   "Menu QR prêt à imprimer en 2 minutes",
   "Commandes sur place et à emporter",
   "Écran de service en temps réel (téléphone ou tablette)",
-  "Paiement Orange Money, Moov Money, MTN MoMo ou espèces",
+  "Paiement Orange Money, Moov Money, MTN MoMo, Wave ou espèces",
   "Formule Pro à 9 900 FCFA par mois, ou Multi-établissements à 19 900",
 ];
 
@@ -49,6 +50,13 @@ export default async function PageInscription() {
               </li>
             ))}
           </ul>
+
+          <div className="mt-8">
+            <p className="text-xs font-bold tracking-wide text-white/80 uppercase">
+              Moyens de paiement acceptés
+            </p>
+            <RangeeLogosPaiement taille="md" className="mt-3" />
+          </div>
         </div>
 
         <p className="relative text-sm text-marque-100">

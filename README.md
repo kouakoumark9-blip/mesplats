@@ -107,6 +107,39 @@ Côté base de données et code, l'état technique `gratuit` subsiste : c'est le
 fraîchement créé qui n'a pas encore réglé son abonnement (limites de 20 plats et 5 tables). Il est
 présenté à l'utilisateur comme **« À activer »**.
 
+## 1 ter. Typographie et logos de paiement
+
+**Trois polices, chacune son rôle** (`next/font/google`, auto-hébergées par Next : aucun appel à
+Google depuis le navigateur du client, donc pas de dépendance réseau en 3G) :
+
+| Police | Usage | Variable |
+| --- | --- | --- |
+| **Inter** | Texte courant, formulaires, tableaux | `--font-sans` |
+| **Plus Jakarta Sans** | Titres, boutons et libellés d'interface | `--font-titre` |
+| **Baloo 2** | Lettrages de marque uniquement (mot-symbole « Mesplats », logos de paiement) | `--font-marque` |
+
+Détails de rendu ajoutés dans `app/globals.css` : `font-synthesis: none` (pas de gras synthétique),
+`text-rendering: optimizeLegibility`, et la classe `.chiffres` (`tabular-nums`) appliquée aux
+montants, pour que les colonnes de prix et de totaux restent alignées quand l'écran de service
+défile.
+
+**Logos des moyens de paiement** — `components/ui/logos-paiement.tsx` :
+
+- Cinq marques : **Orange Money**, **Moov Money**, **MTN MoMo**, **Wave** et **Espèces**.
+- **Même taille et même forme pour toutes** : la pastille fait 36 / 48 / 64 px selon la variante
+  (`sm`, `md`, `lg`), toujours carrée, toujours `rounded-xl` en `md`, avec le même anneau intérieur
+  et la même ombre. Seul le dessin intérieur diffère ; une rangée de logos est donc alignée au pixel
+  partout dans l'application — page d'accueil, inscription et paramètres du restaurant.
+- Dessinées en **SVG** : aucun fichier image, aucun appel réseau, quelques centaines d'octets,
+  nettes à toutes les tailles et parfaitement lisibles en 3G. Ce sont des repères visuels
+  simplifiés, pas les logos officiels des opérateurs.
+- **Wave est désormais un opérateur à part entière** : ajouté à `MODES_PAIEMENT` et `OPERATEURS`
+  (`lib/constants.ts`), à l'énumération PostgreSQL `operateur` et `mode_paiement`
+  (migration `drizzle/0001_*.sql`), au formulaire des paramètres (4 opérateurs au lieu de 3) et au
+  restaurant de démonstration (numéro Wave `+225 07 88 55 44 33`).
+- Vérifié au navigateur : les 5 pastilles mesurent exactement **48 × 48 px avec un rayon de 12 px**
+  sur les trois pages, chacune avec son fond de marque.
+
 ## 2. Stack technique
 
 | Domaine | Choix |

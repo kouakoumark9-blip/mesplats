@@ -17,6 +17,8 @@
   /* --- Typographie ------------------------------------------------------- */
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-titre: var(--font-jakarta), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  /* Réservée aux lettrages de marque (mot-symbole, logos de paiement) */
+  --font-marque: var(--police-marque), var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
 
   /* --- Palette de marque : terracotta chaleureuse, lisible au soleil ----- */
   --color-marque-50: #fef5f1;
@@ -205,6 +207,22 @@
   h4 {
     font-family: var(--font-titre);
     letter-spacing: -0.015em;
+  }
+
+  /* Rendu typographique soigné : pas de gras synthétique, chiffres alignés */
+  body {
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+  }
+
+  /*
+   * Prix, totaux, compteurs : chiffres à chasse fixe, pour que les colonnes de
+   * montants s'alignent et ne « sautent » plus d'une ligne à l'autre quand les
+   * commandes défilent sur l'écran de service.
+   */
+  .chiffres {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
   }
 
   /* Cibles tactiles confortables sur téléphone */
