@@ -132,8 +132,9 @@ export function FormulaireInscription() {
       </div>
 
       <Alerte ton="info" icone={<Store className="size-4" aria-hidden />}>
-        Votre compte démarre par <strong>1 mois gratuit</strong> : toutes les fonctionnalités sont
-        débloquées, sans limite de plats ni de commandes. Aucune carte bancaire n&apos;est demandée.
+        Formule <strong>Pro à 9 900 FCFA par mois</strong> (ou Multi-établissements à 19 900 FCFA)
+        : plats, tables et comptes équipe illimités. Le règlement se fait par Orange Money, Moov
+        Money ou MTN MoMo — aucune carte bancaire.
       </Alerte>
 
       <Bouton

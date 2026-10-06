@@ -59,7 +59,7 @@ export default async function PageMenuPublic({ params }: Proprietes) {
             className="inline-flex items-center gap-1.5 text-sm font-semibold text-white/85 transition hover:text-white"
           >
             <ArrowLeft className="size-4" aria-hidden />
-            AfriMenu
+            Mesplats
           </Link>
 
           <div className="mt-5 flex items-center gap-4">

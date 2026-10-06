@@ -1,7 +1,7 @@
 import { Mail, MapPin, MessageCircle, Smartphone } from "lucide-react";
 import Link from "next/link";
 
-import { LogoAfriMenu } from "@/components/site/logo";
+import { LogoMesplats } from "@/components/site/logo";
 import { Badge } from "@/components/ui/badge";
 import { LIBELLES_PAIEMENT } from "@/lib/constants";
 
@@ -39,7 +39,7 @@ export function PiedDePage() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="grid gap-10 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
           <div>
-            <LogoAfriMenu />
+            <LogoMesplats />
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-slate-600">
               Menu QR, commandes sur place et à emporter, écran de service en temps réel. Conçu à
               Abidjan pour les restaurants de Côte d&apos;Ivoire et d&apos;Afrique de l&apos;Ouest.
@@ -47,11 +47,11 @@ export function PiedDePage() {
 
             <div className="mt-5 space-y-2 text-sm text-slate-600">
               <a
-                href="mailto:support@afrimenu.app"
+                href="mailto:support@mesplats.app"
                 className="flex items-center gap-2 transition hover:text-slate-900"
               >
                 <Mail className="size-4 shrink-0" aria-hidden />
-                support@afrimenu.app
+                support@mesplats.app
               </a>
               <span className="flex items-center gap-2">
                 <MapPin className="size-4 shrink-0" aria-hidden />
@@ -100,8 +100,8 @@ export function PiedDePage() {
         </div>
 
         <div className="mt-8 flex flex-col gap-3 border-t border-slate-200 pt-8 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} AfriMenu — Abidjan, Côte d&apos;Ivoire. Tous droits réservés.</p>
-          <p>AfriMenu est un outil de gestion : aucune commission n&apos;est prélevée sur vos ventes.</p>
+          <p>© {new Date().getFullYear()} Mesplats — Abidjan, Côte d&apos;Ivoire. Tous droits réservés.</p>
+          <p>Mesplats est un outil de gestion : aucune commission n&apos;est prélevée sur vos ventes.</p>
         </div>
       </div>
     </footer>

@@ -10,7 +10,7 @@ import { espaceParDefaut } from "@/lib/auth/roles";
 export const metadata: Metadata = {
   title: "Créer mon restaurant",
   description:
-    "Créez votre compte AfriMenu en 2 minutes : menu QR, commandes sur place et à emporter, écran de service en temps réel.",
+    "Créez votre compte Mesplats en 2 minutes : menu QR, commandes sur place et à emporter, écran de service en temps réel.",
 };
 
 const AVANTAGES = [
@@ -18,7 +18,7 @@ const AVANTAGES = [
   "Commandes sur place et à emporter",
   "Écran de service en temps réel (téléphone ou tablette)",
   "Paiement Orange Money, Moov Money, MTN MoMo ou espèces",
-  "Premier mois du plan Pro offert, sans carte bancaire",
+  "Formule Pro à 9 900 FCFA par mois, ou Multi-établissements à 19 900",
 ];
 
 export default async function PageInscription() {
@@ -34,7 +34,7 @@ export default async function PageInscription() {
           <span className="flex size-9 items-center justify-center rounded-xl bg-white/15">
             <Utensils className="size-5" aria-hidden />
           </span>
-          AfriMenu
+          Mesplats
         </Link>
 
         <div className="relative max-w-md">
@@ -72,7 +72,7 @@ export default async function PageInscription() {
               <span className="flex size-8 items-center justify-center rounded-lg bg-marque-500 text-white">
                 <Utensils className="size-4" aria-hidden />
               </span>
-              AfriMenu
+              Mesplats
             </span>
           </div>
 
@@ -81,7 +81,8 @@ export default async function PageInscription() {
           </h1>
           <p className="mt-2 mb-6 text-slate-600">
             Quelques informations suffisent : votre menu et vos QR codes sont générés
-            automatiquement. Le premier mois du plan Pro est offert, sans carte bancaire.
+            automatiquement. Vous choisissez ensuite votre formule (9 900 ou 19 900 FCFA par mois)
+            et vous la réglez par mobile money.
           </p>
 
           <FormulaireInscription />

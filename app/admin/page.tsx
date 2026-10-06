@@ -2,6 +2,8 @@ import { desc } from "drizzle-orm";
 import { Building2, ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
 
+import { LIBELLES_PLAN } from "@/lib/constants";
+
 import { DeconnexionButton } from "@/components/auth/deconnexion-button";
 import { Badge } from "@/components/ui/badge";
 import { Carte, CarteStat } from "@/components/ui/carte";
@@ -51,7 +53,7 @@ export default async function PageAdmin() {
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="inline-flex items-center gap-2 text-sm font-semibold text-marque-600">
-            <ShieldCheck className="size-4" aria-hidden /> Plateforme AfriMenu
+            <ShieldCheck className="size-4" aria-hidden /> Plateforme Mesplats
           </p>
           <h1 className="font-titre text-2xl font-extrabold text-slate-900 sm:text-3xl">
             Restaurants clients
@@ -79,7 +81,7 @@ export default async function PageAdmin() {
               </div>
               <div className="flex items-center gap-2">
                 <Badge ton={restaurant.plan === "pro" ? "succes" : "neutre"}>
-                  {restaurant.plan === "pro" ? "Pro" : "Gratuit"}
+                  {LIBELLES_PLAN[restaurant.plan]}
                 </Badge>
                 <Badge ton={restaurant.actif ? "succes" : "danger"}>
                   {restaurant.actif ? "Actif" : "Suspendu"}

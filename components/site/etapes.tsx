@@ -136,7 +136,7 @@ export function Etapes({ qrSvgParTable }: { qrSvgParTable: Record<string, string
               </Link>
             </div>
             <p className="text-sm font-semibold text-slate-500">
-              Premier mois gratuit · sans carte bancaire · 0 % de commission sur vos ventes
+              9 900 FCFA / mois · sans commission sur vos ventes · résiliable à tout moment
             </p>
           </div>
         </Reveler>

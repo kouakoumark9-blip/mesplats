@@ -292,7 +292,7 @@ export function GestionTables({
       {limiteAtteinte && limiteTables !== null ? (
         <Alerte
           ton="alerte"
-          titre={`Limite du plan Gratuit atteinte (${tables.length}/${limiteTables} tables)`}
+          titre={`Limite de votre formule atteinte (${tables.length}/${limiteTables} tables)`}
           icone={<TriangleAlert className="size-5" aria-hidden />}
         >
           Passez au plan Pro pour des tables illimitées.{" "}
@@ -352,7 +352,7 @@ export function GestionTables({
         <EtatVide
           icone={<Table2 className="size-6" aria-hidden />}
           titre="Aucune table pour l'instant"
-          description="Indiquez combien de tables compte votre salle : AfriMenu crée les numéros et génère un QR code unique pour chacune. Vous pourrez ensuite imprimer la planche A4 et la poser sur les tables."
+          description="Indiquez combien de tables compte votre salle : Mesplats crée les numéros et génère un QR code unique pour chacune. Vous pourrez ensuite imprimer la planche A4 et la poser sur les tables."
           action={
             <Bouton
               icone={<Sparkles className="size-4" aria-hidden />}
@@ -650,7 +650,7 @@ function FormulaireLot({
       ouverte
       onFermer={onFermer}
       titre="Ajouter des tables"
-      description="AfriMenu crée les numéros et génère un QR code unique pour chaque table."
+      description="Mesplats crée les numéros et génère un QR code unique pour chaque table."
       taille="sm"
       piedPage={
         <>
@@ -753,8 +753,8 @@ function FormulaireLot({
         {plan === "gratuit" && placeRestante !== null ? (
           <Alerte ton={placeRestante === 0 ? "alerte" : "info"}>
             {placeRestante === 0
-              ? "Vos 5 tables du plan Gratuit sont créées. Passez au plan Pro pour en ajouter."
-              : `Plan Gratuit : il vous reste ${placeRestante} table(s) sur ${limiteTables}.`}
+              ? "Votre formule actuelle est limitée à 5 tables. Passez à la formule Pro pour en ajouter."
+              : `Votre formule : il vous reste ${placeRestante} table(s) sur ${limiteTables}.`}
           </Alerte>
         ) : null}
 

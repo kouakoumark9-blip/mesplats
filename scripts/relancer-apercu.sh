@@ -113,5 +113,5 @@ cat <<EOF
     npm start -- -H 0.0.0.0 -p 3000
 
   Puis ouvrez : $URL_APP
-  Comptes de démo : admin@demo.ci / Demo1234 · serveur@demo.ci · admin@tantie.ci · superadmin@afrimenu.app / Super1234
+  Comptes de démo : admin@demo.ci / Demo1234 · serveur@demo.ci · admin@tantie.ci · superadmin@mesplats.app / Super1234
 EOF

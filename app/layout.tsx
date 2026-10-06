@@ -22,16 +22,16 @@ const jakarta = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl()),
   title: {
-    default: "AfriMenu — Menu QR et commande en ligne pour restaurants",
-    template: "%s · AfriMenu",
+    default: "Mesplats — Menu QR et commande en ligne pour restaurants",
+    template: "%s · Mesplats",
   },
   description:
     "Créez le menu QR de votre restaurant, prenez les commandes sur place et à emporter, et recevez-les en temps réel. Pensé pour la Côte d'Ivoire et l'Afrique de l'Ouest.",
   manifest: "/manifest.webmanifest",
-  applicationName: "AfriMenu",
+  applicationName: "Mesplats",
   appleWebApp: {
     capable: true,
-    title: "AfriMenu",
+    title: "Mesplats",
     statusBarStyle: "default",
   },
   icons: {
@@ -41,8 +41,8 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "fr_CI",
-    siteName: "AfriMenu",
-    title: "AfriMenu — Menu QR et commande en ligne pour restaurants",
+    siteName: "Mesplats",
+    title: "Mesplats — Menu QR et commande en ligne pour restaurants",
     description:
       "Menu QR, commandes sur place et à emporter, écran de service en temps réel. Prix en FCFA, paiement Orange Money, Moov Money et MTN MoMo.",
   },

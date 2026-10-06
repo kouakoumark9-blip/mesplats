@@ -1,12 +1,15 @@
 /**
- * Logo AfriMenu : un QR code stylisé contenant des couverts.
+ * Logo Mesplats : un QR code stylisé contenant des couverts.
+ *
+ * ⚠️ Le dessin (pastille sombre, repères de QR code, couverts orange) ne change
+ * pas : seul le mot-symbole affiché à côté suit le nom du produit.
  *
  * Dessiné en SVG (aucun fichier image) : net à toutes les tailles, teinté via
  * `currentColor` et modifiable par les variables de thème.
  */
 import { cn } from "@/lib/utils";
 
-export function LogoAfriMenu({
+export function LogoMesplats({
   className,
   /** Masque le mot-symbole et ne garde que la pastille. */
   compact = false,
@@ -42,7 +45,7 @@ export function LogoAfriMenu({
 
       {!compact ? (
         <span className="font-titre text-lg leading-none font-extrabold tracking-tight text-slate-900">
-          AfriMenu
+          Mesplats
         </span>
       ) : null}
     </span>

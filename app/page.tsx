@@ -52,12 +52,12 @@ import { qrSvg } from "@/lib/qr";
 
 
 export const metadata: Metadata = {
-  title: "AfriMenu — Créez votre menu QR code pour restaurant en Afrique de l'Ouest",
+  title: "Mesplats — Créez votre menu QR code pour restaurant en Afrique de l'Ouest",
   description:
     "Menu QR code pour restaurant : vos clients scannent, consultent la carte en FCFA et commandent depuis leur téléphone. Commandes sur place et à emporter en temps réel, paiement Orange Money, Moov Money, MTN MoMo ou espèces. Sans application, sans commission.",
   alternates: { canonical: "/" },
   openGraph: {
-    title: "AfriMenu — Menu QR code et commande en ligne pour restaurants",
+    title: "Mesplats — Menu QR code et commande en ligne pour restaurants",
     description:
       "Menu QR sans application, commandes en temps réel, écran de service pour la salle et la cuisine. Conçu pour la Côte d'Ivoire et l'Afrique de l'Ouest.",
     type: "website",
@@ -113,19 +113,19 @@ const FAQ = [
       "Oui, c'est une contrainte de conception. L'interface est volontairement légère : le menu s'affiche vite même en 3G et reste consultable quelques instants si le réseau coupe. C'est l'une des raisons pour lesquelles nous n'utilisons pas de vidéos ni de cartes interactives.",
   },
   {
-    question: "Puis-je utiliser AfriMenu sans QR code ?",
+    question: "Puis-je utiliser Mesplats sans QR code ?",
     reponse:
       "Oui. Beaucoup de restaurants commencent par les commandes à emporter avec un simple lien partagé sur WhatsApp, Facebook ou Instagram. Les QR codes de table s'ajoutent quand vous le souhaitez, sans rien reconfigurer.",
   },
   {
     question: "Y a-t-il une commission sur mes ventes ?",
     reponse:
-      "Aucune. AfriMenu est un abonnement, pas un intermédiaire : vous encaissez directement le client, en mobile money ou en espèces, et la totalité de la somme reste chez vous. Aucune commission n'est prélevée, ni pendant le mois gratuit ni ensuite.",
+      "Aucune. Mesplats est un abonnement, pas un intermédiaire : vous encaissez directement le client, en mobile money ou en espèces, et la totalité de la somme reste chez vous. Aucune commission n'est prélevée sur vos ventes, quel que soit le plan choisi.",
   },
   {
-    question: "Comment fonctionne le premier mois gratuit ?",
+    question: "Comment se règle l'abonnement ?",
     reponse:
-      "Vous créez votre compte sans carte bancaire : pendant 30 jours, vous utilisez tout, sans limite (plats et catégories illimités, tables et QR codes illimités, écran de service, paiement mobile money, statistiques, comptes équipe). Au bout des 30 jours, vous décidez : vous continuez en Pro pour 4 900 FCFA par mois, ou vous arrêtez — sans engagement et sans prélèvement automatique.",
+      "Par mobile money, en Côte d'Ivoire comme dans la sous-région : Orange Money, Moov Money ou MTN MoMo. Vous créez votre compte, vous choisissez votre formule (Pro à 9 900 FCFA par mois, ou Multi-établissements à 19 900 FCFA par mois), vous réglez le premier mois et votre espace s'active. Aucune carte bancaire, aucun prélèvement automatique, aucun engagement.",
   },
   {
     question: "Ai-je besoin de matériel particulier ?",
@@ -154,7 +154,7 @@ export default async function PageAccueil() {
   const donneesStructurees = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    name: "AfriMenu",
+    name: "Mesplats",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web (navigateur), Android, iOS",
     description:
@@ -165,24 +165,17 @@ export default async function PageAccueil() {
     offers: [
       {
         "@type": "Offer",
-        name: "Gratuit",
-        price: "0",
-        priceCurrency: "XOF",
-        description: "20 produits, 5 tables avec QR code, commandes illimitées.",
-      },
-      {
-        "@type": "Offer",
         name: "Pro",
-        price: "4900",
+        price: "9900",
         priceCurrency: "XOF",
-        description: "Premier mois gratuit, puis 4 900 FCFA par mois : produits et tables illimités, comptes équipe illimités, statistiques avancées.",
+        description: "9 900 FCFA par mois, un restaurant : produits et tables illimités, QR codes, écran de service, comptes équipe illimités, statistiques.",
       },
       {
         "@type": "Offer",
         name: "Multi-établissements",
-        price: "24900",
+        price: "19900",
         priceCurrency: "XOF",
-        description: "Jusqu'à 5 établissements, tableau de bord consolidé, export des commandes.",
+        description: "19 900 FCFA par mois : jusqu'à 5 établissements, tableau de bord consolidé, export des commandes.",
       },
     ],
   };
@@ -241,11 +234,11 @@ export default async function PageAccueil() {
             <ul className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm font-semibold text-slate-600">
               <li className="inline-flex items-center gap-1.5">
                 <Check className="size-4 text-feuille-600" aria-hidden />
-                1er mois gratuit, tout inclus
+                À partir de 9 900 FCFA / mois
               </li>
               <li className="inline-flex items-center gap-1.5">
                 <Check className="size-4 text-feuille-600" aria-hidden />
-                Sans carte bancaire
+                Paiement mobile money
               </li>
             </ul>
 
@@ -310,7 +303,7 @@ export default async function PageAccueil() {
       {/* =========================== POURQUOI AFRIMENU =========================== */}
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:py-24">
         <Reveler className="mx-auto max-w-3xl text-center">
-          <TitreSouligne avant="Pourquoi choisir" accent="AfriMenu" className="justify-center" />
+          <TitreSouligne avant="Pourquoi choisir" accent="Mesplats" className="justify-center" />
           <p className="mt-5 text-lg text-slate-600">
             La solution la plus simple pour passer au menu numérique : votre carte se met à jour en
             temps réel, vos clients commandent seuls, et votre équipe arrête de courir après les
@@ -398,7 +391,7 @@ export default async function PageAccueil() {
                 <div className="pointer-events-none absolute inset-x-6 top-10 -z-10 h-72 rounded-[3rem] bg-marque-100/70 blur-3xl" />
 
                 <div className="mx-auto max-w-sm">
-                  <CarteQrTable qrSvg={svgTable} url="afrimenu.app/m/maquis-le-baoule/t/4" />
+                  <CarteQrTable qrSvg={svgTable} url="mesplats.app/m/maquis-le-baoule/t/4" />
                 </div>
 
                 <div className="mx-auto -mt-6 max-w-xs sm:absolute sm:-right-2 sm:bottom-0 sm:mx-0 sm:mt-0 sm:w-52 lg:-right-4">
@@ -442,9 +435,9 @@ export default async function PageAccueil() {
           <Reveler className="mx-auto max-w-3xl text-center">
             <TitreSouligne avant="Un plan pour" accent="chaque restaurant" />
             <p className="mt-5 text-lg text-slate-600">
-              Commencez par un mois gratuit avec toutes les fonctionnalités débloquées, puis
-              choisissez le plan Pro à 4 900 FCFA par mois, ou la formule multi-établissements si
-              vous gérez plusieurs adresses.
+              Deux formules, un seul tarif tout compris : 9 900 FCFA par mois pour un restaurant,
+              19 900 FCFA par mois si vous gérez plusieurs adresses. Aucune commission sur vos
+              ventes, aucun engagement.
             </p>
           </Reveler>
 
@@ -490,8 +483,8 @@ export default async function PageAccueil() {
                   Nous répondons en français, du lundi au samedi.
                 </p>
               </div>
-              <a href="mailto:support@afrimenu.app" className={classesBouton("contour", "md", "shrink-0")}>
-                support@afrimenu.app
+              <a href="mailto:support@mesplats.app" className={classesBouton("contour", "md", "shrink-0")}>
+                support@mesplats.app
               </a>
             </div>
           </Reveler>
@@ -508,11 +501,12 @@ export default async function PageAccueil() {
             <div className="relative grid items-center gap-10 lg:grid-cols-[1.25fr_1fr]">
               <div>
                 <h2 className="font-titre text-3xl leading-tight font-extrabold text-balance sm:text-4xl">
-                  Essayez AfriMenu gratuitement
+                  Créez votre menu dès 9 900 FCFA par mois
                 </h2>
                 <p className="mt-4 max-w-xl text-lg text-white/90">
-                  Le premier mois du plan Pro est offert : menu illustré, QR codes de table,
-                  commandes en temps réel et paiement mobile money, puis 4 900 FCFA par mois.
+                  Menu illustré, QR codes de table, commandes en temps réel, paiement mobile
+                  money : tout est inclus pour 9 900 FCFA par mois, sans commission sur vos
+                  ventes. Vous réglez par Orange Money, Moov Money ou MTN MoMo.
                 </p>
 
                 <div className="mt-8 flex flex-wrap gap-3">

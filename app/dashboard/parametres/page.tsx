@@ -7,13 +7,14 @@ import { GestionPaiements } from "@/components/dashboard/gestion-paiements";
 import { Badge } from "@/components/ui/badge";
 import { Carte, CarteContenu, CarteEntete } from "@/components/ui/carte";
 import { exigerRole } from "@/lib/auth/autorisation";
-import { LIMITE_PRODUITS, type Operateur } from "@/lib/constants";
+import { LIBELLES_PLAN, LIMITE_PRODUITS, TARIFS, type Operateur } from "@/lib/constants";
 import { compterProduits, moyensPaiementRestaurant, profilRestaurant } from "@/lib/db/catalogue";
 import { formatFcfa, lienSms, lienWhatsApp } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Paramètres" };
 
-const MESSAGE_PRO = "Bonjour AfriMenu, je souhaite activer le plan Pro de mon restaurant (4 900 FCFA par mois, premier mois offert).";
+const MESSAGE_PRO =
+  "Bonjour Mesplats, je souhaite activer la formule Pro de mon restaurant (9 900 FCFA par mois).";
 
 export default async function PageParametres() {
   const utilisateur = await exigerRole("admin");
@@ -86,7 +87,7 @@ export default async function PageParametres() {
             icone={<CreditCard className="size-4" aria-hidden />}
             action={
               <Badge ton={utilisateur.plan === "pro" ? "succes" : "neutre"}>
-                Plan {utilisateur.plan === "pro" ? "Pro" : "Gratuit"}
+                Formule {LIBELLES_PLAN[utilisateur.plan]}
               </Badge>
             }
           />
@@ -119,7 +120,7 @@ export default async function PageParametres() {
                     ✓ Menu QR, commandes sur place et à emporter, écran de service : inclus
                   </li>
                   <li>✓ {limite ?? 20} plats maximum</li>
-                  <li>• Plan Pro : plats, tables et comptes illimités</li>
+                  <li>• Formule Pro (9 900 FCFA / mois) : plats, tables et comptes illimités</li>
                 </ul>
               ) : (
                 <p className="text-sm text-slate-600 dark:text-slate-300">
@@ -137,11 +138,11 @@ export default async function PageParametres() {
                   className="inline-flex h-11 items-center gap-2 rounded-xl bg-feuille-600 px-4 text-sm font-semibold text-white transition hover:bg-feuille-700"
                 >
                   <MessageCircle className="size-4" aria-hidden />
-                  Activer le plan Pro — {formatFcfa(4900)} / mois
+                  Activer la formule Pro — {formatFcfa(TARIFS.pro)} / mois
                 </Link>
                 <Link
                   href={lienWhatsApp(
-                    "Bonjour AfriMenu, pouvez-vous m'appeler pour activer le plan Pro ?",
+                    "Bonjour Mesplats, pouvez-vous m'appeler pour activer mon abonnement ?",
                     null,
                   )}
                   target="_blank"
@@ -152,7 +153,7 @@ export default async function PageParametres() {
                 </Link>
                 <Link
                   href={lienSms(
-                    "Bonjour AfriMenu, je souhaite activer le plan Pro de mon restaurant.",
+                    "Bonjour Mesplats, je souhaite activer mon abonnement (9 900 FCFA par mois).",
                     null,
                   )}
                   className="block text-center text-xs font-semibold text-slate-500 hover:underline dark:text-slate-400"

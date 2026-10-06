@@ -65,7 +65,7 @@ export const slugRestaurantSchema = z
   )
   .refine(
     (valeur) => !(SLUGS_RESERVES as readonly string[]).includes(valeur),
-    "Cette adresse est réservée par AfriMenu. Choisissez-en une autre.",
+    "Cette adresse est réservée par Mesplats. Choisissez-en une autre.",
   );
 
 /* -------------------------------------------------------------------------- */

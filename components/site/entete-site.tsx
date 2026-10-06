@@ -9,7 +9,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { BoutonPilule } from "@/components/site/bouton-pilule";
-import { LogoAfriMenu } from "@/components/site/logo";
+import { LogoMesplats } from "@/components/site/logo";
 import { classesBouton } from "@/components/ui/bouton";
 import { cn } from "@/lib/utils";
 
@@ -61,8 +61,8 @@ export function EnteteSite() {
           aria-label="Navigation principale"
           className="mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6"
         >
-          <Link href="/" aria-label="AfriMenu — accueil">
-            <LogoAfriMenu />
+          <Link href="/" aria-label="Mesplats — accueil">
+            <LogoMesplats />
           </Link>
 
           <div className="hidden items-center gap-1 lg:flex">
@@ -124,7 +124,7 @@ export function EnteteSite() {
           )}
         >
           <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-            <LogoAfriMenu />
+            <LogoMesplats />
             <button
               type="button"
               onClick={() => setMenuOuvert(false)}

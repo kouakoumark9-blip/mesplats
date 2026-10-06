@@ -9,7 +9,7 @@ import { espaceParDefaut } from "@/lib/auth/roles";
 
 export const metadata: Metadata = {
   title: "Connexion",
-  description: "Connectez-vous à votre back-office AfriMenu.",
+  description: "Connectez-vous à votre back-office Mesplats.",
   robots: { index: false },
 };
 
@@ -35,7 +35,7 @@ export default async function PageConnexion({
           <span className="flex size-9 items-center justify-center rounded-xl bg-marque-500">
             <Utensils className="size-5" aria-hidden />
           </span>
-          AfriMenu
+          Mesplats
         </Link>
 
         <div className="relative max-w-md">
@@ -85,7 +85,7 @@ export default async function PageConnexion({
               <span className="flex size-8 items-center justify-center rounded-lg bg-marque-500 text-white">
                 <Utensils className="size-4" aria-hidden />
               </span>
-              AfriMenu
+              Mesplats
             </span>
           </div>
 
@@ -107,7 +107,7 @@ export default async function PageConnexion({
               Serveur : <code className="font-mono">serveur@demo.ci</code> /{" "}
               <code className="font-mono">Demo1234</code>
               <br />
-              Plateforme : <code className="font-mono">superadmin@afrimenu.app</code> /{" "}
+              Plateforme : <code className="font-mono">superadmin@mesplats.app</code> /{" "}
               <code className="font-mono">Super1234</code>
             </p>
           </div>

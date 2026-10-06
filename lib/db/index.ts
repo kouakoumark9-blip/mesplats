@@ -14,10 +14,10 @@ import * as schema from "./schema";
 
 type Sql = ReturnType<typeof postgres>;
 
-const globalPourDb = globalThis as unknown as { __afrimenuSql?: Sql };
+const globalPourDb = globalThis as unknown as { __mesplatsSql?: Sql };
 
 const sql =
-  globalPourDb.__afrimenuSql ??
+  globalPourDb.__mesplatsSql ??
   postgres(databaseUrl(), {
     prepare: false,
     max: process.env.NODE_ENV === "production" ? 5 : 10,
@@ -29,7 +29,7 @@ const sql =
 // En développement, Next.js recharge les modules : on réutilise la même
 // connexion pour éviter d'épuiser le pool de connexions.
 if (process.env.NODE_ENV !== "production") {
-  globalPourDb.__afrimenuSql = sql;
+  globalPourDb.__mesplatsSql = sql;
 }
 
 export const db = drizzle(sql, { schema });

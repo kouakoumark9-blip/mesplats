@@ -185,7 +185,7 @@ export async function exigerApiRestaurant(
     return { reponse: interdit("Aucun restaurant associé à ce compte.") };
   }
   if (!garde.utilisateur.restaurantActif) {
-    return { reponse: interdit("Établissement suspendu : contactez le support AfriMenu.") };
+    return { reponse: interdit("Établissement suspendu : contactez le support Mesplats.") };
   }
   return { utilisateur: garde.utilisateur as SessionUtilisateur & { restaurantId: string } };
 }

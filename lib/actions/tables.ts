@@ -7,7 +7,7 @@
  *  1. garde de rôle (`exigerRole("admin")`) ;
  *  2. `restaurantId` issu de la session — jamais du formulaire ;
  *  3. validation Zod côté serveur ;
- *  4. limite du plan appliquée côté serveur (plan Gratuit : 5 tables).
+ *  4. limite de la formule appliquée côté serveur (compte non activé : 5 tables).
  */
 import { and, eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -67,7 +67,7 @@ export async function creerTablesLot(
     return {
       ok: false,
       message:
-        `Votre plan Gratuit est limité à ${limite} tables. ` +
+        `Votre formule actuelle est limitée à ${limite} tables. ` +
         "Passez au plan Pro pour des tables illimitées.",
     };
   }
@@ -117,7 +117,7 @@ export async function creerTablesLot(
   if (ignores > 0) morceaux.push(`${ignores} numéro(s) déjà utilisé(s), ignoré(s).`);
   if (refuses > 0) {
     morceaux.push(
-      `plan Gratuit limité à ${limite} tables : ${refuses} table(s) non créée(s).`,
+      `formule actuelle limitée à ${limite} tables : ${refuses} table(s) non créée(s).`,
     );
   }
 

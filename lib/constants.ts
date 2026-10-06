@@ -38,8 +38,19 @@ export const LIMITE_TABLES: Record<Plan, number | null> = {
   pro: null,
 };
 
+/**
+ * Tarifs de l'abonnement, en FCFA par mois. Mesplats n'a pas de formule
+ * gratuite : ces deux montants sont les seuls affichés sur le site.
+ * L'annuel correspond à 10 mois payés sur 12 (deux mois offerts).
+ */
+export const TARIFS = { pro: 9_900, multi: 19_900 } as const;
+
 export const LIBELLES_PLAN: Record<Plan, string> = {
-  gratuit: "Gratuit",
+  /**
+   * « gratuit » est l'état technique d'un compte fraîchement créé : Mesplats ne
+   * propose plus de formule gratuite, l'abonnement est payable par mobile money.
+   */
+  gratuit: "À activer",
   pro: "Pro",
 };
 

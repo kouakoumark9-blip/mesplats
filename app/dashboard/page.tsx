@@ -74,7 +74,7 @@ export default async function PageTableauDeBord() {
       detail:
         `${compteurs.categories} ${compteurs.categories > 1 ? "catégories" : "catégorie"} · ` +
         `${compteurs.produits} ${compteurs.produits > 1 ? "plats" : "plat"}` +
-        (limite !== null ? ` sur ${limite} au plan Gratuit.` : " (plan Pro : illimité)."),
+        (limite !== null ? ` sur ${limite} avec votre formule actuelle.` : " (formule Pro : illimité)."),
       fait: compteurs.produits > 0 && compteurs.categories > 0,
       href: "/dashboard/menu",
       action: "Gérer le menu",
@@ -147,7 +147,7 @@ export default async function PageTableauDeBord() {
               ) : null}
             </>
           }
-          detail={limite === null ? "Plan Pro : illimité" : "Plan Gratuit"}
+          detail={limite === null ? "Formule Pro : illimité" : "Formule à activer"}
           icone={<Smartphone className="size-5" aria-hidden />}
         />
       </div>
@@ -247,7 +247,7 @@ export default async function PageTableauDeBord() {
 
       <p className="text-center text-xs text-slate-400 dark:text-slate-500">
         Établissement : {utilisateur.restaurantSlug} · {compteurs.equipe}{" "}
-        {compteurs.equipe > 1 ? "comptes d'équipe" : "compte d'équipe"} · Commission AfriMenu : 0
+        {compteurs.equipe > 1 ? "comptes d'équipe" : "compte d'équipe"} · Commission Mesplats : 0
         %.
       </p>
     </div>

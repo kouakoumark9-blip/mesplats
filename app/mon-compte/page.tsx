@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Carte, CarteEntete } from "@/components/ui/carte";
 import { Alerte } from "@/components/ui/divers";
 import { exigerUtilisateur } from "@/lib/auth/autorisation";
-import { LIBELLES_ROLE } from "@/lib/constants";
+import { LIBELLES_PLAN, LIBELLES_ROLE } from "@/lib/constants";
 import { formatRelatif } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Mon compte", robots: { index: false } };
@@ -30,7 +30,7 @@ export default async function PageMonCompte() {
             { terme: "Email", valeur: utilisateur.email },
             { terme: "Rôle", valeur: LIBELLES_ROLE[utilisateur.role] },
             { terme: "Restaurant", valeur: utilisateur.restaurantNom ?? "—" },
-            { terme: "Plan", valeur: utilisateur.plan === "pro" ? "Pro" : "Gratuit" },
+            { terme: "Formule", valeur: LIBELLES_PLAN[utilisateur.plan] },
             { terme: "Devise", valeur: utilisateur.devise },
           ].map((ligne) => (
             <div key={ligne.terme} className="flex items-center justify-between gap-4 py-3">
@@ -47,7 +47,7 @@ export default async function PageMonCompte() {
           <Alerte ton="info">
             Le changement de mot de passe et la gestion des sessions seront ajoutés avec les
             paramètres du compte (étape 2). Votre mot de passe est stocké haché avec bcrypt : il
-            n&apos;est jamais lisible, même par l&apos;équipe AfriMenu.
+            n&apos;est jamais lisible, même par l&apos;équipe Mesplats.
           </Alerte>
           <p className="mt-3 text-sm text-slate-500">
             Session ouverte depuis {formatRelatif(new Date())} sur ce navigateur.

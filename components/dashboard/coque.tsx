@@ -144,7 +144,7 @@ export function Coque({
           <div className="absolute inset-y-0 left-0 w-[86%] max-w-xs overflow-y-auto bg-white p-4 shadow-2xl dark:bg-slate-900">
             <div className="flex items-center justify-between">
               <p className="font-titre text-base font-extrabold text-slate-900 dark:text-white">
-                AfriMenu
+                Mesplats
               </p>
               <button
                 type="button"
@@ -270,7 +270,7 @@ function ContenuBarreLatele({
       <div className="rounded-2xl border border-slate-200 p-3 dark:border-slate-800">
         <div className="flex items-center justify-between gap-2">
           <span className="text-xs font-bold tracking-wide text-slate-500 uppercase dark:text-slate-400">
-            Plan {plan === "pro" ? "Pro" : "Gratuit"}
+            Formule {plan === "pro" ? "Pro" : "à activer"}
           </span>
           {plan === "pro" ? (
             <Badge ton="succes">Illimité</Badge>

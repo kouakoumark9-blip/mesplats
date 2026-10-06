@@ -145,7 +145,7 @@ export function FormulaireProfil({ restaurant }: { restaurant: ProfilAffiche }) 
               htmlFor="profil-slug"
               obligatoire
               erreur={erreurs.slug ?? (verification.etat === "occupe" || verification.etat === "invalide" ? verification.message : undefined)}
-              aide={`Vos clients y accéderont à l'adresse : afrimenu.app/m/${slug || "…"}`}
+              aide={`Vos clients y accéderont à l'adresse : mesplats.app/m/${slug || "…"}`}
             >
               <div className="flex items-stretch gap-2">
                 <Entree

@@ -1,5 +1,5 @@
 /**
- * Script de peuplement (seed) — AfriMenu
+ * Script de peuplement (seed) — Mesplats
  * ---------------------------------------------------------------------------
  * Crée deux restaurants de démonstration complets :
  *   1. « Maquis Le Baoulé » (/m/maquis-le-baoule) : 3 catégories, 10 produits
@@ -233,7 +233,7 @@ async function creerCatalogue(restaurantId: string, catalogue: CategorieSeed[]) 
 /* -------------------------------------------------------------------------- */
 
 async function semer() {
-  console.log("\n🌱  AfriMenu — peuplement de la base de données\n");
+  console.log("\n🌱  Mesplats — peuplement de la base de données\n");
 
   await supprimerRestaurant("maquis-le-baoule");
   await supprimerRestaurant("chez-tantie-fanta");
@@ -495,10 +495,14 @@ async function semer() {
 
   /* ------------------------- 3. Super administrateur ---------------------- */
 
+  // L'ancien domaine afrimenu.app a été remplacé : on retire le compte
+  // historique s'il existe encore, pour ne pas laisser deux super-admins.
+  await db.delete(users).where(eq(users.email, "superadmin@afrimenu.app"));
+
   const [existantSuper] = await db
     .select({ id: users.id })
     .from(users)
-    .where(eq(users.email, "superadmin@afrimenu.app"))
+    .where(eq(users.email, "superadmin@mesplats.app"))
     .limit(1);
 
   if (existantSuper) {
@@ -509,8 +513,8 @@ async function semer() {
   } else {
     await db.insert(users).values({
       restaurantId: null,
-      nom: "Équipe AfriMenu",
-      email: "superadmin@afrimenu.app",
+      nom: "Équipe Mesplats",
+      email: "superadmin@mesplats.app",
       motDePasseHash: mdpSuper,
       role: "superadmin" as const,
     });
@@ -534,7 +538,7 @@ async function semer() {
    Propriétaire  admin@demo.ci            Demo1234   → /dashboard
    Serveur       serveur@demo.ci          Demo1234   → /service
    Cuisine       cuisine@demo.ci          Demo1234   → /service
-   Super-admin   superadmin@afrimenu.app  Super1234  → /admin
+   Super-admin   superadmin@mesplats.app  Super1234  → /admin
 
    SECOND RESTAURANT (test d'isolation multi-tenant)
    Admin         admin@tantie.ci          Demo1234   → /dashboard

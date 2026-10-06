@@ -9,7 +9,7 @@
  *
  * Les cadres de téléphone/tablette réutilisent `Telephone` (composant du héro)
  * pour que toute la page parle le même langage visuel. La couleur principale est
- * celle d'AfriMenu : ces maquettes montrent le produit, pas un restaurant précis.
+ * celle d'Mesplats : ces maquettes montrent le produit, pas un restaurant précis.
  */
 import Image from "next/image";
 import {

@@ -196,11 +196,11 @@ export function GestionMenu({
 
   return (
     <div className="space-y-5">
-      {/* Bandeau de limite du plan gratuit */}
+      {/* Bandeau de limite du compte non encore activé */}
       {limiteAtteinte && limiteProduits !== null ? (
         <Alerte
           ton="alerte"
-          titre={`Limite du plan Gratuit atteinte (${nbProduits}/${limiteProduits} plats)`}
+          titre={`Limite de votre formule atteinte (${nbProduits}/${limiteProduits} plats)`}
           icone={<TriangleAlert className="size-5" aria-hidden />}
         >
           Passez au plan Pro pour un menu illimité.{" "}

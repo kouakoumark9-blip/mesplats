@@ -1,6 +1,6 @@
-# AfriMenu — Menu QR et commande en ligne pour restaurants
+# Mesplats — menu QR et commande en ligne pour restaurants
 
-**AfriMenu** est une application SaaS complète de **menu QR** et de **prise de commande** destinée
+**Mesplats** est une application SaaS complète de **menu QR** et de **prise de commande** destinée
 aux restaurants de **Côte d'Ivoire** et d'**Afrique de l'Ouest**.
 
 Un restaurateur crée son compte, saisit ses plats, et l'application génère ses **QR codes de table**.
@@ -85,6 +85,27 @@ soit **sur place** (à table) ou **à emporter**.
 - Plans : **Gratuit** (20 produits maximum) et **Pro** (illimité).
 
 ---
+
+## 1 bis. Marque et tarifs
+
+| Élément | Valeur |
+| --- | --- |
+| Nom du produit | **Mesplats** (ex-AfriMenu) |
+| Logo | Pastille sombre avec repères de QR code et couverts orange — **inchangé**, `components/site/logo.tsx` |
+| Adresse de contact | support@mesplats.app |
+| Compte super-admin | superadmin@mesplats.app |
+| Formule Pro | **9 900 FCFA / mois** — un restaurant, tout inclus |
+| Formule Multi-établissements | **19 900 FCFA / mois** — jusqu'à 5 adresses |
+| Annuel | 10 mois payés sur 12 (−17 %) |
+| Formule gratuite | **aucune** : on règle directement par mobile money |
+
+Les deux montants ne sont écrits qu'à un seul endroit — `TARIFS` dans `lib/constants.ts` — et repris
+par la grille tarifaire, la page d'inscription, l'encart des étapes, les paramètres du back-office et
+le JSON-LD de la page d'accueil.
+
+Côté base de données et code, l'état technique `gratuit` subsiste : c'est le plan d'un compte
+fraîchement créé qui n'a pas encore réglé son abonnement (limites de 20 plats et 5 tables). Il est
+présenté à l'utilisateur comme **« À activer »**.
 
 ## 2. Stack technique
 
@@ -191,7 +212,7 @@ Créés par `npm run db:seed`. Mot de passe identique pour tous les tests : `Dem
 | Propriétaire (admin) | `admin@demo.ci` | `/dashboard` |
 | Serveur | `serveur@demo.ci` | `/service` |
 | Cuisine | `cuisine@demo.ci` | `/service` |
-| Super-admin plateforme | `superadmin@afrimenu.app` (mot de passe `Super1234`) | `/admin` |
+| Super-admin plateforme | `superadmin@mesplats.app` (mot de passe `Super1234`) | `/admin` |
 
 **Restaurants de démonstration**
 
@@ -361,7 +382,7 @@ super-admin → `/admin`) au lieu de voir une erreur 403.
 cd afrimenu
 git init
 git add .
-git commit -m "AfriMenu : structure, base de données et authentification"
+git commit -m "Mesplats : structure, base de données et authentification"
 git branch -M main
 git remote add origin https://github.com/<votre-compte>/afrimenu.git
 git push -u origin main
@@ -505,10 +526,10 @@ Le projet est construit par étapes, chacune vérifiée avant de passer à la su
   réutilisent le composant `Telephone` du héro (`components/site/hero-phones.tsx`). Les deux vignettes de QR de l'étape 2 sont de
   **vrais codes scannables**, chacune vers sa table (décodés en test vers `/m/maquis-le-baoule/t/1`
   et `/t/2`).
-- **Tarifs** : plan Gratuit (0 FCFA, 20 plats, 5 tables) et plan Pro à **4 900 FCFA/mois avec le
-  premier mois offert** (annuel : 49 000 FCFA, deux mois offerts), plus une formule
-  multi-établissements. Le tarif est repris dans le JSON-LD de la page et dans les paramètres du
-  back-office.
+- **Tarifs** : **deux formules payantes seulement**, sans formule gratuite ni mois offert —
+  Pro à **9 900 FCFA/mois** et Multi-établissements à **19 900 FCFA/mois** (annuel : 10 mois payés
+  sur 12). Règlement par Orange Money, Moov Money ou MTN MoMo. Les montants sont définis une seule
+  fois dans `lib/constants.ts` (`TARIFS`) et repris par le JSON-LD de la page.
 - **Photos de plats** : `public/plats/*.jpg` et `public/ambiance/maquis.jpg`, servies par
   `next/image` (WebP, redimensionnement) ; `components/site/photo-plat.tsx` gère le repli quand
   un plat n'a pas encore de photo.
@@ -598,23 +619,25 @@ Certaines sections ont été volontairement retirées de la page d'accueil pour 
   `VignetteEquipe`, `VignetteQr`, `MaquettePaiement`) restent dans `components/site/` — pour la
   rétablir, reprendre le bloc depuis le commit `13363bb` (`git show 13363bb:app/page.tsx`).
 
-La page d'accueil enchaîne donc : héros → chiffres → « Pourquoi choisir AfriMenu » →
+La page d'accueil enchaîne donc : héros → chiffres → « Pourquoi choisir Mesplats » →
 « Un QR code pour chaque table » → « 3 étapes » → tarifs → questions → appel final → pied de page.
 
-**Tarifs : plus de formule « Gratuit · 0 FCFA · pour toujours ».** La première carte s'intitule
-désormais **« 1 mois gratuit — tout utiliser, sans aucune limite »** : elle affiche « 1 mois / gratuit,
-tout inclus », annonce la suite (« puis 4 900 FCFA par mois, sans carte bancaire, sans engagement »)
-et liste **les avantages du plan Pro débloqués dès l'inscription** (plats illimités, tables et QR
-codes illimités, écran de service, paiement mobile money, statistiques, comptes équipe) — plus aucune
-ligne « non inclus ». Les autres mentions ont suivi : le héros (« 1er mois gratuit, tout inclus » à la
-place de « À partir de 0 FCFA »), le bandeau de confiance, l'introduction de la section tarifs, les
-deux questions de la FAQ, le message d'inscription, et le JSON-LD (`Pro: 4900 XOF`). Les formules Pro
-(4 900 FCFA/mois) et Multi-établissements (24 900 FCFA/mois) restent inchangées.
+**Tarifs : deux formules payantes, aucune formule gratuite.** La grille affiche **Pro à 9 900 FCFA
+par mois** (un restaurant, tout inclus) et **Multi-établissements à 19 900 FCFA par mois** (jusqu'à
+5 adresses), avec la bascule mensuel / annuel (annuel = 10 mois payés sur 12). Plus aucune mention de
+plan gratuit ni de mois offert sur le site : héros (« À partir de 9 900 FCFA / mois », « Paiement
+mobile money »), introduction de la section tarifs, appels à l'action, FAQ (« Comment se règle
+l'abonnement ? »), message d'inscription, encart des étapes et JSON-LD (`Pro: 9900 XOF`,
+`Multi: 19900 XOF`). Les montants vivent à un seul endroit : `TARIFS` dans `lib/constants.ts`.
+
+Côté application, l'état technique `gratuit` reste le plan d'un compte fraîchement créé, mais il est
+présenté comme **« À activer »** (badge de la barre latérale, encart des paramètres) : le restaurant
+règle son abonnement par mobile money, l'équipe Mesplats confirme, et le compte passe en Pro.
 
 **Montants : les milliers s'affichent enfin.** `Intl.NumberFormat("fr-FR")` sépare les milliers par
 une **espace fine insécable (U+202F)**, si étroite qu'elle disparaît selon les polices : on lisait
 « 24900 FCFA » au lieu de « 24 900 FCFA », et un `.replace(" FCFA", "")` (espace ordinaire) ne
-matchait plus, produisant « 4 900 FCFA **FCFA** / mois ». `lib/utils.ts` normalise désormais sur
+matchait plus, produisant « 9 900 FCFA **FCFA** / mois ». `lib/utils.ts` normalise désormais sur
 l'espace insécable classique (U+00A0) via le helper `grouper()`, et `formatNombre()` remplace le
 remplacement de chaîne dans la grille tarifaire. Vérifié sur l'accueil, l'inscription, le menu public
 et le tableau de bord : aucune occurrence de « 0 FCFA », de « FCFA FCFA » ni de chiffres collés.
@@ -681,6 +704,6 @@ vos QR codes.
 
 ## Licence
 
-Projet privé — © AfriMenu, Abidjan, Côte d'Ivoire.
+Projet privé — © Mesplats, Abidjan, Côte d'Ivoire.
 
-Pour toute question : **support@afrimenu.app**
+Pour toute question : **support@mesplats.app**

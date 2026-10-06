@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# AfriMenu — installation de l'environnement de développement en une commande
+# Mesplats — installation de l'environnement de développement en une commande
 # =============================================================================
 #   ./scripts/dev-setup.sh
 #
@@ -91,5 +91,5 @@ echo "   Comptes de démonstration :"
 echo "     Propriétaire  admin@demo.ci            Demo1234"
 echo "     Serveur       serveur@demo.ci          Demo1234"
 echo "     Cuisine       cuisine@demo.ci          Demo1234"
-echo "     Plateforme    superadmin@afrimenu.app  Super1234"
+echo "     Plateforme    superadmin@mesplats.app  Super1234"
 echo ""

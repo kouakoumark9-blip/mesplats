@@ -16,7 +16,7 @@ import { revalidatePath } from "next/cache";
 
 import type { EtatFormulaire } from "@/lib/actions/etat";
 import { exigerRole } from "@/lib/auth/autorisation";
-import { LIMITE_PRODUITS } from "@/lib/constants";
+import { LIBELLES_PLAN, LIMITE_PRODUITS } from "@/lib/constants";
 import { db } from "@/lib/db";
 import {
   categories,
@@ -418,7 +418,7 @@ export async function enregistrerProduit(
   const identifiant = donnees.id || null;
 
   if (!identifiant) {
-    // Limite du plan gratuit : 20 plats maximum.
+    // Compte non encore activé : 20 plats maximum (voir LIMITE_PRODUITS).
     const limite = LIMITE_PRODUITS[utilisateur.plan];
     if (limite !== null) {
       const [compteur] = await db
@@ -430,7 +430,7 @@ export async function enregistrerProduit(
         return {
           ok: false,
           message:
-            `Votre plan ${utilisateur.plan === "gratuit" ? "Gratuit" : "Pro"} est limité à ` +
+            `Votre formule ${LIBELLES_PLAN[utilisateur.plan]} est limitée à ` +
             `${limite} plats. Passez au plan Pro pour un menu illimité.`,
         };
       }
