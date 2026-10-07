@@ -1,0 +1,46 @@
+name: Bogue
+description: Signaler un dysfonctionnement
+title: "[Bogue] "
+labels: ["type/bogue"]
+body:
+  - type: textarea
+    id: constat
+    attributes:
+      label: Ce qui se passe
+      description: Décrivez le comportement observé.
+    validations:
+      required: true
+  - type: textarea
+    id: attendu
+    attributes:
+      label: Ce qui devrait se passer
+    validations:
+      required: true
+  - type: textarea
+    id: reproduire
+    attributes:
+      label: Étapes pour reproduire
+      placeholder: |
+        1. Ouvrir /m/maquis-le-baoule
+        2. Ajouter un plat au panier
+        3. …
+    validations:
+      required: true
+  - type: dropdown
+    id: appareil
+    attributes:
+      label: Appareil
+      options:
+        - Téléphone Android
+        - iPhone
+        - Tablette
+        - Ordinateur
+    validations:
+      required: true
+  - type: input
+    id: restaurant
+    attributes:
+      label: Restaurant ou compte concerné
+      placeholder: Ex. maquis-le-baoule / admin@demo.ci
+    validations:
+      required: false

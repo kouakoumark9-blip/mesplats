@@ -1,0 +1,45 @@
+name: Évolution
+description: Proposer une amélioration ou une nouvelle fonctionnalité
+title: "[Évolution] "
+labels: ["type/fonctionnalite"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Merci ! Décrivez le besoin côté restaurant (le problème à résoudre) avant la solution technique.
+  - type: textarea
+    id: besoin
+    attributes:
+      label: Besoin
+      description: Quel problème vivent le restaurateur, le serveur ou le client ?
+      placeholder: Ex. « Le serveur veut imprimer un ticket pour la cuisine. »
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solution envisagée
+      description: Comment imaginez-vous l'écran ou le parcours ?
+    validations:
+      required: false
+  - type: dropdown
+    id: role
+    attributes:
+      label: Rôle concerné
+      options:
+        - Client (carte publique)
+        - Serveur / salle
+        - Cuisine
+        - Propriétaire (back-office)
+        - Super-admin (plateforme)
+        - Boutique / supports imprimés
+    validations:
+      required: true
+  - type: textarea
+    id: criteres
+    attributes:
+      label: Critères d'acceptation
+      description: Comment saura-t-on que c'est terminé ?
+      placeholder: Ex. « L'écran cuisine affiche le ticket en moins de 4 secondes. »
+    validations:
+      required: false

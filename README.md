@@ -28,6 +28,8 @@ soit **sur place** (à table) ou **à emporter**.
 12. [Avancement du projet](#12-avancement-du-projet)
 13. [Dépannage](#13-dépannage)
 
+Guide d'outillage : **[GITHUB.md](GITHUB.md)** (dépôt, intégration continue, tableau de projet).
+
 Sections complémentaires : [1 bis. Marque et tarifs](#1-bis-marque-et-tarifs) ·
 [1 ter. Typographie et logos de paiement](#1-ter-typographie-et-logos-de-paiement) ·
 [1 quater. Fonctionnalités pro](#1-quater-fonctionnalités-ajoutées-passe--plus-professionnel-) ·
@@ -548,7 +550,31 @@ super-admin → `/admin`) au lieu de voir une erreur 403.
 
 ## 10. Déploiement pas à pas
 
+### Outillage GitHub déjà en place
+
+Avant même le premier envoi, le dépôt contient de quoi travailler proprement :
+
+| Fichier | Rôle |
+| --- | --- |
+| `.github/workflows/ci.yml` | À chaque envoi sur `main` : types (`tsc`), style (`eslint`), migrations et jeu de démonstration sur un PostgreSQL 17 de service, puis `next build`. Un voyant rouge interdit la fusion. |
+| `.github/ISSUE_TEMPLATE/` | Formulaires « Bogue » et « Évolution » en français : rôle concerné, étapes de reproduction, critères d'acceptation. |
+| `.github/pull_request_template.md` | Liste de contrôle (isolation multi-tenant, validation Zod, test téléphone 390 px). |
+| `scripts/connecter-github.sh` | Crée le dépôt, renomme la branche en `main`, envoie le code, remplit description et mots-clés, puis prépare le tableau. |
+| `scripts/github-projet.mjs` | 13 étiquettes et 19 fiches du carnet de route (sans doublon) rangées dans les colonnes « À faire », « En cours », « Terminé » du tableau `kouakoumark9-blip/projects/2`. |
+
+```bash
+gh auth login && gh auth refresh -s project   # une seule fois
+bash scripts/connecter-github.sh              # dépôt + envoi + tableau
+```
+
+Guide complet (installation de `gh`, variantes, dépannage) : **[GITHUB.md](GITHUB.md)**.
+
+
 ### Étape 1 — Mettre le code sur GitHub
+
+> Chemin rapide : `bash scripts/connecter-github.sh` fait les étapes 1 et 5 d'un coup
+> (dépôt, envoi, étiquettes, fiches et tableau de projet). Les commandes manuelles restent
+> ci-dessous si vous préférez tout contrôler.
 
 ```bash
 cd afrimenu

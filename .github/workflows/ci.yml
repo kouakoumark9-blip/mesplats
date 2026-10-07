@@ -1,0 +1,73 @@
+# Intégration continue Mesplats
+# ---------------------------------------------------------------------------
+# Exécutée à chaque envoi sur `main` et sur chaque demande de fusion :
+#   1. qualite : vérification des types (tsc) et du style (eslint) ;
+#   2. build   : PostgreSQL de service, migrations, jeu de démonstration,
+#                puis `next build` — c'est le même chemin que la production.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Une seule exécution par branche : on annule la précédente si elle tourne encore.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  qualite:
+    name: Types et style
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+
+  build:
+    name: Build (migrations + jeu de démonstration)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: mesplats
+          POSTGRES_PASSWORD: mesplats
+          POSTGRES_DB: mesplats
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U mesplats"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://mesplats:mesplats@localhost:5432/mesplats
+      AUTH_SECRET: secret-de-test-pour-la-ci-mesplats-32-caracteres
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # Applique les migrations puis insère les restaurants de démonstration :
+      # un build qui passe garantit donc que la base est à jour.
+      - run: npm run db:setup
+
+      - run: npm run build
