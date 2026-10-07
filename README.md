@@ -208,6 +208,10 @@ Deux portes d'entrée, un seul catalogue :
   déjà connecté commande directement depuis cette même page.
 - **Section « Des supports qui portent vos QR codes »** sur la page d'accueil : trois supports mis en
   avant (chevalet de table, stickers, pack complet), les atouts et un bouton « Voir les 6 supports ».
+- **`/boutique/catalogue`** : catalogue **imprimable** (feuille A4, sans compte) présentant les six
+  supports, leurs photos, leurs paliers de prix, leurs options et les étapes de commande, avec un QR
+  code qui renvoie vers la boutique. Le visiteur l'imprime ou l'enregistre en PDF depuis son
+  navigateur — c'est le document à laisser à un restaurateur après une démonstration.
 - **`/dashboard/boutique`** : l'espace du restaurant, avec ses chiffres (« devis passés », « en cours
   de production », montant commandé) et l'historique de ses devis.
 
@@ -698,7 +702,8 @@ Le projet est construit par étapes, chacune vérifiée avant de passer à la su
 - **Vitrine publique `/boutique`** (accessible sans compte, entrée « Boutique » dans le menu du site
   et dans le pied de page) : composition du tirage, panier, puis invitation à créer son compte pour
   envoyer la demande — le panier est conservé. Section dédiée sur la page d'accueil.
-- Tests de la vitrine publique inclus dans `qa/verif-boutique.mjs` (**56/56**).
+- Catalogue imprimable `/boutique/catalogue` (A4, QR code vers la boutique) pour vos démonstrations.
+- Tests de la vitrine publique et du catalogue inclus dans `qa/verif-boutique.mjs` (**63/63**).
 
 **Étape 1 — ce qui est livré et vérifié**
 

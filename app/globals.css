@@ -293,6 +293,12 @@
     page-break-after: always;
   }
 
+  /* Une carte produit ne doit jamais être coupée entre deux pages */
+  .break-inside-avoid {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
   body {
     background: #fff !important;
   }

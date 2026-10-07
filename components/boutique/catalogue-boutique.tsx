@@ -184,6 +184,11 @@ export function CatalogueBoutique({
         </div>
 
         <div className="flex flex-wrap gap-2">
+          <Link href="/boutique/catalogue" target={estPublic ? undefined : "_blank"}>
+            <Bouton variante="contour" icone={<Printer className="size-4" aria-hidden />}>
+              Catalogue à imprimer
+            </Bouton>
+          </Link>
           {estPublic ? (
             <Link href="/inscription">
               <Bouton variante="contour" icone={<Sparkles className="size-4" aria-hidden />}>
