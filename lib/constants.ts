@@ -32,6 +32,12 @@ export const LIMITE_PRODUITS: Record<Plan, number | null> = {
   pro: null,
 };
 
+/** Limite du nombre de comptes d'équipe (serveurs/cuisine) selon le plan. */
+export const LIMITE_COMPTES_EQUIPE: Record<Plan, number | null> = {
+  gratuit: 3,
+  pro: null,
+};
+
 /** Limite du nombre de tables selon le plan (null = illimité). */
 export const LIMITE_TABLES: Record<Plan, number | null> = {
   gratuit: 5,

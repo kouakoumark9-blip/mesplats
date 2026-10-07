@@ -26,3 +26,15 @@ export type EtatFormulaire = {
 };
 
 export const etatInitial: EtatFormulaire = { ok: false };
+
+/**
+ * État renvoyé par `creerCommande` : en plus des messages, l'action transmet
+ * l'identifiant de la commande créée pour que le client soit redirigé vers sa
+ * page de suivi (`/commande/[id]`).
+ */
+export type EtatCommande = EtatFormulaire & {
+  commandeId?: string;
+  commandeNumero?: number;
+};
+
+export const etatCommandeInitial: EtatCommande = { ok: false };

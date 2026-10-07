@@ -36,14 +36,13 @@ soit **sur place** (à table) ou **à emporter**.
 
 | Parcours | Adresse | État |
 | --- | --- | --- |
-| Menu à emporter | `/m/[slug]` | Aperçu en lecture seule (étape 1), commande à l'étape 4 |
-| Menu avec table pré-remplie (sur place) | `/m/[slug]/t/[numero]` | Aperçu en lecture seule (étape 1), commande à l'étape 4 |
-| Suivi de commande en direct | `/commande/[id]` | Étape 6 |
+| Menu à emporter | `/m/[slug]` | ✅ Commande complète (panier, paiement, suivi) |
+| Menu avec table pré-remplie (sur place) | `/m/[slug]/t/[numero]` | ✅ Commande complète, table pré-remplie depuis le QR |
+| Suivi de commande en direct | `/commande/[id]` | ✅ Rafraîchissement automatique toutes les 4 s |
 
 > Les liens de la page d'accueil et du back-office mènent à de **vraies pages** :
 > elles lisent le restaurant, ses catégories, ses plats et ses prix en base de
-> données et appliquent sa couleur principale. La prise de commande (panier,
-> options, paiement, suivi) est livrée à l'étape 4.
+> données et appliquent sa couleur principale.
 
 - Menu par catégories avec barre de navigation fixe, recherche et photos.
 - Fiche produit avec options/suppléments, note libre (« sans piment »).
@@ -62,10 +61,12 @@ soit **sur place** (à table) ou **à emporter**.
 - **Tables** : création de N tables d'un coup, un QR code unique par table, **export PNG** et
   **planche PDF imprimable** (une carte par table avec logo, numéro et QR), plus un QR
   « À emporter » pour la vitrine.
-- **Commandes** : historique, filtres, changement de statut, annulation avec motif,
-  validation du paiement.
-- **Équipe** : création de comptes serveur et cuisine.
-- **Paiements** : numéros Orange Money, Moov Money, MTN MoMo.
+- **Commandes** : journal complet (filtres par statut et par type), chiffres du jour, top des plats,
+  lien vers le suivi client, contacts WhatsApp/SMS/téléphone et **export CSV** pour la comptabilité.
+- **Équipe** : création de comptes serveur et cuisine, suspension et réactivation d'un accès,
+  réinitialisation d'un mot de passe (affiché une seule fois), retrait d'un membre.
+- **Paiements** : file « à valider » rafraîchie toutes les 4 s, validation manuelle en un clic,
+  montants encaissés du jour, et rappel des numéros mobile money (`/dashboard/parametres#paiements`).
 - **Paramètres** : nom, logo, couleur principale, adresse, téléphone, horaires, devise.
 
 ### Service — serveur et cuisine (`/service`)
@@ -79,10 +80,14 @@ soit **sur place** (à table) ou **à emporter**.
 
 ### Plateforme — super-admin (`/admin`)
 
-- Liste de tous les restaurants avec compteurs (commandes, volume, produits, comptes).
+- Liste de tous les restaurants avec compteurs (commandes, produits, tables, comptes).
+- Recherche, tri et filtres (actifs / suspendus), changement de formule.
 - Activation / suspension d'un établissement (l'accès est coupé immédiatement, même pour les
-  sessions déjà ouvertes).
-- Plans : **Gratuit** (20 produits maximum) et **Pro** (illimité).
+  sessions déjà ouvertes ; la carte publique renvoie alors une page « établissement indisponible »).
+- Dernières commandes de la plateforme, pour le support.
+- Formules : **À activer** (20 plats, 5 tables, 3 comptes) et **Pro** (illimité) — 9 900 / 19 900 FCFA.
+- **PWA installable** : manifeste, service worker, icônes PNG (192/512/maskable) et page
+  `/hors-ligne` servie quand le réseau tombe.
 
 ---
 
@@ -297,15 +302,20 @@ afrimenu/
 │   ├── layout.tsx                  # Layout racine : polices, métadonnées, toasts
 │   ├── globals.css                 # Système de design Tailwind v4 (couleurs, animations)
 │   ├── page.tsx                    # Page d'accueil du SaaS (landing page)
-│   ├── m/[slug]/                   # Menu public + /t/[numero] (aperçu étape 1)
+│   ├── m/[slug]/                   # Menu public + /t/[numero] (commande complète)
+│   ├── commande/[id]/              # Suivi client en direct (polling 4 s)
+│   ├── hors-ligne/                 # Page servie par le service worker sans réseau
 │   ├── connexion/                  # Connexion
 │   ├── inscription/                # Création du restaurant + compte propriétaire
 │   ├── compte-suspendu/            # Message affiché si l'établissement est suspendu
 │   ├── dashboard/                  # Back-office propriétaire : coque, vue d'ensemble,
 │   │   ├── layout.tsx              #   menu (catégories/plats) et paramètres
-│   ├── service/                    # Écran serveur / cuisine (étape 5)
-│   ├── admin/                      # Espace plateforme super-admin (étape 7)
+│   ├── service/                    # Écran serveur / cuisine (temps réel, thème sombre)
+│   ├── admin/                      # Espace plateforme : activation, suspension, formules
 │   ├── api/upload/                 # Téléversement des photos de plats (Vercel Blob)
+│   ├── api/commande/[id]/          # Suivi d'une commande (lecture seule, page client)
+│   ├── api/service/commandes/      # Flux de l'écran de service (rôle + restaurant)
+│   ├── api/dashboard/commandes/export/  # Export CSV du journal des commandes
 │   ├── mon-compte/                 # Informations du compte connecté
 │   └── api/auth/[...nextauth]/     # Routes Auth.js
 ├── auth.ts                         # Auth.js complet (provider Credentials, runtime Node)
@@ -373,6 +383,27 @@ components/ui/icones-reseaux.tsx               pictogrammes de réseaux (tracés
 app/dashboard/qr · app/dashboard/boutique · app/dashboard/abonnement
 app/mot-de-passe-oublie · app/reinitialiser-mot-de-passe
 drizzle/0002_*.sql                             migration : apparence, langues, QR, disponibilité, personnes
+```
+
+### Fichiers notables ajoutés par les étapes 4 à 7 (flux de commande, journal, PWA)
+
+```
+lib/validations/commandes.ts                   schémas Zod (lignes, statut, refus, paiement, bornes anti-spam)
+lib/db/commandes.ts                            lecture des commandes, stats du jour, journal filtrable
+lib/db/equipe.ts · lib/db/plateforme.ts        comptes d'équipe, vue super-admin et chiffres plateforme
+lib/actions/commandes.ts                       création (prix recalculés), statuts, refus, paiement, appel serveur
+lib/actions/equipe.ts · lib/actions/plateforme.ts  comptes serveur/cuisine, activation et formule des restaurants
+components/site/coque-carte.tsx                habillage de la carte publique (bannière, infos, langues, réseaux)
+components/site/menu-commande.tsx              recherche, fiche plat, panier en session, validation de commande
+components/site/suivi-commande.tsx             frise de statuts, paiement mobile money, appel du serveur
+components/service/ecran-service.tsx           tableau de bord cuisine/salle : filtres, statuts, alerte sonore
+components/dashboard/validation-paiements.tsx  file des paiements mobile money à valider
+components/dashboard/gestion-equipe.tsx        ajout, suspension, réinitialisation, retrait des comptes
+components/admin/tableau-plateforme.tsx        recherche, filtres, suspension et formule des établissements
+components/site/enregistrement-sw.tsx          enregistrement du service worker (PWA)
+public/sw.js                                   cache statique/images + page hors ligne, API jamais mise en cache
+scripts/generer-icones.py                      icônes PNG 192/512/maskable dérivées du logo (Pillow)
+qa/verif-commandes.mjs                         63 vérifications de bout en bout du flux de commande
 ```
 
 ## 7. Scripts npm
@@ -578,10 +609,27 @@ Le projet est construit par étapes, chacune vérifiée avant de passer à la su
 | 1 | Initialisation, base de données, authentification, design system | ✅ **Terminée** |
 | 2 | Back-office : profil du restaurant, catégories, produits, options | ✅ **Terminée** |
 | 3 | Tables et génération des QR codes (PNG + planche PDF) | ✅ **Terminée** |
-| 4 | Menu public, panier et création de commande | ⏳ À venir |
-| 5 | Écran de service temps réel et gestion des statuts | ⏳ À venir |
-| 6 | Suivi client, paiement manuel, liens WhatsApp/SMS | ⏳ À venir |
-| 7 | Statistiques, équipe, super-admin, PWA | ⏳ À venir |
+| 4 | Menu public, panier et création de commande | ✅ **Terminée** |
+| 5 | Écran de service temps réel et gestion des statuts | ✅ **Terminée** |
+| 6 | Suivi client, paiement manuel, liens WhatsApp/SMS | ✅ **Terminée** |
+| 7 | Statistiques, équipe, super-admin, PWA | ✅ **Terminée** |
+
+**Étapes 4 à 7 — ce qui est livré et vérifié**
+
+- **Commande client** : panier en session, options et notes, prix et options **recalculés en base**
+  (jamais ceux du navigateur), refus si un plat est épuisé entre-temps, numérotation séquentielle
+  par restaurant dans une transaction, heure de retrait calculée sur le fuseau d'Abidjan.
+- **Anti-spam** : garde de 20 s par navigateur, 2 commandes actives et 5 par heure maximum par
+  numéro de téléphone — les trois règles sont vérifiées par les tests.
+- **Suivi client** : frise de statuts, instructions de paiement avec montant exact + copie du numéro,
+  ouverture de l'application mobile money, bouton « Appeler le serveur » (verrouillé 60 s),
+  liens WhatsApp/SMS, mise à jour automatique toutes les 4 s.
+- **Écran de service** : polling 4 s, alerte sonore (Web Audio, sans fichier à télécharger),
+  badges de comptage, appel client en évidence, statuts en un clic, refus motivé, « marquer payé ».
+  La cuisine ne peut ni refuser ni encaisser (contrôle côté serveur **et** interface).
+- **Journal, équipe, paiements, super-admin, PWA** : voir les tableaux ci-dessus.
+- **Vérifications automatisées** : `65/65` pour la passe « fonctionnalités », **`63/63`** pour le flux
+  de commande de bout en bout (`qa/verif-commandes.mjs`), QR codes revalidés par ZXing.
 
 **Étape 1 — ce qui est livré et vérifié**
 

@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Carte, CarteContenu, CarteEntete, CarteStat } from "@/components/ui/carte";
 import { exigerRole } from "@/lib/auth/autorisation";
 import { LIMITE_PRODUITS } from "@/lib/constants";
+import { topProduitsJour } from "@/lib/db/commandes";
 import { db } from "@/lib/db";
 import { bornesJour, formatFcfa } from "@/lib/utils";
 
@@ -54,6 +55,10 @@ export default async function PageTableauDeBord() {
       )`,
     })
     .from(sql`(select 1) as compteurs_ancre`);
+
+  // Plats les plus commandés aujourd'hui (vide tant qu'aucune commande n'est passée).
+  const top = await topProduitsJour(restaurantId, 5);
+  const maximumTop = top[0]?.quantite ?? 1;
 
   const limite = LIMITE_PRODUITS[utilisateur.plan];
 
@@ -221,6 +226,13 @@ export default async function PageTableauDeBord() {
               Ouvrir l&apos;écran de service
               <ArrowRight className="size-4" aria-hidden />
             </Link>
+            <Link
+              href="/dashboard/commandes"
+              className="inline-flex items-center gap-1.5 text-sm font-bold text-slate-600 hover:underline dark:text-slate-300"
+            >
+              Journal des commandes
+              <ArrowRight className="size-4" aria-hidden />
+            </Link>
           </CarteContenu>
         </Carte>
 
@@ -244,6 +256,57 @@ export default async function PageTableauDeBord() {
           </CarteContenu>
         </Carte>
       </div>
+
+      <Carte>
+        <CarteEntete
+          titre="Plats les plus vendus aujourd'hui"
+          description="Quantités commandées depuis minuit, toutes commandes non annulées."
+          icone={<TrendingUp className="size-4" aria-hidden />}
+          action={
+            top.length > 0 ? (
+              <Link
+                href="/dashboard/commandes"
+                className="inline-flex items-center gap-1.5 text-sm font-bold text-marque-600 hover:underline"
+              >
+                Détail du jour
+                <ArrowRight className="size-4" aria-hidden />
+              </Link>
+            ) : null
+          }
+        />
+        <CarteContenu>
+          {top.length === 0 ? (
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              Aucune commande aujourd&apos;hui. Le classement s&apos;affichera dès la première
+              commande — partagez votre carte ou faites scanner vos QR codes.
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {top.map((plat) => (
+                <div key={plat.nom} className="space-y-1">
+                  <div className="flex items-baseline justify-between gap-3 text-sm">
+                    <span className="font-semibold text-slate-700 dark:text-slate-200">
+                      {plat.nom}
+                    </span>
+                    <span className="chiffres text-slate-500 dark:text-slate-400">
+                      {plat.quantite} × · {formatFcfa(plat.montant, utilisateur.devise)}
+                    </span>
+                  </div>
+                  <div className="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+                    <div
+                      className="h-full rounded-full"
+                      style={{
+                        width: `${Math.max(8, Math.round((plat.quantite / maximumTop) * 100))}%`,
+                        backgroundColor: utilisateur.couleurPrincipale,
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CarteContenu>
+      </Carte>
 
       <p className="text-center text-xs text-slate-400 dark:text-slate-500">
         Établissement : {utilisateur.restaurantSlug} · {compteurs.equipe}{" "}

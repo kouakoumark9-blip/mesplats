@@ -1,103 +1,143 @@
-import { desc } from "drizzle-orm";
-import { Building2, ShieldCheck } from "lucide-react";
+/**
+ * Console plateforme — /admin (super-admin Mesplats uniquement).
+ *
+ * Trois usages :
+ *  • chiffres globaux (établissements, commandes, volume encaissé) ;
+ *  • suivi de chaque restaurant client : activation, suspension, formule ;
+ *  • dernières commandes, pour le support (un restaurateur appelle parce qu'il
+ *    ne voit pas une commande : on la retrouve ici en deux secondes).
+ *
+ * Les actions sont des Server Actions réservées au rôle `superadmin`
+ * (`lib/actions/plateforme.ts`).
+ */
+import { Building2, CheckCircle2, Clock, Receipt, ShieldCheck, TrendingUp } from "lucide-react";
 import type { Metadata } from "next";
 
-import { LIBELLES_PLAN } from "@/lib/constants";
-
+import { TableauPlateforme } from "@/components/admin/tableau-plateforme";
 import { DeconnexionButton } from "@/components/auth/deconnexion-button";
 import { Badge } from "@/components/ui/badge";
-import { Carte, CarteStat } from "@/components/ui/carte";
+import { Carte, CarteEntete, CarteStat } from "@/components/ui/carte";
 import { exigerRole } from "@/lib/auth/autorisation";
-import { db } from "@/lib/db";
+import { LIBELLES_STATUT } from "@/lib/constants";
 import {
-  sousRequeteChiffreAffaires,
-  sousRequeteCommandes,
-  sousRequeteEquipe,
-  sousRequeteProduits,
-} from "@/lib/db/agregats";
-import { restaurants } from "@/lib/db/schema";
-import { formatDate, formatFcfa } from "@/lib/utils";
+  chiffresPlateforme,
+  dernieresCommandesPlateforme,
+  restaurantsPlateforme,
+} from "@/lib/db/plateforme";
+import { formatDateHeure, formatFcfa } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Plateforme", robots: { index: false } };
+export const dynamic = "force-dynamic";
 
-/**
- * ÉTAPE 1 — version minimale du super-admin (liste des restaurants et
- * compteurs). L'activation/suspension et les statistiques plateforme sont
- * finalisées à l'étape 7.
- */
 export default async function PageAdmin() {
-  await exigerRole("superadmin");
+  const utilisateur = await exigerRole("superadmin");
 
-  const liste = await db
-    .select({
-      id: restaurants.id,
-      nom: restaurants.nom,
-      slug: restaurants.slug,
-      plan: restaurants.plan,
-      actif: restaurants.actif,
-      createdAt: restaurants.createdAt,
-      produits: sousRequeteProduits(),
-      equipe: sousRequeteEquipe(),
-      commandes: sousRequeteCommandes(),
-      chiffre: sousRequeteChiffreAffaires(),
-    })
-    .from(restaurants)
-    .orderBy(desc(restaurants.createdAt));
-
-  const totalActifs = liste.filter((r) => r.actif).length;
-  const totalCommandes = liste.reduce((somme, r) => somme + r.commandes, 0);
-  const totalChiffre = liste.reduce((somme, r) => somme + r.chiffre, 0);
+  const [chiffres, restaurants, commandes] = await Promise.all([
+    chiffresPlateforme(),
+    restaurantsPlateforme(),
+    dernieresCommandesPlateforme(10),
+  ]);
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="inline-flex items-center gap-2 text-sm font-semibold text-marque-600">
-            <ShieldCheck className="size-4" aria-hidden /> Plateforme Mesplats
-          </p>
-          <h1 className="font-titre text-2xl font-extrabold text-slate-900 sm:text-3xl">
-            Restaurants clients
-          </h1>
+    <div className="min-h-dvh bg-slate-50 dark:bg-slate-950">
+      <header className="border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-5 sm:px-6">
+          <div>
+            <p className="inline-flex items-center gap-2 text-sm font-semibold text-marque-600">
+              <ShieldCheck className="size-4" aria-hidden />
+              Plateforme Mesplats
+            </p>
+            <h1 className="font-titre text-2xl font-extrabold text-slate-900 sm:text-3xl dark:text-white">
+              Restaurants clients
+            </h1>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              Connecté en tant que {utilisateur.nom}
+            </p>
+          </div>
+          <DeconnexionButton />
         </div>
-        <DeconnexionButton />
       </header>
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-3">
-        <CarteStat libelle="Restaurants" valeur={liste.length} detail={`${totalActifs} actifs`} icone={<Building2 className="size-5" aria-hidden />} />
-        <CarteStat libelle="Commandes totales" valeur={totalCommandes} />
-        <CarteStat libelle="Volume traité" valeur={formatFcfa(totalChiffre)} />
-      </div>
+      <main className="mx-auto max-w-6xl space-y-6 px-4 py-8 sm:px-6">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <CarteStat
+            libelle="Établissements"
+            valeur={chiffres.restaurants}
+            detail={`${chiffres.actifs} actifs · ${chiffres.aActiver} à activer`}
+            icone={<Building2 className="size-5" aria-hidden />}
+          />
+          <CarteStat
+            libelle="Abonnements Pro"
+            valeur={chiffres.pro}
+            detail="Facturation 19 900 FCFA / mois"
+            icone={<CheckCircle2 className="size-5" aria-hidden />}
+          />
+          <CarteStat
+            libelle="Commandes"
+            valeur={chiffres.commandes}
+            detail={`${chiffres.commandes30j} sur 30 jours`}
+            icone={<Receipt className="size-5" aria-hidden />}
+          />
+          <CarteStat
+            libelle="Volume encaissé"
+            valeur={formatFcfa(chiffres.volumeEncaisse)}
+            detail="Paiements validés par les restaurants"
+            icone={<TrendingUp className="size-5" aria-hidden />}
+          />
+        </div>
 
-      <Carte className="mt-6 overflow-hidden">
-        <ul className="divide-y divide-slate-100 dark:divide-slate-800">
-          {liste.map((restaurant) => (
-            <li key={restaurant.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
-              <div className="min-w-0">
-                <p className="font-titre font-bold text-slate-900">{restaurant.nom}</p>
-                <p className="text-sm text-slate-500">
-                  /m/{restaurant.slug} · inscrit le {formatDate(restaurant.createdAt)} ·{" "}
-                  {restaurant.equipe} compte(s) · {restaurant.produits} produit(s)
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge ton={restaurant.plan === "pro" ? "succes" : "neutre"}>
-                  {LIBELLES_PLAN[restaurant.plan]}
-                </Badge>
-                <Badge ton={restaurant.actif ? "succes" : "danger"}>
-                  {restaurant.actif ? "Actif" : "Suspendu"}
-                </Badge>
-                <span className="text-sm font-semibold text-slate-600">
-                  {restaurant.commandes} cmd · {formatFcfa(restaurant.chiffre)}
-                </span>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </Carte>
+        <section>
+          <h2 className="font-titre text-lg font-extrabold text-slate-900 dark:text-white">
+            Établissements
+          </h2>
+          <p className="mt-1 mb-4 text-sm text-slate-500 dark:text-slate-400">
+            Activez, suspendez ou changez la formule d&apos;un restaurant. La suspension coupe
+            immédiatement la carte publique et l&apos;accès de l&apos;équipe.
+          </p>
+          <TableauPlateforme restaurants={restaurants} />
+        </section>
 
-      <p className="mt-4 text-sm text-slate-500">
-        Les actions d&apos;activation et de suspension seront ajoutées à l&apos;étape 7.
-      </p>
+        <Carte>
+          <CarteEntete
+            titre="Dernières commandes de la plateforme"
+            description="Utile pour le support : vérifier qu'une commande est bien arrivée côté restaurant."
+            icone={<Clock className="size-5" aria-hidden />}
+          />
+          <ul className="divide-y divide-slate-100 dark:divide-slate-800">
+            {commandes.map((commande) => (
+              <li
+                key={commande.id}
+                className="flex flex-wrap items-center justify-between gap-3 px-5 py-3"
+              >
+                <div className="min-w-0">
+                  <p className="font-semibold text-slate-800 dark:text-slate-100">
+                    n° {commande.numero} · {commande.restaurant}
+                  </p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    {formatDateHeure(commande.createdAt)} · /m/{commande.restaurantSlug}
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Badge
+                    ton={
+                      commande.statut === "annulee"
+                        ? "danger"
+                        : commande.statut === "servie"
+                          ? "neutre"
+                          : "alerte"
+                    }
+                  >
+                    {LIBELLES_STATUT[commande.statut]}
+                  </Badge>
+                  <span className="chiffres font-semibold text-slate-700 dark:text-slate-200">
+                    {formatFcfa(commande.total)}
+                  </span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </Carte>
+      </main>
     </div>
   );
 }

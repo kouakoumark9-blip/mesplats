@@ -52,9 +52,9 @@ const NAVIGATION: ElementNavigation[] = [
   { href: "/dashboard/qr", libelle: "QR Code", icone: <QrCode className="size-5" aria-hidden /> },
   { href: "/dashboard/tables", libelle: "Tables", icone: <Table2 className="size-5" aria-hidden /> },
   { href: "/dashboard/boutique", libelle: "Boutique", icone: <Store className="size-5" aria-hidden /> },
-  { href: "/dashboard/commandes", libelle: "Commandes", icone: <Receipt className="size-5" aria-hidden />, aVenir: "étape 5" },
-  { href: "/dashboard/equipe", libelle: "Équipe", icone: <Wallet className="size-5" aria-hidden />, aVenir: "étape 7" },
-  { href: "/dashboard/paiements", libelle: "Paiements", icone: <Smartphone className="size-5" aria-hidden />, aVenir: "étape 6" },
+  { href: "/dashboard/commandes", libelle: "Commandes", icone: <Receipt className="size-5" aria-hidden /> },
+  { href: "/dashboard/equipe", libelle: "Équipe", icone: <Wallet className="size-5" aria-hidden /> },
+  { href: "/dashboard/paiements", libelle: "Paiements", icone: <Smartphone className="size-5" aria-hidden /> },
   {
     href: "/dashboard/parametres",
     libelle: "Paramètres",

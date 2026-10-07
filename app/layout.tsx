@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Baloo_2, Inter, Plus_Jakarta_Sans } from "next/font/google";
 import type { ReactNode } from "react";
 
+import { EnregistrementServiceWorker } from "@/components/site/enregistrement-sw";
 import { FournisseurToasts } from "@/components/ui/toast";
 import { appUrl } from "@/lib/env";
 
@@ -84,6 +85,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body className="min-h-dvh bg-slate-50 text-slate-900">
         <FournisseurToasts>{children}</FournisseurToasts>
+        {/* PWA installable : le service worker sert la page hors ligne et
+            accélère les visites suivantes sur mobile. */}
+        <EnregistrementServiceWorker />
       </body>
     </html>
   );

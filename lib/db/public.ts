@@ -8,7 +8,14 @@ import { and, asc, eq } from "drizzle-orm";
 import type { DisponibiliteCategorie } from "@/lib/constants";
 
 import { db } from "@/lib/db";
-import { categories, productOptions, products, restaurants, tables } from "@/lib/db/schema";
+import {
+  categories,
+  paymentMethods,
+  productOptions,
+  products,
+  restaurants,
+  tables,
+} from "@/lib/db/schema";
 
 export type RestaurantPublic = typeof restaurants.$inferSelect;
 
@@ -131,4 +138,17 @@ export async function menuPublic(restaurantId: string): Promise<CategorieAvecPro
       produits: parCategorie.get(rubrique.id) ?? [],
     }))
     .filter((rubrique) => rubrique.produits.length > 0);
+}
+
+/** Moyens de paiement actifs affichés au client (numéro + titulaire). */
+export async function moyensPaiementPublic(restaurantId: string) {
+  return db
+    .select({
+      operateur: paymentMethods.operateur,
+      numero: paymentMethods.numero,
+      titulaire: paymentMethods.titulaire,
+    })
+    .from(paymentMethods)
+    .where(and(eq(paymentMethods.restaurantId, restaurantId), eq(paymentMethods.actif, true)))
+    .orderBy(asc(paymentMethods.operateur));
 }

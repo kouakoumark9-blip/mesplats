@@ -1,79 +1,75 @@
-import { sql } from "drizzle-orm";
-import { BellRing, ChefHat } from "lucide-react";
+/**
+ * Écran de service — serveurs et cuisine.
+ *
+ * Accessible aux rôles `admin`, `serveur` et `cuisine` rattachés à un
+ * restaurant : le personnel voit uniquement les commandes de son établissement.
+ * Les données sont chargées ici puis rafraîchies par polling toutes les
+ * 4 secondes côté client (voir `components/service/ecran-service.tsx`).
+ */
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { DeconnexionButton } from "@/components/auth/deconnexion-button";
-import { Badge } from "@/components/ui/badge";
-import { Carte } from "@/components/ui/carte";
-import { EtatVide } from "@/components/ui/divers";
+import { EcranService, type CommandeService } from "@/components/service/ecran-service";
 import { exigerRole } from "@/lib/auth/autorisation";
-import { db } from "@/lib/db";
-import { orders } from "@/lib/db/schema";
 import { LIBELLES_ROLE } from "@/lib/constants";
+import { commandesDeService } from "@/lib/db/commandes";
+import { formatHeure } from "@/lib/utils";
 
-export const metadata: Metadata = { title: "Écran de service" };
+export const metadata: Metadata = {
+  title: "Écran de service",
+  description: "Suivi en direct des commandes du restaurant, mise à jour toutes les 4 secondes.",
+  robots: { index: false },
+};
 
-/**
- * ÉTAPE 1 — écran de vérification des rôles serveur et cuisine.
- * L'écran temps réel complet (alertes sonores, statuts, filtres) arrive à
- * l'étape 5 ; cette page prouve que le contrôle d'accès par rôle fonctionne.
- */
 export default async function PageService() {
   const utilisateur = await exigerRole("admin", "serveur", "cuisine");
   const restaurantId = utilisateur.restaurantId!;
 
-  const [compteur] = await db
-    .select({
-      nouvelles: sql<number>`count(*)::int`,
-    })
-    .from(orders)
-    .where(sql`"orders"."restaurant_id" = ${restaurantId} and "orders"."statut" = 'nouvelle'`);
+  const commandes = await commandesDeService(restaurantId);
+
+  const initiales: CommandeService[] = commandes.map((commande) => ({
+    id: commande.id,
+    numero: commande.numero,
+    type: commande.type,
+    statut: commande.statut,
+    tableNumero: commande.tableNumero,
+    nomClient: commande.nomClient,
+    telephoneClient: commande.telephoneClient,
+    total: commande.total,
+    modePaiement: commande.modePaiement,
+    paiementStatut: commande.paiementStatut,
+    heureRetrait: commande.heureRetrait?.toISOString() ?? null,
+    note: commande.note,
+    motifAnnulation: commande.motifAnnulation,
+    appelServeurAt: commande.appelServeurAt?.toISOString() ?? null,
+    createdAt: commande.createdAt.toISOString(),
+    updatedAt: commande.updatedAt.toISOString(),
+    lignes: commande.lignes,
+  }));
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-sm font-semibold text-marque-600">{utilisateur.restaurantNom}</p>
-          <h1 className="font-titre text-2xl font-extrabold text-slate-900">Écran de service</h1>
-        </div>
-        <div className="flex items-center gap-2">
-          <Badge ton="marque" icone={<ChefHat className="size-3.5" aria-hidden />}>
-            Rôle : {LIBELLES_ROLE[utilisateur.role]}
-          </Badge>
-          <DeconnexionButton />
-        </div>
-      </header>
-
-      <Carte className="mt-6 p-6">
-        <div className="flex items-center gap-3">
-          <span className="flex size-11 items-center justify-center rounded-2xl bg-amber-100 text-amber-700">
-            <BellRing className="size-5" aria-hidden />
+    <div className="relative">
+      {/* Bandeau discret : identité + déconnexion (l'écran reste plein écran). */}
+      <div className="absolute inset-x-0 top-0 z-40 flex justify-end p-3 print:hidden">
+        <div className="flex items-center gap-2 rounded-2xl border border-slate-700 bg-slate-900/90 px-3 py-2 backdrop-blur">
+          <span className="text-xs font-semibold text-slate-300">
+            {utilisateur.nom} · {LIBELLES_ROLE[utilisateur.role]} · {formatHeure(new Date())}
           </span>
-          <div>
-            <p className="font-titre text-lg font-bold text-slate-900">
-              {compteur.nouvelles} commande{compteur.nouvelles > 1 ? "s" : ""} en attente
-            </p>
-            <p className="text-sm text-slate-500">
-              L&apos;écran temps réel (mise à jour toutes les 4 secondes, alerte sonore, changement
-              de statut en un clic) sera livré à l&apos;étape 5.
-            </p>
-          </div>
+          <DeconnexionButton
+            compact
+            className="border border-slate-700 bg-slate-900 text-slate-200 hover:bg-slate-800"
+          />
         </div>
+      </div>
 
-        <EtatVide
-          className="mt-6"
-          icone={<ChefHat className="size-7" aria-hidden />}
-          titre="Écran de service à venir"
-          description="Cette page confirme que le contrôle d'accès par rôle est bien appliqué : un serveur ou un cuisinier n'accède jamais au back-office du propriétaire."
-        />
-      </Carte>
-
-      <p className="mt-6 text-sm text-slate-500">
-        <Link href="/" className="font-semibold text-marque-600 hover:underline">
-          ← Retour à l&apos;accueil
-        </Link>
-      </p>
+      <EcranService
+        commandesInitiales={initiales}
+        devise={utilisateur.devise}
+        nomRestaurant={utilisateur.restaurantNom ?? "Mon restaurant"}
+        slug={utilisateur.restaurantSlug ?? ""}
+        couleur={utilisateur.couleurPrincipale}
+        role={utilisateur.role as "admin" | "serveur" | "cuisine"}
+      />
     </div>
   );
 }
