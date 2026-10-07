@@ -1,8 +1,14 @@
 "use client";
 
 /**
- * Boutique Mesplats — supports imprimés autour du menu QR.
+ * Catalogue Boutique Mesplats — supports imprimés autour du menu QR.
  * ---------------------------------------------------------------------------
+ * Deux usages, un seul composant :
+ *  • `mode="interne"` (par défaut) → espace restaurateur : chiffres du compte,
+ *    historique des devis, commande directe ;
+ *  • `mode="public"` → vitrine du site : un prospect parcourt les supports,
+ *    compose son tirage et met des articles au panier ; pour envoyer la
+ *    commande, il crée son compte (le panier reste dans sa session).
  * Le restaurateur compose son tirage comme chez un imprimeur :
  *  • catalogue illustré avec le prix unitaire dès le premier palier ;
  *  • fiche « Composez votre tirage » : quantité (avec le pas conseillé), prix
@@ -65,15 +71,27 @@ export type CommandeSupportsAffichee = {
   articles: { nom: string; quantite: number }[];
 };
 
-export function Boutique({
+export function CatalogueBoutique({
   commandes,
   profil,
   chiffres,
+  mode = "interne",
+  connecte = true,
 }: {
   commandes: CommandeSupportsAffichee[];
-  profil: { nomRestaurant: string; ville: string | null; adresse: string | null; telephone: string | null };
+  profil: {
+    nomRestaurant: string;
+    ville: string | null;
+    adresse: string | null;
+    telephone: string | null;
+  };
   chiffres: { total: number; enCours: number; montant: number };
+  /** « public » = vitrine du site ; « interne » = espace restaurateur. */
+  mode?: "public" | "interne";
+  /** Seul un propriétaire connecté peut envoyer une commande. */
+  connecte?: boolean;
 }) {
+  const estPublic = mode === "public";
   const { notifier } = useToasts();
   const [panier, setPanier] = useState<LignePanier[]>([]);
   const [fiche, setFiche] = useState<ArticleBoutique | null>(null);
@@ -166,11 +184,19 @@ export function Boutique({
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <Link href="/dashboard/qr">
-            <Bouton variante="contour" icone={<Printer className="size-4" aria-hidden />}>
-              Imprimer moi-même
-            </Bouton>
-          </Link>
+          {estPublic ? (
+            <Link href="/inscription">
+              <Bouton variante="contour" icone={<Sparkles className="size-4" aria-hidden />}>
+                Créer mon compte
+              </Bouton>
+            </Link>
+          ) : (
+            <Link href="/dashboard/qr">
+              <Bouton variante="contour" icone={<Printer className="size-4" aria-hidden />}>
+                Imprimer moi-même
+              </Bouton>
+            </Link>
+          )}
           <Bouton
             icone={<ShoppingCart className="size-4" aria-hidden />}
             onClick={() => setPanierOuvert(true)}
@@ -182,6 +208,7 @@ export function Boutique({
       </header>
 
       {/* --------------------------- Bandeau de chiffres --------------------------- */}
+      {!estPublic ? (
       <div className="grid gap-3 sm:grid-cols-3">
         <Indicateur
           icone={<Package className="size-4" aria-hidden />}
@@ -199,6 +226,7 @@ export function Boutique({
           valeur={formatFcfa(chiffres.montant)}
         />
       </div>
+      ) : null}
 
       {/* ------------------------------- Catalogue ------------------------------- */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_20rem]">
@@ -229,7 +257,12 @@ export function Boutique({
               onCommander={() => setPanierOuvert(true)}
             />
 
-            {commandes.length > 0 ? (
+            {estPublic ? (
+              <p className="rounded-2xl border border-dashed border-slate-300 p-4 text-center text-xs text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                Votre panier est conservé pendant que vous créez votre compte : vous le retrouverez
+                tel quel dans votre espace.
+              </p>
+            ) : commandes.length > 0 ? (
               <Historique commandes={commandes} />
             ) : (
               <p className="rounded-2xl border border-dashed border-slate-300 p-4 text-center text-xs text-slate-500 dark:border-slate-700 dark:text-slate-400">
@@ -241,7 +274,7 @@ export function Boutique({
         </aside>
       </div>
 
-      {commandes.length > 0 ? (
+      {!estPublic && commandes.length > 0 ? (
         <div className="lg:hidden">
           <Historique commandes={commandes} />
         </div>
@@ -321,6 +354,14 @@ export function Boutique({
               />
 
               {/* Le panier part en JSON ; le serveur relit prix, options et minimums. */}
+              {connecte ? null : (
+                <Alerte ton="info" titre="Dernière étape : votre compte">
+                  La boutique est réservée aux restaurants équipés de Mesplats. Créez votre compte
+                  (2 minutes) : vous retrouverez le panier tel quel, puis nous confirmons le devis
+                  sur WhatsApp.
+                </Alerte>
+              )}
+
               <input
                 type="hidden"
                 name="lignes"
@@ -397,18 +438,26 @@ export function Boutique({
                   Total recalculé à l&apos;envoi :{" "}
                   <strong className="chiffres text-slate-900 dark:text-white">{formatFcfa(total)}</strong>
                 </p>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <Bouton type="button" variante="contour" onClick={() => setPanierOuvert(false)}>
                     Continuer mes achats
                   </Bouton>
-                  <Bouton
-                    type="submit"
-                    chargement={enCours}
-                    libelleChargement="Envoi…"
-                    icone={<Send className="size-4" aria-hidden />}
-                  >
-                    Envoyer la commande
-                  </Bouton>
+                  {connecte ? (
+                    <Bouton
+                      type="submit"
+                      chargement={enCours}
+                      libelleChargement="Envoi…"
+                      icone={<Send className="size-4" aria-hidden />}
+                    >
+                      Envoyer la commande
+                    </Bouton>
+                  ) : (
+                    <Link href="/inscription">
+                      <Bouton icone={<Sparkles className="size-4" aria-hidden />}>
+                        Créer mon compte pour commander
+                      </Bouton>
+                    </Link>
+                  )}
                 </div>
               </div>
           </form>

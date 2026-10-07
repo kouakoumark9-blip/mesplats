@@ -6,6 +6,7 @@
  */
 import { ArrowRight, LogIn, Menu, QrCode, X } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { BoutonPilule } from "@/components/site/bouton-pilule";
@@ -13,15 +14,25 @@ import { LogoMesplats } from "@/components/site/logo";
 import { classesBouton } from "@/components/ui/bouton";
 import { cn } from "@/lib/utils";
 
+/*
+ * Navigation principale : les ancres de la page d'accueil deviennent des liens
+ * absolus dès qu'on quitte l'accueil (page Boutique, par exemple), et la
+ * boutique est accessible directement depuis le menu.
+ */
 const LIENS = [
   { href: "#etapes", libelle: "Étapes" },
   { href: "#qr", libelle: "QR codes" },
+  { href: "/boutique", libelle: "Boutique" },
   { href: "#tarifs", libelle: "Tarifs" },
   { href: "#questions", libelle: "Questions" },
 ];
 
 export function EnteteSite() {
+  const chemin = usePathname();
   const [menuOuvert, setMenuOuvert] = useState(false);
+
+  /** Sur une autre page que l'accueil, les ancres renvoient vers l'accueil. */
+  const lien = (href: string) => (href.startsWith("#") && chemin !== "/" ? `/${href}` : href);
 
   // Bloque le défilement derrière le menu mobile et permet de le fermer avec Échap.
   useEffect(() => {
@@ -46,11 +57,18 @@ export function EnteteSite() {
       <div className="bg-gradient-to-r from-marque-600 via-marque-500 to-slate-900 px-4 py-2.5 text-center text-xs font-medium text-white sm:text-sm">
         <span className="inline-flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
           Créez votre menu cette semaine et recevez vos cartes QR de table imprimées
-          <a
-            href="#qr"
+          <Link
+            href={lien("/boutique")}
             className="inline-flex items-center gap-1 font-bold text-white underline underline-offset-4 hover:text-marque-100"
           >
-            En savoir plus
+            Voir les supports
+            <ArrowRight className="size-3.5" aria-hidden />
+          </Link>
+          <a
+            href={lien("#qr")}
+            className="inline-flex items-center gap-1 font-semibold text-marque-100 underline underline-offset-4 hover:text-white"
+          >
+            QR codes gratuits
             <ArrowRight className="size-3.5" aria-hidden />
           </a>
         </span>
@@ -66,14 +84,14 @@ export function EnteteSite() {
           </Link>
 
           <div className="hidden items-center gap-1 lg:flex">
-            {LIENS.map((lien) => (
-              <a
-                key={lien.href}
-                href={lien.href}
+            {LIENS.map((element) => (
+              <Link
+                key={element.href}
+                href={lien(element.href)}
                 className="rounded-full px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-slate-900"
               >
-                {lien.libelle}
-              </a>
+                {element.libelle}
+              </Link>
             ))}
           </div>
 
@@ -136,15 +154,15 @@ export function EnteteSite() {
           </div>
 
           <div className="flex-1 overflow-y-auto px-3 py-4">
-            {LIENS.map((lien) => (
-              <a
-                key={lien.href}
-                href={lien.href}
+            {LIENS.map((element) => (
+              <Link
+                key={element.href}
+                href={lien(element.href)}
                 onClick={() => setMenuOuvert(false)}
                 className="block rounded-xl px-4 py-3.5 font-semibold text-slate-700 transition hover:bg-slate-50"
               >
-                {lien.libelle}
-              </a>
+                {element.libelle}
+              </Link>
             ))}
             <Link
               href="/m/maquis-le-baoule"

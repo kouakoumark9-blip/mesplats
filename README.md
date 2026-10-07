@@ -75,6 +75,8 @@ Sections complémentaires : [1 bis. Marque et tarifs](#1-bis-marque-et-tarifs) �
 - **Boutique** : supports imprimés autour du menu QR (chevalets, stickers, sous-bocks, sets de table,
   affiche, pack complet) avec prix dégressifs en FCFA, composition du tirage (quantité, options),
   panier, envoi de la demande et historique des devis référencés (`MP-…`).
+  La même vitrine est accessible **sans compte** sur `/boutique`, et une section « Boutique » la
+  présente depuis la page d'accueil.
 - **Paramètres** : nom, logo, couleur principale, adresse, téléphone, horaires, devise.
 
 ### Service — serveur et cuisine (`/service`)
@@ -197,6 +199,17 @@ pas de passerelle de paiement, un devis confirmé par WhatsApp.
 Chaque article propose des **options payantes** (logo en couleur, découpe à la forme, recto-verso,
 ventouses, passage en A2, cartes de rechange…). Le prix unitaire baisse automatiquement selon la
 quantité, et un message indique le palier suivant (« Passez à 50 ex. et le prix tombe à 400 FCFA »).
+
+Deux portes d'entrée, un seul catalogue :
+
+- **`/boutique` (public, sans compte)** : n'importe qui parcourt les supports, compose son tirage et
+  met des articles au panier. À l'envoi, la page propose de **créer son compte** : le panier reste
+  dans la session du navigateur et se retrouve tel quel dans l'espace restaurateur. Un propriétaire
+  déjà connecté commande directement depuis cette même page.
+- **Section « Des supports qui portent vos QR codes »** sur la page d'accueil : trois supports mis en
+  avant (chevalet de table, stickers, pack complet), les atouts et un bouton « Voir les 6 supports ».
+- **`/dashboard/boutique`** : l'espace du restaurant, avec ses chiffres (« devis passés », « en cours
+  de production », montant commandé) et l'historique de ses devis.
 
 Côté technique :
 
@@ -682,6 +695,10 @@ Le projet est construit par étapes, chacune vérifiée avant de passer à la su
   envoi de la demande, référence `MP-…`, historique des devis et tuile de suivi côté super-admin.
 - Nouvelle table `boutique_orders` (migration `drizzle/0003_*.sql`) : articles et prix **figés** en
   JSON dans la commande, référence unique, statut (`nouvelle` → `expediee`).
+- **Vitrine publique `/boutique`** (accessible sans compte, entrée « Boutique » dans le menu du site
+  et dans le pied de page) : composition du tirage, panier, puis invitation à créer son compte pour
+  envoyer la demande — le panier est conservé. Section dédiée sur la page d'accueil.
+- Tests de la vitrine publique inclus dans `qa/verif-boutique.mjs` (**56/56**).
 
 **Étape 1 — ce qui est livré et vérifié**
 

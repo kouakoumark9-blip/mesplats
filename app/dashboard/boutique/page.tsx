@@ -11,7 +11,7 @@ import type { Metadata } from "next";
 
 import { eq } from "drizzle-orm";
 
-import { Boutique } from "@/components/dashboard/boutique";
+import { CatalogueBoutique } from "@/components/boutique/catalogue-boutique";
 import { exigerRole } from "@/lib/auth/autorisation";
 import { db } from "@/lib/db";
 import { chiffresBoutique, commandesBoutique } from "@/lib/db/boutique";
@@ -54,7 +54,8 @@ export default async function PageBoutique() {
     : "";
 
   return (
-    <Boutique
+    <CatalogueBoutique
+      mode="interne"
       commandes={commandes.map((commande) => ({
         id: commande.id,
         reference: commande.reference,

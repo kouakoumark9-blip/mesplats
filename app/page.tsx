@@ -37,6 +37,7 @@ import {
 } from "@/components/site/hero-phones";
 import { CarteQrTable } from "@/components/site/maquettes";
 import { PiedDePage } from "@/components/site/pied-de-page";
+import { SectionBoutique } from "@/components/site/section-boutique";
 import { Reveler } from "@/components/site/reveler";
 import { TitreSouligne } from "@/components/site/titre-souligne";
 import {
@@ -418,6 +419,9 @@ export default async function PageAccueil() {
           </div>
         </div>
       </section>
+
+      {/* ================================= BOUTIQUE ================================ */}
+      <SectionBoutique />
 
       {/* ================================== ÉTAPES ================================== */}
       <Etapes

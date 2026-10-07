@@ -10,6 +10,7 @@ const COLONNES = [
     titre: "Produit",
     liens: [
       { libelle: "QR codes de table", href: "#qr" },
+      { libelle: "Boutique : supports imprimés", href: "/boutique" },
       { libelle: "Tarifs", href: "#tarifs" },
       { libelle: "Questions fréquentes", href: "#questions" },
     ],
