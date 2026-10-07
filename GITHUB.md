@@ -11,7 +11,9 @@ Tout est déjà préparé dans le dépôt :
 | Modèles de fiches | `.github/ISSUE_TEMPLATE/` | « Bogue » et « Évolution », en français, avec les champs utiles |
 | Modèle de fusion | `.github/pull_request_template.md` | Liste de contrôle avant fusion |
 | Branchement complet | `scripts/connecter-github.sh` | Crée le dépôt, envoie le code, remplit le tableau |
-| Fiches du carnet de route | `scripts/github-projet.mjs` | Étiquettes, fiches et colonnes du tableau (sans doublon) |
+| Fiches du carnet de route | `scripts/github-projet.mjs` | Étiquettes, fiches et colonnes du tableau (sans doublon), via `gh` |
+| Sans rien installer | `scripts/github-projet-api.mjs` | Même travail avec un simple jeton d'accès personnel (API GitHub) |
+| Contenu du carnet | `scripts/carnet-de-route.mjs` | Les 13 étiquettes et les 19 fiches, partagées par les deux outils |
 
 ---
 
@@ -59,6 +61,35 @@ node scripts/github-projet.mjs --simulation        # voir le plan sans rien cré
 
 > Le script ne crée jamais de doublon : une fiche déjà ouverte avec le même
 > titre est simplement réutilisée et remise dans sa colonne.
+
+## 2 bis. Sans rien installer : le jeton d'accès personnel
+
+Si vous ne voulez pas installer `gh`, tout se fait avec un jeton :
+
+1. Ouvrez <https://github.com/settings/tokens/new?scopes=repo,workflow,project&description=Mesplats>
+   et cliquez **Generate token** (les portées `repo`, `workflow` et `project` sont déjà cochées) ;
+2. Enregistrez-le le temps de l'opération :
+
+   ```bash
+   printf '%s' 'ghp_votre_jeton' > /tmp/gh-token.txt && chmod 600 /tmp/gh-token.txt
+   ```
+
+3. Créez les étiquettes, les fiches et remplissez le tableau :
+
+   ```bash
+   cd afrimenu
+   node scripts/github-projet-api.mjs --jeton-fichier /tmp/gh-token.txt
+   ```
+
+   Le script est **idempotent** : relancé, il ne crée aucun doublon, retrouve les fiches
+   existantes et remet chaque carte dans sa colonne. Options : `--depot`, `--proprietaire`,
+   `--projet`, `--simulation` (montre le plan sans rien écrire).
+
+4. Révoquez le jeton quand vous avez terminé : <https://github.com/settings/tokens>
+   (bouton *Delete*), et effacez le fichier local `rm /tmp/gh-token.txt`.
+
+> L'envoi du code, lui, se fait avec `git push` : `git remote add origin
+> https://github.com/kouakoumark9-blip/mesplats.git` puis `git push -u origin main`.
 
 ## 3. À la main, si vous préférez le navigateur
 
