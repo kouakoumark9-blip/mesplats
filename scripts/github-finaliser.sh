@@ -12,7 +12,7 @@
 # ---------------------------------------------------------------------------
 set -uo pipefail
 
-JETON="/tmp/mesplats-gh-token"
+JETON="/home/user/.github-token"   # dans /home/user : survit aux réinitialisations
 export GH_CONFIG_DIR=/tmp/gh-config
 PROJET="./scripts/github-projet.mjs"
 DEPOT="kouakoumark9-blip/mesplats"
@@ -32,6 +32,11 @@ dire ""
 dire "▸ 1. Attente de l'autorisation…"
 for _ in $(seq 1 240); do
   [ -f "$JETON" ] && break
+  # Si l'attente a été interrompue, on la reprend avec le même code (voir
+  # scripts/github-connexion.mjs) : une seule autorisation suffit donc.
+  if [ ! -f /home/user/github-device.json ] && [ ! -f "$JETON" ]; then
+    node scripts/github-connexion.mjs >/tmp/github-connexion-relance.log 2>&1 &
+  fi
   sleep 5
 done
 if [ ! -f "$JETON" ]; then
