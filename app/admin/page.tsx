@@ -10,7 +10,7 @@
  * Les actions sont des Server Actions réservées au rôle `superadmin`
  * (`lib/actions/plateforme.ts`).
  */
-import { Building2, CheckCircle2, Clock, Receipt, ShieldCheck, TrendingUp } from "lucide-react";
+import { Building2, CheckCircle2, Clock, Package, Receipt, ShieldCheck, TrendingUp } from "lucide-react";
 import type { Metadata } from "next";
 
 import { TableauPlateforme } from "@/components/admin/tableau-plateforme";
@@ -18,7 +18,8 @@ import { DeconnexionButton } from "@/components/auth/deconnexion-button";
 import { Badge } from "@/components/ui/badge";
 import { Carte, CarteEntete, CarteStat } from "@/components/ui/carte";
 import { exigerRole } from "@/lib/auth/autorisation";
-import { LIBELLES_STATUT } from "@/lib/constants";
+import { LIBELLES_STATUT, LIBELLES_STATUT_BOUTIQUE } from "@/lib/constants";
+import { chiffresBoutiquePlateforme, dernieresCommandesBoutique } from "@/lib/db/boutique";
 import {
   chiffresPlateforme,
   dernieresCommandesPlateforme,
@@ -32,10 +33,12 @@ export const dynamic = "force-dynamic";
 export default async function PageAdmin() {
   const utilisateur = await exigerRole("superadmin");
 
-  const [chiffres, restaurants, commandes] = await Promise.all([
+  const [chiffres, restaurants, commandes, boutique, commandesBoutique] = await Promise.all([
     chiffresPlateforme(),
     restaurantsPlateforme(),
     dernieresCommandesPlateforme(10),
+    chiffresBoutiquePlateforme(),
+    dernieresCommandesBoutique(6),
   ]);
 
   return (
@@ -84,6 +87,12 @@ export default async function PageAdmin() {
             detail="Paiements validés par les restaurants"
             icone={<TrendingUp className="size-5" aria-hidden />}
           />
+          <CarteStat
+            libelle="Supports imprimés"
+            valeur={boutique.commandes}
+            detail={`${boutique.nouvelles} à confirmer · ${formatFcfa(boutique.montant)} commandés`}
+            icone={<Package className="size-5" aria-hidden />}
+          />
         </div>
 
         <section>
@@ -96,6 +105,57 @@ export default async function PageAdmin() {
           </p>
           <TableauPlateforme restaurants={restaurants} />
         </section>
+
+        <Carte>
+          <CarteEntete
+            titre="Boutique : derniers tirages commandés"
+            description="Supports imprimés demandés par les restaurants (chevalets, stickers, packs). Le devis est confirmé par WhatsApp avant impression."
+            icone={<Package className="size-5" aria-hidden />}
+          />
+          {commandesBoutique.length === 0 ? (
+            <p className="px-5 py-6 text-sm text-slate-500 dark:text-slate-400">
+              Aucune commande de supports imprimés pour le moment. La boutique est accessible depuis
+              l&apos;espace restaurateur, entrée « Boutique ».
+            </p>
+          ) : (
+            <ul className="divide-y divide-slate-100 dark:divide-slate-800">
+              {commandesBoutique.map((commande) => (
+                <li
+                  key={commande.id}
+                  className="flex flex-wrap items-center justify-between gap-3 px-5 py-3"
+                >
+                  <div className="min-w-0">
+                    <p className="font-semibold text-slate-800 dark:text-slate-100">
+                      {commande.reference} · {commande.restaurant}
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      {formatDateHeure(commande.createdAt)} · {commande.ville} ·{" "}
+                      {commande.articles
+                        .map((article) => `${article.quantite} × ${article.nom}`)
+                        .join(" · ")}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Badge
+                      ton={
+                        commande.statut === "annulee"
+                          ? "danger"
+                          : commande.statut === "nouvelle"
+                            ? "alerte"
+                            : "succes"
+                      }
+                    >
+                      {LIBELLES_STATUT_BOUTIQUE[commande.statut]}
+                    </Badge>
+                    <span className="chiffres font-semibold text-slate-700 dark:text-slate-200">
+                      {formatFcfa(commande.total)}
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Carte>
 
         <Carte>
           <CarteEntete

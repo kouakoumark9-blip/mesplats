@@ -28,6 +28,11 @@ soit **sur place** (à table) ou **à emporter**.
 12. [Avancement du projet](#12-avancement-du-projet)
 13. [Dépannage](#13-dépannage)
 
+Sections complémentaires : [1 bis. Marque et tarifs](#1-bis-marque-et-tarifs) ·
+[1 ter. Typographie et logos de paiement](#1-ter-typographie-et-logos-de-paiement) ·
+[1 quater. Fonctionnalités pro](#1-quater-fonctionnalités-ajoutées-passe--plus-professionnel-) ·
+[1 quinquies. Boutique : supports imprimés](#1-quinquies-boutique--supports-imprimés)
+
 ---
 
 ## 1. Fonctionnalités
@@ -67,6 +72,9 @@ soit **sur place** (à table) ou **à emporter**.
   réinitialisation d'un mot de passe (affiché une seule fois), retrait d'un membre.
 - **Paiements** : file « à valider » rafraîchie toutes les 4 s, validation manuelle en un clic,
   montants encaissés du jour, et rappel des numéros mobile money (`/dashboard/parametres#paiements`).
+- **Boutique** : supports imprimés autour du menu QR (chevalets, stickers, sous-bocks, sets de table,
+  affiche, pack complet) avec prix dégressifs en FCFA, composition du tirage (quantité, options),
+  panier, envoi de la demande et historique des devis référencés (`MP-…`).
 - **Paramètres** : nom, logo, couleur principale, adresse, téléphone, horaires, devise.
 
 ### Service — serveur et cuisine (`/service`)
@@ -85,6 +93,8 @@ soit **sur place** (à table) ou **à emporter**.
 - Activation / suspension d'un établissement (l'accès est coupé immédiatement, même pour les
   sessions déjà ouvertes ; la carte publique renvoie alors une page « établissement indisponible »).
 - Dernières commandes de la plateforme, pour le support.
+- **Boutique** : nombre de tirages commandés, montant total et liste des derniers devis par
+  établissement (chevalets, stickers, packs), avec leur statut.
 - Formules : **À activer** (20 plats, 5 tables, 3 comptes) et **Pro** (illimité) — 9 900 / 19 900 FCFA.
 - **PWA installable** : manifeste, service worker, icônes PNG (192/512/maskable) et page
   `/hors-ligne` servie quand le réseau tombe.
@@ -168,6 +178,38 @@ sans erreur, **65/65 vérifications Playwright** (`/home/user/qa/verif-nouveaute
 avec le logo au centre. Aucune erreur console, aucun débordement horizontal en 390 px.
 
 ---
+
+## 1 quinquies. Boutique : supports imprimés
+
+Le restaurateur n'imprime pas seulement des PDF : il peut commander les **supports physiques** qui
+portent ses QR codes. C'est la partie « logistique » du produit, pensée pour le marché ivoirien :
+pas de passerelle de paiement, un devis confirmé par WhatsApp.
+
+| Support | Tirage minimum | Prix de départ | Paliers dégressifs |
+| --- | --- | --- | --- |
+| Chevalet de table en plexiglas A6 | 1 ex. | 4 500 FCFA / unité | 4 000 dès 10 ex. · 3 500 dès 25 ex. |
+| Stickers ronds autocollants Ø 5 cm | 10 ex. | 500 FCFA / unité | 400 dès 50 ex. · 330 dès 100 ex. |
+| Sous-bocks QR en carton 400 g | 25 ex. | 350 FCFA / unité | 280 dès 100 ex. · 230 dès 250 ex. |
+| Set de table papier 30 × 42 cm | 50 ex. | 250 FCFA / unité | 200 dès 200 ex. · 165 dès 500 ex. |
+| Affiche A3 plastifiée | 1 ex. | 6 000 FCFA / unité | 5 200 dès 5 ex. · 4 500 dès 10 ex. |
+| Pack complet « Maquis 10 tables » | 1 lot | 78 000 FCFA | 71 000 dès 3 lots |
+
+Chaque article propose des **options payantes** (logo en couleur, découpe à la forme, recto-verso,
+ventouses, passage en A2, cartes de rechange…). Le prix unitaire baisse automatiquement selon la
+quantité, et un message indique le palier suivant (« Passez à 50 ex. et le prix tombe à 400 FCFA »).
+
+Côté technique :
+
+- le catalogue vit dans `lib/boutique.ts` — **source de vérité unique**, utilisée à l'affichage
+  comme au calcul du prix ;
+- `lib/actions/boutique.ts` **recalcule tout** (prix unitaire, options, total) à partir de ce
+  catalogue : un panier bricolé dans le navigateur est systématiquement remplacé par les vrais
+  tarifs (vérifié par les tests) ;
+- les tirages minimaux et maximaux sont contrôlés par article, les options inconnues refusées ;
+- la commande reçoit une **référence lisible** (`MP-2607-4F3A`) et apparaît dans l'historique du
+  restaurant comme dans le tableau super-admin ;
+- l'envoi propose un **message WhatsApp pré-rempli** (détail des supports, total, adresse) pour
+  transmettre la demande à l'équipe Mesplats.
 
 ## 2. Stack technique
 
@@ -628,8 +670,18 @@ Le projet est construit par étapes, chacune vérifiée avant de passer à la su
   badges de comptage, appel client en évidence, statuts en un clic, refus motivé, « marquer payé ».
   La cuisine ne peut ni refuser ni encaisser (contrôle côté serveur **et** interface).
 - **Journal, équipe, paiements, super-admin, PWA** : voir les tableaux ci-dessus.
-- **Vérifications automatisées** : `65/65` pour la passe « fonctionnalités », **`63/63`** pour le flux
-  de commande de bout en bout (`qa/verif-commandes.mjs`), QR codes revalidés par ZXing.
+- **Vérifications automatisées** : `65/65` pour la passe « fonctionnalités », `63/63` pour le flux de
+  commande de bout en bout (`qa/verif-commandes.mjs`) et **`41/41`** pour la boutique
+  (`qa/verif-boutique.mjs`), QR codes revalidés par ZXing.
+
+**Lot « Boutique » (supports imprimés)**
+
+- Catalogue de 6 supports illustrés (photos de catalogue) avec prix dégressifs par palier et options.
+- Fiche « Composez votre tirage » : quantité au pas conseillé, paliers mis en évidence, total détaillé.
+- Panier en session, formulaire de livraison pré-rempli avec les coordonnées du restaurant,
+  envoi de la demande, référence `MP-…`, historique des devis et tuile de suivi côté super-admin.
+- Nouvelle table `boutique_orders` (migration `drizzle/0003_*.sql`) : articles et prix **figés** en
+  JSON dans la commande, référence unique, statut (`nouvelle` → `expediee`).
 
 **Étape 1 — ce qui est livré et vérifié**
 

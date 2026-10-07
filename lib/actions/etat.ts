@@ -38,3 +38,16 @@ export type EtatCommande = EtatFormulaire & {
 };
 
 export const etatCommandeInitial: EtatCommande = { ok: false };
+
+/**
+ * État renvoyé par `commanderSupports` (Boutique) : au-delà des messages, la
+ * commande créée transmet sa référence, son total recalculé en base et le lien
+ * WhatsApp pré-rempli pour la transmettre à l'équipe Mesplats.
+ */
+export type EtatBoutique = EtatFormulaire & {
+  reference?: string;
+  total?: number;
+  lienWhatsApp?: string;
+};
+
+export const etatBoutiqueInitial: EtatBoutique = { ok: false };

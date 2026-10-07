@@ -60,6 +60,18 @@ export const LIBELLES_PLAN: Record<Plan, string> = {
   pro: "Pro",
 };
 
+/** États d'une commande de supports imprimés (boutique Mesplats). */
+export const STATUTS_BOUTIQUE = ["nouvelle", "confirmee", "en_production", "expediee", "annulee"] as const;
+export type StatutBoutique = (typeof STATUTS_BOUTIQUE)[number];
+
+export const LIBELLES_STATUT_BOUTIQUE: Record<StatutBoutique, string> = {
+  nouvelle: "À confirmer",
+  confirmee: "Confirmée",
+  en_production: "En production",
+  expediee: "Expédiée",
+  annulee: "Annulée",
+};
+
 /** Types de commande */
 export const TYPES_COMMANDE = ["sur_place", "emporter"] as const;
 export type TypeCommande = (typeof TYPES_COMMANDE)[number];

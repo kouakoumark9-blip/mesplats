@@ -29,6 +29,7 @@ import {
   PLANS,
   ROLES,
   STATUTS,
+  STATUTS_BOUTIQUE,
   TYPES_COMMANDE,
 } from "@/lib/constants";
 
@@ -43,6 +44,7 @@ export const statutCommandeEnum = pgEnum("statut_commande", STATUTS);
 export const modePaiementEnum = pgEnum("mode_paiement", MODES_PAIEMENT);
 export const paiementStatutEnum = pgEnum("paiement_statut", PAIEMENT_STATUTS);
 export const operateurEnum = pgEnum("operateur", OPERATEURS);
+export const statutBoutiqueEnum = pgEnum("statut_boutique", STATUTS_BOUTIQUE);
 
 /* -------------------------------------------------------------------------- */
 /*                                Restaurants                                 */
@@ -309,11 +311,57 @@ export const paymentMethods = pgTable(
 );
 
 /* -------------------------------------------------------------------------- */
+/*                     Boutique : supports imprimés du menu                   */
+/* -------------------------------------------------------------------------- */
+
+/** Option choisie sur un article de la boutique, figée dans la commande. */
+export type OptionBoutiqueCommande = { nom: string; prix: number };
+
+/** Article d'une commande de supports (nom et prix figés à la commande). */
+export type ArticleBoutiqueCommande = {
+  articleId: string;
+  nom: string;
+  quantite: number;
+  prixUnitaire: number;
+  options: OptionBoutiqueCommande[];
+};
+
+export const boutiqueOrders = pgTable(
+  "boutique_orders",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    /** Référence lisible affichée au restaurant : MP-2607-4F3A. */
+    reference: text("reference").notNull().unique(),
+    restaurantId: uuid("restaurant_id")
+      .notNull()
+      .references(() => restaurants.id, { onDelete: "cascade" }),
+    /** Articles commandés : nom, quantité, prix unitaire et options figés. */
+    articles: jsonb("articles").$type<ArticleBoutiqueCommande[]>().notNull(),
+    /** Total recalculé côté serveur à partir du catalogue (en FCFA). */
+    total: integer("total").notNull(),
+    nomClient: text("nom_client").notNull(),
+    telephoneClient: text("telephone_client").notNull(),
+    /** Adresse de livraison (rue, repère, quartier). */
+    adresse: text("adresse").notNull(),
+    ville: text("ville").notNull(),
+    note: text("note"),
+    statut: statutBoutiqueEnum("statut").notNull().default("nouvelle"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("boutique_orders_restaurant_idx").on(t.restaurantId, t.createdAt),
+    index("boutique_orders_statut_idx").on(t.statut),
+  ],
+);
+
+/* -------------------------------------------------------------------------- */
 /*                                 Relations                                  */
 /* -------------------------------------------------------------------------- */
 
 export const restaurantsRelations = relations(restaurants, ({ many }) => ({
   users: many(users),
+  boutiqueOrders: many(boutiqueOrders),
   categories: many(categories),
   products: many(products),
   tables: many(tables),
@@ -386,6 +434,13 @@ export const orderItemsRelations = relations(orderItems, ({ one }) => ({
   }),
 }));
 
+export const boutiqueOrdersRelations = relations(boutiqueOrders, ({ one }) => ({
+  restaurant: one(restaurants, {
+    fields: [boutiqueOrders.restaurantId],
+    references: [restaurants.id],
+  }),
+}));
+
 export const paymentMethodsRelations = relations(paymentMethods, ({ one }) => ({
   restaurant: one(restaurants, {
     fields: [paymentMethods.restaurantId],
@@ -408,3 +463,5 @@ export type Table = typeof tables.$inferSelect;
 export type Commande = typeof orders.$inferSelect;
 export type LigneCommande = typeof orderItems.$inferSelect;
 export type MoyenPaiement = typeof paymentMethods.$inferSelect;
+export type CommandeBoutique = typeof boutiqueOrders.$inferSelect;
+export type NouvelleCommandeBoutique = typeof boutiqueOrders.$inferInsert;
